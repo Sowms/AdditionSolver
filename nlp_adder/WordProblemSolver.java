@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Veronica owns 12 cats and 17 dogs. Maurice had 16 dogs. He sells 3 dogs to Veronica. How many cats are there in all if Maurice owns 1 cat?", pipeline);
+		solveWordProblems("Henry gave 5 stickers to Sarah. Now he only has 9 stickers. How many stickers was with Henry?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

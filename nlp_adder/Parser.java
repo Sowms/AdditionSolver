@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +59,7 @@ public class Parser {
             for(int i = cm.startIndex-1; i < cm.endIndex-1; i++)
                 clust += tks.get(i).get(TextAnnotation.class) + " ";
             clust = clust.trim();
-            //System.out.println("representative mention: \"" + clust + "\" is mentioned by:");
+            System.out.println("representative mention: \"" + clust + "\" is mentioned by:");
             for(CorefMention m : c.getMentionsInTextualOrder()){
                 String clust2 = "";
                 tks = document.get(SentencesAnnotation.class).get(m.sentNum-1).get(TokensAnnotation.class);
@@ -68,7 +69,7 @@ public class Parser {
                 //don't need the self mention
                 if(clust.equals(clust2))
                     continue;
-                //System.out.println("\t" + clust2 + tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class));
+                System.out.println("\t" + clust2 + tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class));
                 if (tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class).startsWith("P"))
                 	coref.put(clust2, clust);
             }
@@ -118,12 +119,12 @@ public class Parser {
 	    			for (; j<constituents.length; j++) {
 	    				Pattern wordPattern = Pattern.compile("[A-Za-z0-9]+");
 						Matcher matcher = wordPattern.matcher(constituents[j]);
-	    				if (parenthesisStack.isEmpty() || constituents[j].contains("(S") || constituents[j].contains("(,")){ 
+						if (parenthesisStack.isEmpty()){ 
 	    					break;
 	    				}
 	    				if (matcher.find()) {
 	    					String candidate = matcher.group();
-							if (candidate.equals("and")) {
+							if (candidate.equals("and") || candidate.equals("if")) {
 								tempFinal = tempFinal + "mmmm";
 								tempInitial = new String(initialPart + " " + finalPart);
 								pos = j+1;
@@ -187,5 +188,12 @@ public class Parser {
 	    
 	    	    
 	    return ans;
+	}
+	
+	public static void main(String[] args) {
+		Properties props = new Properties();
+	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
+	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+		System.out.println(parse("Ned took a shortcut on the way home which was only 5 miles long",pipeline));
 	}
 }

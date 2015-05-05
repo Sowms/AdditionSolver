@@ -41,7 +41,6 @@ public class SentencesAnalyzer {
 	private final String POS_MOD = "JJ";
 	private final String POS_VBN = "VBN";
 	private final String POS_NUMBER = "CD";
-	private final String POS_QUES = "W";
 	private final String POS_NOUN = "NN";
 	
 	private final String PARSER_NUMBER = "num";
@@ -62,6 +61,7 @@ public class SentencesAnalyzer {
 	private LinkedHashSet<String> entities = new LinkedHashSet<String>();
 	private LinkedHashSet<String> owners = new LinkedHashSet<String>();
 	private ArrayList<String> aggregators = new ArrayList<String>();
+	private ArrayList<String> differences = new ArrayList<String>();
 	
 	public SentencesAnalyzer() {
 		keywordMap.put("put", CHANGE_OUT);
@@ -74,12 +74,18 @@ public class SentencesAnalyzer {
 		keywordMap.put("take", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("lose", REDUCTION);
+		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("more", INCREASE);
 		
 		aggregators.add("together");
-		aggregators.add("in total");
+		aggregators.add("total");
 		aggregators.add("in all");
+		aggregators.add("sum");
+		
+		differences.add("left");
+		differences.add("remaining");
+		differences.add("difference");
 	}
 	
 	public LinguisticInfo extract(String simplifiedProblem, StanfordCoreNLP pipeline) {
@@ -108,7 +114,7 @@ public class SentencesAnalyzer {
 		    	}
 			}
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-	    	////System.out.println(dependencies);
+	    	//system.out.println(dependencies);
 	    	ArrayList<SemanticGraphEdge> edges = (ArrayList<SemanticGraphEdge>) dependencies.edgeListSorted();
 	    	preprocessedSteps.addAll(processDependencies(sentence, edges, tense, keyword));
 	    }
@@ -126,6 +132,7 @@ public class SentencesAnalyzer {
     	String owner1 = "", owner2 = "";
     	boolean isQuestion = false;
     	Entity newEntity = new Entity();
+    	//system.out.println(edges);
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
@@ -198,7 +205,7 @@ public class SentencesAnalyzer {
     	    	prevWord = word;
     	    	prevLemma = lemma;
     		}
-    		////System.out.println("q"+questionOwner);
+    		//////system.out.println("q"+questionOwner);
     		if (questionOwner.equals(DUMMY))
     			questionOwner = "";
     		
@@ -216,15 +223,24 @@ public class SentencesAnalyzer {
 				if (sentence.toString().contains(aggregator))
 					s.aggregator = true;	
 			}
+			s.comparator = false;
+			if (sentence.toString().contains("more"))
+				s.comparator = true;
+			s.difference = false;
+			for (String difference : differences) {
+				if (sentence.toString().contains(difference))
+					s.difference = true;	
+			}
+			//system.out.println("q" + owner1 + "|" + owner2);
 			steps.add(s);
     	}
 		else {
-			////System.out.println("b"+entities);
+			//system.out.println("b"+entities);
 			for (Entity e : sentenceEntities) {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
 				tempEntity.name = e.name;
-				//System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
+				//system.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				if ((entities.contains(owner1) || entities.contains(owner2)) && !e.name.isEmpty() && (!entities.contains(e.name) || !owners.contains(e.name))) {
 					if (entities.contains(owner1) && !entities.contains(e.name)) {
 						String entity = owner1;
@@ -236,6 +252,7 @@ public class SentencesAnalyzer {
 						tempEntity.name = entity;
 					}
 				}
+				//system.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				LinguisticStep s = new LinguisticStep();
 				s.owner1 = owner1;
 				s.owner2 = owner2;

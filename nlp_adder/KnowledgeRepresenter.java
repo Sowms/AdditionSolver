@@ -51,7 +51,7 @@ public class KnowledgeRepresenter {
 	static String altogetherEquation = "";
 	static String finalAns = "";
 	
-	static boolean processFurther = true;
+	static boolean isQuestionAggregator = false;
 
 	static ArrayList<Timestamp> story = new ArrayList<Timestamp>();
 	static LinkedHashSet<String> entities = new LinkedHashSet<String>();
@@ -70,7 +70,7 @@ public class KnowledgeRepresenter {
 		timeStep = 0;
 		varCount = 1;
 		unknownCounter = 0;
-		processFurther = false;
+		isQuestionAggregator = false;
 		
 		questionTime = -1;
 		questionEntity = "";
@@ -105,9 +105,7 @@ public class KnowledgeRepresenter {
 		if (currentState.ownedEntities.containsKey(newEntity.name)) {
 			String existingValue = currentState.ownedEntities.get(newEntity.name);
 			if (existingValue.contains(X_VALUE) && !newEntity.value.contains(X_VALUE)) {
-				////System.out.println("e"+existingValue);
-				if (existingValue.contains("+")) {
-					////System.out.println(existingValue);
+				if (existingValue.contains("+") || existingValue.contains("-")) {
 					Pattern varPattern = Pattern.compile(VAR_PATTERN);
 					Matcher varMatcher = varPattern.matcher(existingValue);
 					if (varMatcher.find()) {
@@ -179,7 +177,7 @@ public class KnowledgeRepresenter {
 			owner2 = UNKNOWN + (unknownCounter++);
 		}
 		// There is no keyword here, an entity has been assigned a value
-		////System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value);
+		//System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value);
 		if (keyword.isEmpty() && newEntity.name != null) {
 			////System.out.println(keyword+"|"+owner1+"|"+owner2+"|"+newEntity.name+"|"+newEntity.value+"|"+entities);
 			if (entities.contains(owner1))
@@ -213,13 +211,18 @@ public class KnowledgeRepresenter {
 			addOwner(owner2, newEntity.name);
 			oldValue2 = story.get(timeStep).situation.get(owner2).ownedEntities.get(newEntity.name);
 		}
+		String newName1 = "", newName2 = "";
 		if (oldValue1 == null) {
-			oldValue1 = resolveNullEntity(owner1,newEntity.name);
+			Entity correctEntity = resolveNullEntity(owner1,newEntity.name);
+			oldValue1 = correctEntity.value;
+			newName1 = correctEntity.name;
 		}
 		if (oldValue2 == null) {
-			oldValue2 = resolveNullEntity(owner2,newEntity.name);
+			Entity correctEntity = resolveNullEntity(owner2,newEntity.name);
+			oldValue2 = correctEntity.value;
+			newName2 = correctEntity.name;
 		}
-		
+		//System.out.println("n"+newName1+newName2);
 		if (procedure.contains(CHANGE)) {
 			timeStep++;
 			tense = "";
@@ -241,10 +244,14 @@ public class KnowledgeRepresenter {
 			String owner;
 			if (i == 0) {
 				owner = owner1;
+				if (!newName1.isEmpty() && !newName1.equals(modifiedEntity.name))
+					modifiedEntity.name = newName1;
 			} else {
 				owner = owner2;
+				if (!newName2.isEmpty() && !newName2.equals(modifiedEntity.name))
+					modifiedEntity.name = newName2;
 			}
-			////System.out.println("eee"+owner+"|"+modifiedEntity.name+"|"+modifiedEntity.value);
+			//System.out.println("eee"+owner+"|"+modifiedEntity.name+"|"+modifiedEntity.value);
 			updateTimestamp(owner, modifiedEntity, tense);
 		}
 		inertia();
@@ -298,22 +305,29 @@ public class KnowledgeRepresenter {
 		}
 	}
 	
-	private static String resolveNullEntity(String owner, String name) {
+	private static Entity resolveNullEntity(String owner, String name) {
 		HashMap<String,String> entities = story.get(timeStep).situation.get(owner).ownedEntities;
+		Entity answer = new Entity();
 		Iterator<Map.Entry<String, String>> it1 = entities.entrySet().iterator();
 		String sum = "";
 		while (it1.hasNext()) {
 			Map.Entry<String, String> newPairs = it1.next();
-			if (newPairs.getKey().contains(name))
-				sum = sum + "+" + newPairs.getValue();
+			if (newPairs.getKey().contains(name)) {
+				answer.name = newPairs.getKey();
+				sum = newPairs.getValue();
+			}
 		}
-		////System.out.println(sum);
-		if (!sum.isEmpty())
-			return sum;
+		answer.value = sum;
+		//System.out.println("s"+sum);
+		if (!sum.isEmpty()) 
+			return answer;
+		answer.name = name;
 		addOwner(owner,name);
-		if (story.get(timeStep).situation.get(owner).ownedEntities.get(name) != null)
-			return story.get(timeStep).situation.get(owner).ownedEntities.get(name);
-		return "";
+		if (story.get(timeStep).situation.get(owner).ownedEntities.get(name) != null) {
+			answer.value = story.get(timeStep).situation.get(owner).ownedEntities.get(name);
+			return answer;
+		}
+		return new Entity();
 	}
 
 	private static void addOwner(String owner, String name) {
@@ -325,11 +339,13 @@ public class KnowledgeRepresenter {
 			if (iSituation.containsKey(owner)) {
 				newState = iSituation.get(owner);
 				ownedEntities = newState.ownedEntities;
+				//""
 			}
 			newState.owner = owner;
 			ownedEntities.put(name, varName);
 			newState.ownedEntities = ownedEntities;
 			////System.out.println(owner + "|" + ownedEntities);
+			//sdgfg
 			iSituation.put(owner, newState);
 			story.get(i).situation = iSituation;
 		}
@@ -345,12 +361,15 @@ public class KnowledgeRepresenter {
 			Entity currentEntity = new Entity();
 			currentEntity.name = ls.entityName;
 			currentEntity.value = ls.entityValue;
-			////System.out.println(ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense);
+			//System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense);
 			if (ls.isQuestion) {
 				questionOwner = ls.owner1;
 				questionEntity = ls.entityName;
-				questionTime = timeStep;
-				processFurther = processQuestion(ls);
+				if (ls.tense.equals("past"))
+					questionTime = 0;
+				else
+					questionTime = timeStep;
+				isQuestionAggregator = ls.aggregator;
 				continue;
 			}
 			reflectChanges(ls.owner1, ls.owner2, currentEntity, ls.keyword, ls.procedureName, ls.tense);
@@ -359,11 +378,13 @@ public class KnowledgeRepresenter {
 		
 	}
 	
-	private static boolean processQuestion(LinguisticStep ls) {
-		System.out.println("ques|"+questionOwner+"|"+questionEntity+"|");
+	
+	public static void solve() {
+		
+		//System.out.println("ques|"+questionOwner+"|"+questionEntity+"|"+isQuestionAggregator);
 		if (questionOwner.isEmpty()) {
 			System.out.println("ques|"+questionOwner+"|"+questionEntity+"|");
-			if (ls.aggregator) {
+			if (isQuestionAggregator) {
 				Timestamp t = story.get(timeStep);
 				Iterator<Map.Entry<String, State>> it = t.situation.entrySet().iterator();
 				String sum = "";
@@ -374,7 +395,7 @@ public class KnowledgeRepresenter {
 					 while (it1.hasNext()) {
 						Map.Entry<String, String> newPairs = it1.next();
 						System.out.println(questionEntity+"|"+newPairs.getKey());
-						if (!questionEntity.isEmpty() && !questionEntity.equals(newPairs.getKey()) && entities.contains(questionEntity))
+						if (!questionEntity.isEmpty() && !questionEntity.equals(newPairs.getKey()) && entities.contains(questionEntity) && !newPairs.getKey().contains(questionEntity))
 							continue;
 						sum = sum + "+" + newPairs.getValue();
 					 }
@@ -390,7 +411,7 @@ public class KnowledgeRepresenter {
 				else
 					finalAns = "Altogether " + ans + " " + questionEntity;
 				////System.out.println("false");
-				return false;
+				return;
 			}
 		}
 		else if (questionEntity.isEmpty()) {
@@ -400,8 +421,8 @@ public class KnowledgeRepresenter {
 			while (it1.hasNext()) {
 			     Map.Entry<String, String> newPairs = it1.next();
 			     sum = sum + "+" + newPairs.getValue();
-			     if (!ls.aggregator) {
-			    	 String ans = sum;
+			     if (!isQuestionAggregator) {
+			    	String ans = sum;
 					if (ans.contains(X_VALUE)) {
 						//System.out.println("Cannot be solved!");
 						//System.out.println("Assuming initial conditions");
@@ -416,7 +437,7 @@ public class KnowledgeRepresenter {
 			     }
 			}	
 			////System.out.println("aaa"+sum);
-			if (ls.aggregator) {
+			if (isQuestionAggregator) {
 				String ans = sum;
 				if (ans.contains(X_VALUE)) {
 					//System.out.println("Cannot be solved!");
@@ -430,9 +451,9 @@ public class KnowledgeRepresenter {
 				else
 					finalAns = questionOwner + " has " + ans;
 			}
-			return false;
+			return;
 		}
-		if (ls.aggregator && questionOwner.isEmpty() && questionEntity.isEmpty()) {
+		if (isQuestionAggregator && questionOwner.isEmpty() && questionEntity.isEmpty()) {
 			Timestamp t = story.get(timeStep);
 			Iterator<Map.Entry<String, State>> it = t.situation.entrySet().iterator();
 			String sum = "";
@@ -447,47 +468,37 @@ public class KnowledgeRepresenter {
 				 }
 			}	
 			finalAns = "Altogether " + EquationSolver.getSolution(sum);
-			return false;
+			return;
 		}
-		
-		
-		return true;	 
-	}
-	
-	public static void solve() {
-		if (processFurther) {
-			////System.out.println(questionTime + "|" + questionOwner + "|" + questionEntity);
-			String ans;
-			if (questionEntity.isEmpty()) {
-				Map<String,String> entities = story.get(questionTime).situation.get(questionOwner).ownedEntities;
-				ans = entities.entrySet().iterator().next().getValue();
-				questionEntity = entities.entrySet().iterator().next().getKey();
-			}
-			else
-				ans = story.get(questionTime).situation.get(questionOwner).ownedEntities.get(questionEntity);
-			if (ans == null) {
-				Map<String,String> entities = story.get(questionTime).situation.get(questionOwner).ownedEntities;
-				Iterator<Map.Entry<String, String>> it1 = entities.entrySet().iterator();
-				String sum = "";
-				while (it1.hasNext()) {
-					Map.Entry<String, String> newPairs = it1.next();
-					if (newPairs.getKey().contains(questionEntity))
-						sum = sum + "+" + newPairs.getValue();
-				}	
-				ans = sum;
-			}
-			////System.out.println("a"+ans);
-			if (ans.contains(X_VALUE)) {
-				////System.out.println("Cannot be solved!");
-				////System.out.println("Assuming initial conditions");
-				ans = ans.replaceFirst(VAR_PATTERN, "");
-			}
-			////System.out.println("--");
-			if (ans.contains("+") || ans.contains("-"))
-				finalAns = questionOwner + " has " + EquationSolver.getSolution(ans) + " " + questionEntity;
-			else
-				finalAns = questionOwner + " has " + ans + " " + questionEntity;
-
+		String ans;
+		if (questionEntity.isEmpty()) {
+			Map<String,String> entities = story.get(questionTime).situation.get(questionOwner).ownedEntities;
+			ans = entities.entrySet().iterator().next().getValue();
+			questionEntity = entities.entrySet().iterator().next().getKey();
 		}
+		else
+			ans = story.get(questionTime).situation.get(questionOwner).ownedEntities.get(questionEntity);
+		if (ans == null) {
+			Map<String,String> entities = story.get(questionTime).situation.get(questionOwner).ownedEntities;
+			Iterator<Map.Entry<String, String>> it1 = entities.entrySet().iterator();
+			String sum = "";
+			while (it1.hasNext()) {
+				Map.Entry<String, String> newPairs = it1.next();
+				if (newPairs.getKey().contains(questionEntity))
+					sum = sum + "+" + newPairs.getValue();
+			}	
+			ans = sum;
+		}
+		////System.out.println("a"+ans);
+		if (ans.contains(X_VALUE)) {
+			////System.out.println("Cannot be solved!");
+			////System.out.println("Assuming initial conditions");
+			ans = ans.replaceFirst(VAR_PATTERN, "");
+		}
+		////System.out.println("--");
+		if (ans.contains("+") || ans.contains("-"))
+			finalAns = questionOwner + " has " + EquationSolver.getSolution(ans) + " " + questionEntity;
+		else
+			finalAns = questionOwner + " has " + ans + " " + questionEntity;
 	}
 }
