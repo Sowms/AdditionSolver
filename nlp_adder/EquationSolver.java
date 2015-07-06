@@ -12,7 +12,10 @@ public class EquationSolver {
 		try {
 			ScriptEngineManager mgr = new ScriptEngineManager();
 			ScriptEngine engine = mgr.getEngineByName("JavaScript");
+			System.out.println(input);
+			input = input.replace("++", "+");
 			if (!input.contains("x")) {
+				System.out.println(input);
 				answer = "" + engine.eval(input);
 			} else {
 				String[] components = input.split("=");
@@ -24,23 +27,27 @@ public class EquationSolver {
 					process = lhs;
 				else
 					process = rhs;
-				int xpos = lhs.indexOf('x');
-				if (xpos > 0 && lhs.charAt(xpos - 1) == '-')
+				int xpos = process.indexOf('x');
+				if (xpos > 0 && process.charAt(xpos - 1) == '-')
 					isNegative = true;
 				String newProcess = process.replaceAll("[\\+-]*x", "");
 				double lhsValue, rhsValue, ans;
+				//System.out.println(lhs + "|" + process + "|" + rhs + "|" + newProcess);
 				if (process.equals(lhs)) {
 					lhsValue = (double) engine.eval(newProcess);
 				    rhsValue = (double) engine.eval(rhs);
 				    ans = rhsValue - lhsValue;
+				    //System.out.println(lhsValue + "|" + rhsValue + "|" + ans);
 				} else {
-					rhsValue = (double) engine.eval(process);
+					rhsValue = (double) engine.eval(newProcess);
 				    lhsValue = (double) engine.eval(lhs);
-				    ans = lhsValue - lhsValue;
+				    ans = lhsValue - rhsValue;
+				    //System.out.println(lhsValue + "|" + rhsValue + "|" + ans);
 				}
 				if (isNegative)
 					ans = -ans;
 				answer = "" + ans;
+				//System.out.println(answer);
 			}
 		} catch (ScriptException e) {
 		e.printStackTrace();

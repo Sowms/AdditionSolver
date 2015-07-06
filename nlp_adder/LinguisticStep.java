@@ -11,5 +11,7 @@ public class LinguisticStep {
 	String entityName;
 	String entityValue;
 	String tense;
+	String nounQual;
+	String verbQual;
 	String procedureName;
 }

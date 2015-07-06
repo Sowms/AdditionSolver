@@ -1,0 +1,15 @@
+type(give,reduction).
+type(get,increase).
+
+holdsAt(P,V,Num,Obj,T) :- initially(P,V,Num,Obj), not(clipped(0,P,V,Num,Obj,T)).
+holdsAt(P,V,Num,Obj,T2) :- happens(P1,Act,Num1,Obj,P2,T1), T1 < T2, initiates(P1,Act,Num1,Obj,P2,P,V,Num,Obj,T1),  not(clipped(T1,P,V,Num,Obj,T2)).
+holdsAt(P,V,Ans,Obj,T2) :- happens(P1,Act,Num1,Obj,P2,T1), T2 is T1 - 1, initiates(P1,Act,Num1,Obj,P2,P,V,Num,Obj,T1),  type(Act,reduction), Ans is Num1+Num. 
+clipped(T1,P,V,Num,Obj,T2) :- happens(P1,Act,Num1,Obj,P2,T), T1 < T, T < T2, terminates(P1,Act,Num1,Obj,P2,P,V,Num,Obj,T).
+
+initially(john,has,0,apple).
+happens(john,give,1,apple,mary,1).
+initiates(john,give,1,apple,mary,john,has,2,apple,1).
+
+terminates(P1,Act,Num1,Obj,P2,P1,V,NumAns,Obj,T1) :- type(Act,X).
+initiates(P1,Act,Num1,Obj,P2,P1,V,NumAns,Obj,T1) :- holdsAt(P1,V,NumOld,Obj,T1), T2 is T1 + 1, type(Act,reduction), number(NumOld), NumAns is NumOld - Num1.
+initiates(P1,Act,Num1,Obj,P2,P1,V,NumAns,Obj,T1) :- holdsAt(P1,V,NumOld,Obj,T1), T2 is T1 + 1, type(Act,increase), NumAns is NumOld + Num1.

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Henry gave 5 stickers to Sarah. Now he only has 9 stickers. How many stickers was with Henry?", pipeline);
+		solveWordProblems("Sandy grew 6 carrots . Sam grew 3 carrots . How many carrots did they grow in total ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
