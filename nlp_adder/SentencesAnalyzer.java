@@ -71,6 +71,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("get", CHANGE_IN);
+		keywordMap.put("carry", INCREASE);
 		keywordMap.put("buy", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
@@ -92,6 +93,7 @@ public class SentencesAnalyzer {
 		
 		differences.add("left");
 		differences.add("remaining");
+		differences.add("over");
 		differences.add("difference");
 		
 		comparators.add("more");
@@ -123,7 +125,7 @@ public class SentencesAnalyzer {
 		    			tense = PRESENT;
 		    		////////System.out.println(pos+"|"+tense);
 		    		if (keywordMap.containsKey(lemma)) {
-		    			if (!lemma.equals("more")) 
+		    			if (!lemma.equals("more") && lemma.equals(verb)) 
 		    				keyword = lemma;
 		    			else if (sentence.toString().contains("more than")) 
 		    				keyword = "more than";
@@ -140,6 +142,7 @@ public class SentencesAnalyzer {
 	    }
 	    LinguisticInfo problemInfo = new LinguisticInfo();
 	    problemInfo.entities = entities;
+	    problemInfo.owners = owners;
 	    problemInfo.sentences = preprocessedSteps;
 		return problemInfo;
 	}
@@ -219,13 +222,14 @@ public class SentencesAnalyzer {
     		
     	}
 		if (sentence.toString().contains("some") || sentence.toString().contains("several") || sentence.toString().contains("few")) {
+		    if(!entities.isEmpty()) {
 			for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
 		    	String lemma = token.get(LemmaAnnotation.class);
 		    	if (entities.contains(lemma))
     				newEntity.name = lemma;
     		}
     		newEntity.value = "some";
-    		sentenceEntities.add(newEntity);
+    		sentenceEntities.add(newEntity);}
 		}
 		
 		if (newEntity.value == null) {
@@ -317,7 +321,7 @@ public class SentencesAnalyzer {
 						tempEntity.name = entity;
 					}
 				}
-				//////System.err.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
+				System.err.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				LinguisticStep s = new LinguisticStep();
 				s.owner1 = owner1;
 				if (entities.contains(owner2)) {
@@ -336,6 +340,8 @@ public class SentencesAnalyzer {
 				s.tense = tense;
 				if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 					verb = "has";
+				System.out.println(s.tense+"|"+verb);
+				
 				s.verbQual = verb;
 				s.entityName = tempEntity.name;
 				s.entityValue = tempEntity.value;

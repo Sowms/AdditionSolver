@@ -87,8 +87,8 @@ public class Parser {
 		    				ans = ans + possibleEntities.get(0)+" ";
 		    		}
 		    	}
-		    //	if (pos.contains("VB") && possibleEntities.contains(tokens.get(tokens.indexOf(token)+1).get(LemmaAnnotation.class)))
-		    	//	ans = ans + "some ";
+		    	if (pos.contains("VB") && possibleEntities.contains(tokens.get(tokens.indexOf(token)+1).originalText()))
+		    		ans = ans + "some ";
 	     	}
 	    }
 	    ////System.err.println(ans);

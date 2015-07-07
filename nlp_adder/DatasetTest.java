@@ -43,14 +43,14 @@ public class DatasetTest {
 		int counter = 400;
 		try {
 			builder = builderFactory.newDocumentBuilder();
-			Document document = builder.parse(new FileInputStream("arithmeticquestions.xml"));
+			Document document = builder.parse(new FileInputStream("nodecimal.xml"));
 			Element rootElement = document.getDocumentElement();
 			NodeList nodes = rootElement.getElementsByTagName("Worksheet");
 			Properties props = new Properties();
 		    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
-		    BufferedWriter br = new BufferedWriter(new FileWriter("output"));
+		    BufferedWriter br = new BufferedWriter(new FileWriter("output1"));
 		    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		    int total = 0, count = 0;
+		    int total = 0, count = 0, nocount = 0;
 			for (int i = 0; i < nodes.getLength(); i++){
 				Node node = nodes.item(i);
 				if (node instanceof Element){
@@ -76,8 +76,9 @@ public class DatasetTest {
 							if (checkAns(sysAns,ans))
 								count++;
 							else{
+								nocount++;
 								System.err.println(sysAns+"|"+ans);
-								br.write(ques);
+								br.write(nocount + ". " + ques);
 								br.write("\n"+sysAns+"|"+ans+"\n");
 							}
 						}

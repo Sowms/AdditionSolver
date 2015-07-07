@@ -27,7 +27,7 @@ public class KRDriver {
 						extractedInformation.sentences = steps;
 						extractedInformation.entities = new LinkedHashSet<String>();
 						KnowledgeRepresenter.clear();
-						KnowledgeRepresenter.represent(extractedInformation);
+						KnowledgeRepresenter.represent(extractedInformation,"");
 						KnowledgeRepresenter.solve();
 						System.out.println(KnowledgeRepresenter.finalAns);
 						System.err.println("-----------------------");

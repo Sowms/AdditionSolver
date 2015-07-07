@@ -67,6 +67,7 @@ public class KnowledgeRepresenter {
 	static String questionVerb = "";
 	static String equalityEquation = "";	
 	static String finalAns = "";
+	static String question = "";
 	
 	static boolean isQuestionAggregator = false;
 	static boolean isQuestionDifference = false;
@@ -84,6 +85,7 @@ public class KnowledgeRepresenter {
 	private static void loadProcedureLookup() {
 		keywordMap.put("put", CHANGE_OUT);
 		keywordMap.put("place", CHANGE_OUT);
+		keywordMap.put("plant", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
@@ -98,6 +100,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("more", INCREASE);
+		keywordMap.put("carry", INCREASE);
 		keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
 		
@@ -145,11 +148,13 @@ public class KnowledgeRepresenter {
 
 	private static void updateTimestamp (String owner, Entity newEntity, String tense, String nounQual, String verbQual) {
 		System.out.println(owner + "|update|" + newEntity.name + "|" + tense + "|" + newEntity.value + "|" +timeStep +"|"+nounQual+"|"+verbQual);
+		if (newEntity.name == null)
+			return;
 		entities.add(newEntity.name);
-		if (newEntity.value.equals("some")) {
+		if (newEntity.value.contains("some")) {
 			String varName = X_VALUE + varCount++; 
 			variables.put(varName, null);
-			newEntity.value = varName;
+			newEntity.value = newEntity.value.replace("some", varName);
 		}
 		int changeTime = timeStep;
 		if (tense.equals(PAST) && timeStep!=0 && storyTense.contains(PRESENT))
@@ -650,8 +655,9 @@ public class KnowledgeRepresenter {
 	}
 
 	
-	public static void represent(LinguisticInfo extractedInformation) {
+	public static void represent(LinguisticInfo extractedInformation, String q) {
 		loadProcedureLookup();
+		question = q;
 		entities = extractedInformation.entities;
 		////System.err.println(extractedInformation.sentences.size());
 		for (LinguisticStep ls : extractedInformation.sentences) {
@@ -784,6 +790,35 @@ public class KnowledgeRepresenter {
 				else
 					finalAns = "Altogether " + ans + " " + questionEntity;
 				//////////System.out.println("false");
+				if (!finalAns.contains(".") || question.contains(ans) || question.contains(EquationSolver.getSolution(ans))) {
+					while (it.hasNext()) {
+					     Map.Entry<String, Owner> pairs = it.next();
+					     Owner owner = pairs.getValue();
+					     Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = owner.situation.entrySet().iterator();
+					     while (it1.hasNext()) {
+							Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
+							ArrayList<TimeStamp> verbStory = newPairs.getValue();
+							for (TimeStamp t : verbStory) {
+								System.out.println(newPairs.getKey() + "|" + questionEntity+"|"+t.name+"|"+owner.name+entities);
+								if (!questionEntity.isEmpty() && !(questionEntity.contains(t.name) || t.name.contains(questionEntity)) && entities.contains(questionEntity))
+									continue;
+								System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
+			
+								if (!t.value.contains("x"))
+									sum = sum + "+" + t.value;
+								
+							}
+						 }
+					}
+			
+				}
+				ans = sum;
+				if (ans.contains("+") || ans.contains("-"))
+					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				else
+					finalAns = "Altogether " + ans + " " + questionEntity;
+				
+				System.out.println(ans+finalAns);
 				return;
 			}
 			String big = "0", small = "0";
@@ -1012,7 +1047,13 @@ public class KnowledgeRepresenter {
 		}
 		if (isQuestionAggregator && !questionOwner.isEmpty() && !questionEntity.isEmpty()) {
 			Owner owner = story.get(questionOwner);
-			ArrayList<TimeStamp> verbStory = owner.situation.get(questionVerb);
+			ArrayList<TimeStamp> verbStory = null;
+			if (owner.situation.containsKey(questionVerb))
+				verbStory = owner.situation.get(questionVerb);
+			else if (owner.situation.containsKey("has"))
+				verbStory = owner.situation.get("has");
+			else
+				verbStory = owner.situation.entrySet().iterator().next().getValue();
 			String sum = "0";
 			for (TimeStamp t : verbStory) {
 					if (t.name.contains(questionEntity)) 
@@ -1149,7 +1190,7 @@ public class KnowledgeRepresenter {
 		LinguisticInfo info = new LinguisticInfo();
 		info.entities = tempEntities;
 		info.sentences = steps;
-		represent(info);
+		//represent(info);
 		solve();
 		//////System.out.println(finalAns);
 		startGUI();
