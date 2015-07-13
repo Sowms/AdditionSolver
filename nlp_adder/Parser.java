@@ -2,6 +2,8 @@ package nlp_adder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -17,14 +19,35 @@ import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.TypesafeMap;
 
 public class Parser {
-
+	private final String POS_VERB = "VB";
+	private final String POS_VBD = "VBD";
+	private final String POS_ADVMOD = "RBR";
+	private final static String POS_MOD = "JJ";
+	private final String POS_VBN = "VBN";
+	private final static String POS_NUMBER = "CD";
+	private final static String POS_NOUN = "NN";
+	
+	private final static String PARSER_NUMBER = "num";
+	private final static String PARSER_MOD = "mod";
+	private final static String PARSER_ADVERBCLAUSE = "advcl";
+	private final static String PARSER_NN = "nn";
+	private final String PARSER_SUBJECT = "nsubj";
+	private final String PARSER_PREP = "prep";
+	private final String PARSER_IOBJ = "iobj";
+	private final String PARSER_POBJ = "pobj";
+	
 	public static String dollarPreprocess(String input) {
 		if (input.contains("$")) {
 			String ans = "";
@@ -52,55 +75,161 @@ public class Parser {
 		}
 		return input;
 	}
+	public static boolean checkPossibilities(LinkedHashSet<String> possibleEntities, CoreLabel token1, CoreLabel token2, CoreLabel token3) {
+		for (String possibility : possibleEntities) {
+			//System.out.println(possibility+token1+token2+token3);
+			//System.out.println("aa"+possibility+token1.originalText());
+			if (possibility.split(" ")[0].equals(token1.originalText())) {
+				String secondWord = "";
+				if (possibility.split(" ").length > 1) 
+					secondWord = possibility.split(" ")[1];
+				//System.out.println("aa"+possibility+token1.originalText()+token2);
+				if (token2==null && !secondWord.isEmpty())
+					continue;
+				if (token2!=null && !secondWord.isEmpty() && !secondWord.equals(token2.originalText().toLowerCase()))
+					return false;
+				return true;
+			}
+			if (possibility.split(" ").length > 1 && token2!=null && possibility.split(" ")[1].equals((token2.originalText()))) {
+				String secondWord = "";
+				if (possibility.split(" ").length > 1) 
+					secondWord = possibility.split(" ")[1];
+				if (token3==null && !secondWord.isEmpty())
+					continue;
+				if (token3!=null && !secondWord.isEmpty() && !secondWord.equals(token3.originalText().toLowerCase()))
+					return false;
+				return true;
+			}
+		}
+		return false;
+	}
 	public static String entityResolution(String input, StanfordCoreNLP pipeline) {
-		
-		
+		//System.out.println("kjkj"+input);
 		Annotation document = new Annotation(input);
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-	    ArrayList<String> possibleEntities = new ArrayList<String>();
+	    LinkedHashSet<String> possibleEntities = new LinkedHashSet<String>();
 	    for (CoreMap sentence: sentences) {
-	     	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-		    	String pos = token.get(PartOfSpeechAnnotation.class);
-		    	if (pos.contains("NNS") || pos.contains("NNPS") || token.originalText().contains("fish") || token.originalText().contains("sheep"))
-		    		possibleEntities.add(token.originalText());
-	     	}
+	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+	     	//System.out.println(dependencies);
+	     	ArrayList<SemanticGraphEdge> edges = (ArrayList<SemanticGraphEdge>) dependencies.edgeListSorted();
+	 	    for (SemanticGraphEdge edge : edges) {
+	     		String pos = edge.getTarget().tag();
+	     		String relation = edge.getRelation().toString();
+	 			if (pos.equals(POS_NUMBER) && (relation.equals(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE))) {
+	     			if (!edge.getSource().lemma().matches("[a-zA-Z]+"))
+	     				continue;
+	     			String name = "";
+	     			name = edge.getSource().originalText();
+	     			possibleEntities.add(name);
+	     			IndexedWord intermediateNode = edge.getSource();
+	     			IndexedWord nnNode = null, jjNode = null;
+	     			for (SemanticGraphEdge innerEdge : edges) {
+	     				String innerRelation = innerEdge.getRelation().toString();
+	     				String innerPos = innerEdge.getTarget().tag();
+	     				if (innerEdge.getSource().equals(intermediateNode)) {
+	     					if (innerRelation.contains(PARSER_MOD) || innerRelation.contains(PARSER_NN) && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
+	     						if (!innerEdge.getTarget().originalText().equals("more")) {
+	     							if (innerRelation.contains(PARSER_NN))
+	     								nnNode = innerEdge.getTarget();
+	     							else
+	     								jjNode = innerEdge.getTarget();
+	     						}
+	     					}
+	     				}
+	     					
+	     			}
+	     			if (nnNode != null)
+	     					name = nnNode.originalText() + " " + name;
+	     			else if (jjNode != null)
+	     				name = jjNode.originalText() + " " + name;
+	         		possibleEntities.add(name);
+	     		}
+	 	    }
+	 	    
 	    }
 	    String ans = "";
-	    
+	    //System.out.println(possibleEntities);
 	    for (CoreMap sentence: sentences) {
 	    	boolean entity = true;
-	    	//Tree tree = sentence.get(TreeAnnotation.class);
-	    	//String parseExpr = tree.toString();
-	    	////System.out.println(parseExpr);
+	    	Tree tree = sentence.get(TreeAnnotation.class);
+	    	String parseExpr = tree.toString();
+	    	System.out.println(parseExpr);
 	    	List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 	     	for (CoreLabel token: tokens) {
 		    	String pos = token.get(PartOfSpeechAnnotation.class);
 		    	ans = ans + token.originalText() + " ";
-		    	if (!entity && (pos.contains("JJ") || pos.equals("NN")) && !possibleEntities.contains(tokens.get(tokens.indexOf(token)+1).originalText()) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD")) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD")))
-		    			ans = ans + possibleEntities.get(0)+" ";
-		    	if (pos.contains("CD") && !token.originalText().contains(".")) { 
-		    		entity = possibleEntities.contains(tokens.get(tokens.indexOf(token)+1).originalText());
+		    	//try {
+		    	
+		    	CoreLabel token1 = null;
+		    	CoreLabel token2 = null;
+		    	CoreLabel token3 = null;
+		    	if (!(tokens.size() <= tokens.indexOf(token)+1))
+		    		token1 = tokens.get(tokens.indexOf(token)+1);
+		    	if (!(tokens.size() <= tokens.indexOf(token)+2))
+		    		token2 = tokens.get(tokens.indexOf(token)+2);
+		    	if (!(tokens.size() <= tokens.indexOf(token)+3))
+		    		token3 = tokens.get(tokens.indexOf(token)+3);
+		    	
+		    	if (!entity && (pos.contains("JJ") || pos.equals("NN")) && !checkPossibilities(possibleEntities,token1,token2,token3) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD"))) {
+		    		ans = ans +getEntity(possibleEntities,sentence.toString(),true) +" ";
+		    	}
+		    	if (pos.contains("CD") && !token.originalText().contains(".")) {
+		    		token1 = tokens.get(tokens.indexOf(token)+1);
+			    	token2 = null;
+			    	token3 = null;
+			    	if (!(tokens.size() <= tokens.indexOf(token)+2))
+			    		token2 = tokens.get(tokens.indexOf(token)+2);
+			    	if (!(tokens.size() <= tokens.indexOf(token)+3))
+			    		token3 = tokens.get(tokens.indexOf(token)+3);
+		    		entity = checkPossibilities(possibleEntities,token1,token2,token3);
+		    		//System.out.println("haha"+entity);
 		    		if (!entity) {
 		    			CoreLabel nextToken = tokens.get(tokens.indexOf(token)+1);
 		    			if(!nextToken.get(PartOfSpeechAnnotation.class).contains("JJ") && !nextToken.get(PartOfSpeechAnnotation.class).contains("NN"))
-		    				ans = ans + possibleEntities.get(0)+" ";
+		    				ans = ans + getEntity(possibleEntities,sentence.toString(),false)+" ";
 		    		}
+		    		//System.err.println("waka"+ans);
 		    	}
-		    	if (pos.contains("VB") && possibleEntities.contains(tokens.get(tokens.indexOf(token)+1).originalText()))
-		    		ans = ans + "some ";
+		    	//} catch (Exception e) {};
 	     	}
 	    }
-	    ////System.err.println(ans);
+	    System.err.println(ans);
 	    return ans;
+	}
+	private static String getEntity(LinkedHashSet<String> possibleEntities,
+			String sentence, boolean adjFlag) {
+		for (String entity : possibleEntities) {
+			//System.out.println("aaaaaaaaaaaaaaaaaaaaaaaa"+entity+sentence);
+			if (sentence.contains(entity) && entity.contains(" "))
+				return entity;
+		}
+		for (String entity : possibleEntities) {
+			if (sentence.contains(entity))
+				return entity;
+		}
+		String ans1 = "", ans2 = "";
+		Iterator<String> it =  possibleEntities.iterator();
+		ans1 = it.next();
+		//System.out.println("wwww"+ans1+possibleEntities + possibleEntities.size());
+		if (adjFlag)
+			return ans1;
+		if (possibleEntities.size() > 1) {
+			 ans2 = it.next();
+			 //System.out.println("ww"+ans2);
+			 return ans2;
+		}
+		return ans1;
 	}
 	public static boolean containsVerb (String text, StanfordCoreNLP pipeline) {
 		Annotation document = new Annotation(text);
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+	    //System.out.println("d"+sentences.size());
 	    for (CoreMap sentence: sentences) {
 	     	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
 		    	String pos = token.get(PartOfSpeechAnnotation.class);
+		    	//System.out.println("ans"+token.originalText()+"|"+pos);
 		    	if (pos.contains("VB"))
 		    		return true;
 	     	}
@@ -147,10 +276,14 @@ public class Parser {
                 		coref.put(clust2, coref.entrySet().iterator().next().getValue());
                 		continue;
                 	}
-                	if (clust.matches("\\d+\\.\\d*"))
+                	if (clust.matches("\\d+\\.\\d*")||clust.matches(".*\\d.*"))
                 		continue;
-                	////System.err.println(clust);
-                	if(!clust2.toLowerCase().equals("their") && !clust2.toLowerCase().equals("they") && !clust2.isEmpty())
+                	//System.err.println(clust+clust2);
+                	if (clust.toLowerCase().contains("they") && clust2.toLowerCase().contains("their"))
+                		continue;
+                	if (clust.toLowerCase().contains("their") && clust2.toLowerCase().contains("they"))
+                		continue;
+                	if(!clust2.isEmpty())
                 		coref.put(clust2, clust);
                 }
             }
@@ -174,14 +307,19 @@ public class Parser {
 	    	String[] constituents = parseExpr.split(" ");
 	    	//boolean quesFlag = false;
 	    	for (int i=0; i<constituents.length; i++) {
-	    		String initialPart = "", finalPart = "", tempFinal = "", tempInitial = "";
+	    		String initialPart = "", finalPart = "", tempFinal = "", tempInitial = "", verb = "";
 	    		int pos = -1;
 	    		//if (constituents[i].contains("(W"))
 	    			//quesFlag = true;
 	    		if (constituents[i].contains("VB")) {
 	    			//System.out.println(constituents[i] + "|" + constituents[i+1] + "|" + constituents[i-1]);
+	    			verb = constituents[i+1].replace(")", "");
+	    			System.out.println("v"+verb);
 	    			for (int j=i-1; j>=0; j--) {
-	    				if (constituents[j].contains("(NP") || constituents[j].contains("(W")) 
+	    			
+	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().toLowerCase().contains("how")) 
+	    					break;
+	    				if (constituents[j+1].contains("how"))
 	    					break;
 	    				Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|[^\\W\\d]+|\\d+");
 						Matcher matcher = wordPattern.matcher(constituents[j]); 
@@ -210,7 +348,7 @@ public class Parser {
 	    				if (matcher.find()) {
 	    					String candidate = matcher.group();
 	    					//System.out.println(candidate);
-							if (candidate.equals("and") || candidate.equals("if") || candidate.equals("but")) {
+							if (candidate.equals("mmmmmmmmm")) {
 								tempFinal = tempFinal + "mmmm";
 								tempInitial = new String(initialPart + " " + finalPart);
 								pos = j+1;
@@ -261,14 +399,29 @@ public class Parser {
 	    				}
 	    			}
 	    			int next = j;
-	    			if (containsVerb(initialPart, pipeline) && containsVerb(finalPart, pipeline)) {
-	    				 next = initialPart.indexOf(finalPart);
+	    			System.out.println("aaaa"+initialPart+"|"+finalPart+verb);
+	    			/*if (containsVerb(initialPart, pipeline) && containsVerb(finalPart, pipeline)) {
+	    				 next = sentence.toString().indexOf(finalPart);
+	    				 System.out.println("hhh"+next);
 	    				 finalPart = "";
+	    				 ans = (ans + initialPart + ".\n" + finalPart).trim() + "\n";
+	    				 initialPart = "";
 	    			}
-	    			//////System.out.println("P" + initialPart + "|" + finalPart);
+	    			else if (containsVerb(finalPart.replace(verb, ""),pipeline)) {
+	    				System.out.println("mmm"+sentence.toString()+"|"+finalPart.replace(verb, "").trim());
+	    				next = sentence.toString().indexOf(finalPart.replace(verb, "").trim());
+	    				System.out.println("hhh"+next);
+	    				finalPart = initialPart;
+	    				initialPart = initialPart + verb;
+	    				ans = (ans + initialPart + ".\n" + finalPart).trim() + "\n";
+	    				initialPart = "";
+	    			}
+	    			else*/
+	    				ans = (ans + initialPart + " " + finalPart).trim() + ".\n";
 	    			i = next;
 	    			//initialPart = (initialPart.charAt(0) + "").toUpperCase() + initialPart.substring(1);
-	    			ans = (ans + initialPart + finalPart).trim() + ".\n";
+	    			
+	    			System.out.println("P" + initialPart + "|" + finalPart+ans);
 	    		}
 	    	}
 	    	//////System.out.println(tree);
@@ -283,6 +436,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//////System.out.println(parse("Ned took a shortcut on the way home which was only 5 miles long",pipeline));
+		System.out.println(parse("There are 47 orchid bushes currently in the park . Workers will plant 37 orchid bushes today and 25 orchid bushes tomorrow . It took 35 workers to finish the work . How many orchid bushes will the park have when the workers are finished ?",pipeline));
 	}
 }

@@ -10,12 +10,12 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Joan found 70 seashells on the beach. She gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam?", pipeline);
+		solveWordProblems("Ram and Sita have 12 apples altogether. If Ram has 6 apples, how many apples does Sita have", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
 		String simplifiedProblem = Parser.parse(problem, pipeline);
-		System.out.println(simplifiedProblem);
+		System.out.println("ha"+simplifiedProblem);
 	    LinguisticInfo extractedInformation = (new SentencesAnalyzer()).extract(simplifiedProblem, pipeline);
 	    KnowledgeRepresenter.clear();
 	    KnowledgeRepresenter.represent(extractedInformation, simplifiedProblem);

@@ -44,7 +44,7 @@ public class SentencesAnalyzer {
 	private final String POS_NOUN = "NN";
 	
 	private final String PARSER_NUMBER = "num";
-	private final String PARSER_MOD = "mod";
+	private final String PARSER_MOD = "amod";
 	private final String PARSER_ADVERBCLAUSE = "advcl";
 	private final String PARSER_NN = "nn";
 	private final String PARSER_SUBJECT = "nsubj";
@@ -66,6 +66,7 @@ public class SentencesAnalyzer {
 	
 	public SentencesAnalyzer() {
 		keywordMap.put("put", CHANGE_OUT);
+		keywordMap.put("plant", CHANGE_OUT);
 		keywordMap.put("place", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
@@ -74,6 +75,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("buy", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
+		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("decrease", REDUCTION);
@@ -123,18 +125,20 @@ public class SentencesAnalyzer {
 			    		tense = PAST;
 		    		else if (tense.isEmpty() && pos.contains(POS_VERB))
 		    			tense = PRESENT;
-		    		////////System.out.println(pos+"|"+tense);
+		    		//System.out.println(sentence.toString() + "|" + (sentence.toString().contains("to")));
 		    		if (keywordMap.containsKey(lemma)) {
-		    			if (!lemma.equals("more") && lemma.equals(verb)) 
+		    			if (!lemma.equals("more") && lemma.equals(verb) && !lemma.equals("take")) 
+		    				keyword = lemma;
+		    			else if (lemma.equals("take") && !sentence.toString().contains(" to "))
 		    				keyword = lemma;
 		    			else if (sentence.toString().contains("more than")) 
 		    				keyword = "more than";
-		    			else if (keyword.isEmpty())
+		    			else if (keyword.isEmpty() && !lemma.equals("take"))
 		    				keyword = "more";
 		    		}	
 		    	}
 			}
-	    	////////System.err.println(sentence.toString()+tense);
+	    	//////////System.err.println(sentence.toString()+tense);
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    	System.out.println(dependencies);
 	    	ArrayList<SemanticGraphEdge> edges = (ArrayList<SemanticGraphEdge>) dependencies.edgeListSorted();
@@ -157,16 +161,17 @@ public class SentencesAnalyzer {
     	Entity newEntity = new Entity();
     	
     	
-    	//System.out.println(edges);
+    	////System.out.println(edges);
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
-			if (pos.equals(POS_NUMBER) && (relation.equals(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE))) {
+			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE))) {
     			if (!edge.getSource().lemma().matches("[a-zA-Z]+"))
     				continue;
     			newEntity = new Entity();
     			newEntity.name = edge.getSource().lemma();
     			entities.add(newEntity.name);
+    			//System.out.println("waka"+entities);
     			IndexedWord intermediateNode = edge.getSource();
     			IndexedWord nnNode = null, jjNode = null;
     			for (SemanticGraphEdge innerEdge : edges) {
@@ -204,7 +209,7 @@ public class SentencesAnalyzer {
         	    	prevWord = word;
         	    	prevLemma = lemma;
         		}
-        		//System.out.println(sentence.toString()+"|"+newEntity.name);
+        		//System.err.println("waka"+entities);
     			entities.add(newEntity.name);
     			sentenceEntities.add(newEntity);
     		}
@@ -233,51 +238,52 @@ public class SentencesAnalyzer {
 		}
 		
 		if (newEntity.value == null) {
-			//////System.out.println("waka"+entities);
+			////////System.out.println("waka"+entities);
 			isQuestion = true;
     		String questionEntity = "", questionOwner = "", prevWord = "", prevLemma = "";
     		for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
     	    	String word = token.get(TextAnnotation.class);
     	    	String lemma = token.get(LemmaAnnotation.class);
-    	    	//////System.out.println(word+"|"+lemma);
-    	    	if (entities.contains(word.toLowerCase())) { 
+    	    	////////System.out.println(word+"|"+lemma);
+    	    	if (entities.contains(word.toLowerCase()) && questionEntity.isEmpty()) { 
     	    		if (entities.contains(prevWord + "_" + word))
     	    			questionEntity = prevWord.toLowerCase() + "_" + word.toLowerCase();
     	    		else
     	    			questionEntity = word.toLowerCase();
     	    	}
-    	    	if (entities.contains(lemma.toLowerCase())) { 
+    	    	if (entities.contains(lemma.toLowerCase()) && questionEntity.isEmpty()) { 
     	    		if (entities.contains(prevLemma + "_" + lemma))
     	    			questionEntity = prevLemma + "_" + lemma;
     	    		else
     	    			questionEntity = lemma;
     	    	}
     	    	if (owners.contains(word)) { 
-    	    		if (!questionOwner.isEmpty() && !questionOwner.equals(lemma))
-    	    			questionOwner = DUMMY;
-    	    		else
+    	    		//if (!questionOwner.isEmpty() && !questionOwner.equals(lemma))
+    	    			//questionOwner = DUMMY;
+    	    		if (questionOwner.isEmpty())
     	    			questionOwner = word;
     	    	}
     	    	if (owners.contains(lemma)) {
-    	    		if (!questionOwner.isEmpty() && !questionOwner.equals(lemma))
-    	    			questionOwner = DUMMY;
-    	    		else
+    	    		//System.out.println(lemma);
+    	    		//if (!questionOwner.isEmpty() && !questionOwner.equals(lemma))
+    	    			//questionOwner = DUMMY;
+    	    		if (questionOwner.isEmpty())
     	    			questionOwner = lemma;
     	    	}
     	    	prevWord = word;
     	    	prevLemma = lemma;
     		}
-    		//////System.out.println("a"+questionEntity);
-    		//////////////System.out.println("q"+questionOwner);
-    		if (questionOwner.equals(DUMMY))
-    			questionOwner = "";
+    		////////System.out.println("a"+questionEntity);
+    		//System.out.println("q"+questionOwner);
+    		//if (questionOwner.equals(DUMMY))
+    			//questionOwner = "";
     		
     		LinguisticStep s = new LinguisticStep();
 			s.owner1 = questionOwner;
 			s.owner2 = owner2;
 			s.isQuestion = isQuestion;
 			s.tense = tense;
-			System.out.println(s.tense+"|"+verb);
+			//System.out.println(s.tense+"|"+verb);
 			s.entityName = questionEntity;
 			s.entityValue = newEntity.value;
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
@@ -300,16 +306,16 @@ public class SentencesAnalyzer {
 				if (sentence.toString().contains(difference))
 					s.difference = true;	
 			}
-			//////////System.out.println("q" + owner1 + "|" + owner2);
+			////////////System.out.println("q" + owner1 + "|" + owner2);
 			steps.add(s);
     	}
 		else {
-			//////////System.out.println("b"+entities+owner1+owner2);
+			////////////System.out.println("b"+entities+owner1+owner2);
 			for (Entity e : sentenceEntities) {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
 				tempEntity.name = e.name;
-				////////System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
+				//////////System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				if ((entities.contains(owner1) || entities.contains(owner2)) && !e.name.isEmpty() && (!entities.contains(e.name) || !owners.contains(e.name))) {
 					if (entities.contains(owner1) && !entities.contains(e.name)) {
 						String entity = owner1;
@@ -331,16 +337,16 @@ public class SentencesAnalyzer {
 					}
 				}
 				s.owner2 = owner2;
-				if (!entities.contains(owner2))
+				if (!entities.contains(owner2) && !owner2.trim().isEmpty())
 					owners.add(owner2);
-				if (!entities.contains(owner1))
+				if (!entities.contains(owner1) && !owner1.trim().isEmpty())
 					owners.add(owner1);
 				entities.add(tempEntity.name);
 				s.isQuestion = isQuestion;
 				s.tense = tense;
 				if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 					verb = "has";
-				System.out.println(s.tense+"|"+verb);
+				//System.out.println(s.tense+"|"+verb);
 				
 				s.verbQual = verb;
 				s.entityName = tempEntity.name;

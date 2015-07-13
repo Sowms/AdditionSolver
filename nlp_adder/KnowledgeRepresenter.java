@@ -80,6 +80,7 @@ public class KnowledgeRepresenter {
 	static ArrayList<String> storyTense = new ArrayList<String>();
 	static HashMap<String,String> keywordMap = new HashMap<String,String>();
 	static ArrayList<String> allEquations = new ArrayList<String>();
+	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();;
 	
 
 	private static void loadProcedureLookup() {
@@ -93,6 +94,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("get", CHANGE_IN);
 		keywordMap.put("buy", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
+		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("lose", REDUCTION);
@@ -258,6 +260,14 @@ public class KnowledgeRepresenter {
 			}
 		}
 		verbStory.remove(deleteNode);
+		/*if (!verbStory.isEmpty() && !verbQual.equals("has") && keywordMap.containsKey(verbQual)) {
+			String prevTime = TIMESTAMP_PREFIX + (changeTime - 1);
+			for (TimeStamp oldTimeStamp : verbStory) {
+				if (oldTimeStamp.time.equals(prevTime) && !oldTimeStamp.value.equals(newTimeStamp.value)) {
+					newTimeStamp.value = oldTimeStamp.value + "+" + newTimeStamp.value;
+				}
+			}
+		}*/
 		if (!contains(verbStory,newTimeStamp))
 			verbStory.add(newTimeStamp);
 		currentSituation.put(verb, verbStory);
@@ -329,16 +339,37 @@ public class KnowledgeRepresenter {
 	}
 	
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
-			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
-		//////System.out.println(keyword+"|"+owner1+"|"+owner2+"|"+newEntity.name+"|"+newEntity.value+"|"+entities+"|"+nounQual+"|"+verbQual);
+			   String keyword, String procedure, String tense, String nounQual, String verbQual, boolean aggregator) {
+		System.out.println(owners);
+		if (!keyword.isEmpty() && !keyword.contains("more") && !keyword.contains("less")) {
+			verbQual = keyword;
+		}
 		if (owner1.isEmpty()) {
-			owner1 = UNKNOWN + (unknownCounter++); 
+			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
+			for (String owner: owners) {
+				if (!owner.equals(owner2) && !owner2.isEmpty() && !owner.isEmpty()) {
+					owner1 = owner;
+					break;
+				}
+			}
+			}
+			if (owner1.isEmpty())
+				owner1 = UNKNOWN + (unknownCounter++); 
 		}
 		else if (owner2.isEmpty()) {
-			owner2 = UNKNOWN + (unknownCounter++);
+			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
+			for (String owner: owners) {
+				System.err.println(owner+"|"+owner1);
+				if (!owner.equals(owner1) && !owner1.isEmpty() && !owner.isEmpty()) {
+					owner2 = owner;
+				}
+			}}
+			//System.out.println(owner2+"|"+owner1);
+			if (owner2.isEmpty())
+				owner2 = UNKNOWN + (unknownCounter++);
 		}
 		// There is no keyword here, an entity has been assigned a value
-		//////System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value);
+		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities);
 		String owner = "";
 		if (procedure == null)
 			procedure = "";
@@ -363,13 +394,14 @@ public class KnowledgeRepresenter {
 				variables.put(newEntity.value, null);
 				varCount++;
 			}
+			System.out.println(verbQual+"||");
 			updateTimestamp (owner, newEntity, tense, nounQual, verb);				
 		}
 		if (procedure.isEmpty() && newEntity.name != null) 
 			return;
 		String verb = verbQual;
 		String newName1 = "", newName2 = "";
-		if (verbQual.equals(keyword))
+		if (!keyword.contains("more") && !keyword.contains("less"))
 			verb = "has";
 		String oldValue1 = "", oldValue2 = "";
 		try {
@@ -381,6 +413,31 @@ public class KnowledgeRepresenter {
 				}
 			}
 		} catch (NullPointerException ex) {
+			if (procedure.equals(REDUCTION)) {
+				Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<String,Owner> entry = it.next();
+					if (!entry.getKey().equals(owner1)) {
+						Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = entry.getValue().situation.entrySet().iterator();
+						while (it1.hasNext()) {
+							Entry<String, ArrayList<TimeStamp>> newEntry = it1.next();
+							Entity temp = new Entity();
+							temp.name = newEntity.name;
+							temp.value = newEntity.value;
+							if (!keywordMap.containsKey(newEntry.getKey())) {
+								ArrayList<TimeStamp> verbStory = newEntry.getValue();
+								for (TimeStamp t : verbStory) {
+									if (t.name.equals(newEntity.name) && t.time.equals(TIMESTAMP_PREFIX+timeStep)) {
+										temp.value = t.value + "-" + newEntity.value; 
+										break;
+									}
+								}
+								updateTimestamp (entry.getKey(), temp, tense, nounQual, newEntry.getKey());
+							}
+						}
+					}
+				}
+			}
 			if (!owner1.isEmpty()) {
 				addOwner(owner1, newEntity, nounQual, verb);
 				ArrayList<TimeStamp> verbStory = story.get(owner1).situation.get(verb);
@@ -451,7 +508,7 @@ public class KnowledgeRepresenter {
 		
 		//System.out.println("n"+newName1+newName2);
 		String[] steps = procedureMap.get(procedure).split("\\.");
-		//////System.out.println(procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1 + "|" + owner2 + "|" + oldValue2);
+		System.out.println(procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1 + "|" + owner2 + "|" + oldValue2);
 		if (steps.length > NO_OWNERS_SUPPORTED) {
 			//////////System.out.println("Invalid procedure description");
 			////System.exit(0);
@@ -542,8 +599,8 @@ public class KnowledgeRepresenter {
 			 while (verbStoryIterator.hasNext()) {
 				Entry<String, ArrayList<TimeStamp>> newPairs = verbStoryIterator.next();
 				String verb = newPairs.getKey();
-				//if (!verb.equals("has"))
-					//continue;
+				if (!verb.equals("has"))
+					continue;
 				ArrayList<TimeStamp> verbStory = newPairs.getValue();
 				ArrayList<TimeStamp> newVerbStory = new ArrayList<TimeStamp>();
 				for (TimeStamp currentTimeStamp : verbStory) {
@@ -599,6 +656,20 @@ public class KnowledgeRepresenter {
 	}
 	
 	private static Entity resolveNullEntity(String owner, String name, String nounQual, String verbQual) {
+		if (owner.isEmpty() || !story.containsKey(owner)) {
+			Entity answer = new Entity();
+			answer.name = name;
+			answer.value = null;
+			addOwner(owner, answer, nounQual, verbQual);
+			ArrayList<TimeStamp> verbStory = story.get(owner).situation.get(verbQual);
+			for (TimeStamp t : verbStory) {
+				if (t.name.equals(name) && t.time.equals(TIMESTAMP_PREFIX + timeStep)) {
+					answer.value = t.value;
+					return answer;
+				}
+			}	
+		}
+			
 		ArrayList<TimeStamp> verbStory = story.get(owner).situation.get(verbQual);
 		Entity answer = new Entity();
 		answer.name = "";
@@ -659,12 +730,13 @@ public class KnowledgeRepresenter {
 		loadProcedureLookup();
 		question = q;
 		entities = extractedInformation.entities;
+		owners = extractedInformation.owners;
 		////System.err.println(extractedInformation.sentences.size());
 		for (LinguisticStep ls : extractedInformation.sentences) {
 			Entity currentEntity = new Entity();
 			currentEntity.name = ls.entityName;
 			currentEntity.value = ls.entityValue;
-			////System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense);
+			System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual);
 			if (ls.isQuestion) {
 				questionOwner = questionOwner1 = ls.owner1;
 				if (!ls.owner2.isEmpty())
@@ -685,7 +757,7 @@ public class KnowledgeRepresenter {
 				verbQual = "has";
 			if (nounQual == null)
 				nounQual = "";
-			reflectChanges(ls.owner1, ls.owner2, currentEntity, ls.keyword, ls.procedureName, ls.tense, nounQual, verbQual);
+			reflectChanges(ls.owner1, ls.owner2, currentEntity, ls.keyword, ls.procedureName, ls.tense, nounQual, verbQual, ls.aggregator);
 			displayStory();
 		}
 		
@@ -771,8 +843,9 @@ public class KnowledgeRepresenter {
 								continue;
 							System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
 		
-							if (t.time.equals(TIMESTAMP_PREFIX + questionTime) && !t.value.contains("x"))
-								sum = sum + "+" + t.value;
+							if (!t.value.contains("x")) 
+								if((questionVerb.equals("has") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !questionVerb.equals("has"))
+									sum = sum + "+" + t.value;
 							
 						}
 					 }
@@ -1092,10 +1165,48 @@ public class KnowledgeRepresenter {
 				 }
 			}
 		} else {
-			//////System.out.println("check"+questionOwner+"|"+questionVerb);
+			System.out.println("check"+questionOwner+"|"+questionVerb);
 			ArrayList<TimeStamp> verbStory = null;
-			if (questionOwner.isEmpty())
-				questionOwner = story.entrySet().iterator().next().getKey();
+			ArrayList<String> candidates = new ArrayList<String>();
+			ArrayList<String> own = new ArrayList<String>();
+			if (questionOwner.isEmpty()) {
+				Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+				while (it.hasNext()) {
+					questionOwner = it.next().getKey();
+					own.add(questionOwner);
+					if (story.get(questionOwner).situation.containsKey(questionVerb))
+						verbStory = story.get(questionOwner).situation.get(questionVerb);
+					else {
+						if (story.get(questionOwner).situation.containsKey("has"))
+							questionVerb = "has";
+						else
+							questionVerb = story.get(questionOwner).situation.entrySet().iterator().next().getKey();
+						verbStory = story.get(questionOwner).situation.get(questionVerb);
+					}
+					if (verbStory.size() == 1 && (verbStory.get(0).name.contains(questionEntity) || questionEntity.contains(verbStory.get(0).name)))
+						ans = verbStory.get(0).value;
+					else {
+						ans = "0";
+						for (TimeStamp t : verbStory) {
+							if (t.time.equals(TIMESTAMP_PREFIX + questionTime) && (t.name.contains(questionEntity) || questionEntity.contains(t.name))) 
+								ans = ans + "+" + t.value;
+					 	}
+					}
+					candidates.add(ans);
+				}
+				for (String candidate : candidates) {
+					if (candidate!=null && !candidate.contains("x")) {
+						ans = candidate;
+						questionOwner = own.get(candidates.indexOf(candidate));
+					}
+				}
+			}
+				
+		}
+		System.out.println("check"+questionOwner+"|"+questionVerb);
+		
+		if (ans == null) {
+			ArrayList<TimeStamp> verbStory = null;
 			if (story.get(questionOwner).situation.containsKey(questionVerb))
 				verbStory = story.get(questionOwner).situation.get(questionVerb);
 			else {
@@ -1105,21 +1216,12 @@ public class KnowledgeRepresenter {
 					questionVerb = story.get(questionOwner).situation.entrySet().iterator().next().getKey();
 				verbStory = story.get(questionOwner).situation.get(questionVerb);
 			}
-			if (verbStory.size() == 1 && (verbStory.get(0).name.contains(questionEntity) || questionEntity.contains(verbStory.get(0).name)))
-				ans = verbStory.get(0).value;
-			else {
-				ans = "0";
-				for (TimeStamp t : verbStory) {
-					if (t.time.equals(TIMESTAMP_PREFIX + questionTime) && (t.name.contains(questionEntity) || questionEntity.contains(t.name))) 
-						ans = ans + "+" + t.value;
-			 	}
-			}
-		}
-		if (ans == null) {
-			ArrayList<TimeStamp> verbStory = story.get(questionOwner).situation.get(questionVerb);
 			String sum = "0";
+			System.out.println("check1"+questionOwner+"|"+questionVerb);
+			
 			for (TimeStamp t : verbStory) {
-				if (t.time.equals(TIMESTAMP_PREFIX + questionTime) && t.name.contains(questionEntity)) 
+				System.out.println("waka");
+				if (t.time.equals(TIMESTAMP_PREFIX + questionTime) && (t.name.contains(questionEntity) || questionEntity.contains(t.name))) 
 					sum = t.value + "+" + sum;
 			 }
 			ans = sum;
