@@ -850,10 +850,14 @@ public class KnowledgeRepresenter {
 						ArrayList<TimeStamp> verbStory = newPairs.getValue();
 						for (TimeStamp t : verbStory) {
 							System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
-							if (!questionEntity.isEmpty() && !questionEntity.equals(t.name) && entities.contains(questionEntity) && newPairs.getKey().isEmpty())
+							if (!questionEntity.isEmpty() && !questionEntity.equals(t.name) && entities.contains(questionEntity))
 								continue;
-							if (!t.value.contains("x"))
-								sum = sum + "+" + t.value;
+							if (newPairs.getKey().isEmpty())
+								continue;
+							if (!t.value.contains("x")) {
+								if((newPairs.getKey().equals("has") && (t.value.endsWith(".0")||t.value.contains("+")||t.value.contains("-")) && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has"))
+									sum = sum + "+" + t.value;
+							}
 							System.err.println(sum+newPairs.getKey()+"|");
 						}
 					 }
@@ -881,7 +885,7 @@ public class KnowledgeRepresenter {
 							//System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
 		
 							if (!t.value.contains("x")) 
-								if((newPairs.getKey().equals("has") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has")) {
+								if((newPairs.getKey().equals("has") && (t.value.endsWith(".0")||t.value.contains("+")||t.value.contains("-")) && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has")) {
 									sum = sum + "+" + t.value;
 									sum1 = sum1 + "+" + t.value;
 								}
@@ -892,7 +896,7 @@ public class KnowledgeRepresenter {
 				     own.add(pairs.getKey());
 				}}
 				String ans = "";
-				if (questionVerb.isEmpty())
+				if (questionVerb.isEmpty() && story.size() != 1)
 				for (String candidate : candidates) {
 					System.out.println("aa"+candidate+" "+question.contains(" "+candidate.replace("0+", "").trim()+" "));
 					if (candidate!=null && !candidate.contains("x") && !question.contains(" "+candidate.replace("0+", "").trim()+" ")) {
