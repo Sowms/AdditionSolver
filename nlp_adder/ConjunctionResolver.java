@@ -14,15 +14,20 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class ConjunctionResolver {
 	
-	public static boolean containsVerb (String text, List<CoreLabel> tokens) {
+	public static boolean containsVerb (List<CoreLabel> tokens) {
+		 int index=0;
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
-		   	if (pos.contains("VB"))
+		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
+		   	if (pos.contains("VB") && tokens.indexOf(token)==1 && !containsVerb(tokens.subList(index, tokens.size()-1)))
+		   		return true;
+		   	index++;
 	     }
 	    return false;
 	}
-	public static boolean containsPrep (String text, List<CoreLabel> tokens) {
+	
+	public static boolean containsPrep (List<CoreLabel> tokens) {
 		//  boolean afterVerb = false;
 	   // if (!containsVerb(text,pipeline))
 	    	//afterVerb = true;
@@ -37,20 +42,27 @@ public class ConjunctionResolver {
 	    //}
 	    return false;
 	}
-	public static String getVerbPhrase (String text, List<CoreLabel> tokens) {
+	public static String getVerbPhrase (List<CoreLabel> tokens) {
 		String verbPhrase = "";
+		int index=0;
 		for (CoreLabel token: tokens) {
 			//if (token.originalText().equals(text.split(" ")[0]) && tokens.get(tokens.indexOf(token)+1).originalText().equals(text.split(" ")[1])) 
 			//	begin = true;
 			//if (!begin)
 			//	continue;
 	    	String pos = token.get(PartOfSpeechAnnotation.class);
-	    	verbPhrase = verbPhrase + token.originalText() + " ";
-	    	System.out.println("vvvvv"+verbPhrase+pos);
-	    	if (pos.contains("VB"))
-	    		return verbPhrase;
+	    	if (!verbPhrase.isEmpty() &&!verbPhrase.endsWith(" "))
+	    		verbPhrase = verbPhrase + " ";
+	    	if (pos.equals("$") || pos.equals(","))
+	    		verbPhrase = verbPhrase + token.originalText();
+	    	else
+	    		verbPhrase = verbPhrase + token.originalText() + " ";
+	    	//System.out.println("vvvvv"+verbPhrase+pos);
+	    	if (pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1)))
+	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
+	    	index++;
      	}
-		return verbPhrase;
+		return verbPhrase.trim();
 	}
 	public static String getPrepPhrase (String text, List<CoreLabel> tokens) {
 		boolean crossPrep = false, crossVerb = false;
@@ -61,21 +73,31 @@ public class ConjunctionResolver {
 			System.out.println(token.originalText()+pos);
 			if (pos.contains("VB"))
 	    		crossVerb = true;
-			if (containsVerb(text,tokens) && !crossVerb)
+			if (containsVerb(tokens) && !crossVerb)
 				continue;
+			/*if (!prepPhrase.isEmpty() && !prepPhrase.endsWith(" ") && !prepPhrase.endsWith("$"))
+	    		prepPhrase = prepPhrase + " ";*/
 			if (pos.contains("IN") || pos.contains("TO"))
 	    		crossPrep = true;
-			if (crossPrep)
+			if (crossPrep && !pos.equals("$"))
 				prepPhrase = prepPhrase + token.originalText() + " ";
+			else if (crossPrep)
+				prepPhrase = prepPhrase + token.originalText();
      	}
 	    prepPhrase = prepPhrase.replace(" .",".");
+	    prepPhrase = prepPhrase.replace(" ,",",");
 	    System.out.println("waka" + prepPhrase);
 		
-	    return prepPhrase.trim();
+	    return prepPhrase.replace(" '","'").trim();
 	}
 	public static String parse(String input, StanfordCoreNLP pipeline) {
 		String ans = "";
 		input = input.replace(" .", ". ");
+		input = input.replace(" ,", ", ");
+		input = input.replace("$ ", "$").replace(" '","'").trim();;
+		input = input.replaceAll("\\s+", " ").trim();
+		input = input.trim();
+		System.out.println(input);
 		Annotation document = new Annotation(input);
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
@@ -84,6 +106,7 @@ public class ConjunctionResolver {
 			boolean condition2 = sentence.toString().contains(" but ");
 			boolean condition3 = sentence.toString().contains(" if ");
 			//boolean condition4 = sentence.toString().contains(" to ");
+			System.out.println(condition1);
 			String splitString = "";
 			if (condition1)
 				splitString = " and ";
@@ -112,28 +135,29 @@ public class ConjunctionResolver {
 					else
 						firstPartTokens.add(token);
 				}
-				if (!containsVerb(firstPart, firstPartTokens)) {
+				System.out.println(firstPart+"|"+secondPart);
+				if (!containsVerb(firstPartTokens)) {
 					ans = ans + sentence.toString()+" ";
 					continue;
 				}
-				VP1 = getVerbPhrase(firstPart, firstPartTokens);
-				System.out.println("vp1"+VP1);
+				VP1 = getVerbPhrase(firstPartTokens);
+				//System.out.println("vp1"+VP1);
 				String[] words = VP1.split(" ");
 				String verb1 = words[words.length-1], verb2 = "";
-				P1 = VP1.replace(verb1, "").trim();
-				if (containsVerb(secondPart,secondPartTokens)) {
-					VP2 = getVerbPhrase(secondPart,secondPartTokens);
+				P1 = VP1.substring(0, VP1.length()-verb1.length()).trim();
+				if (containsVerb(secondPartTokens)) {
+					VP2 = getVerbPhrase(secondPartTokens);
 					words = VP2.split(" ");
 					verb2 = words[words.length-1];
-					P2 = VP2.replace(verb2, "");
+					P2 = VP2.substring(0, VP2.length()-verb2.length()).trim();
 				}
-				if (containsPrep(firstPart,firstPartTokens)) {
+				if (containsPrep(firstPartTokens)) {
 					PrP1 = getPrepPhrase(firstPart,firstPartTokens);
 				}
-				if (containsPrep(secondPart,secondPartTokens)) {
+				if (containsPrep(secondPartTokens)) {
 					PrP2 = getPrepPhrase(secondPart,secondPartTokens);
 				}
-				//System.out.println(PrP2);
+				////System.out.println(PrP2);
 				if (verb2.isEmpty())
 					verb2 = verb1;
 				if (VP2.isEmpty())
@@ -143,19 +167,22 @@ public class ConjunctionResolver {
 				}
 				if (PrP1.isEmpty())
 					PrP1 = PrP2;
+				System.out.println(VP1+"|"+VP2);
 				L1 = firstPart.replace(VP1,"");
+				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
+				L1 = L1.trim();
 				L2 = secondPart.replace(VP2,"");
+				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
-				System.out.println(P1 + "|" + verb1 + "|" + L1 + " " + PrP1 + "|" + P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2 + ".");
-				if ((L1+PrP1).endsWith(",") || (L1+PrP1).endsWith("."))
+				L2 = L2.trim();
+				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1 + "|" + P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				else
 					ans = ans + (P1 + " " + verb1 + " " + L1 + " " +PrP1) + ". " + (P2 + " " + verb2 +" "+ L2 + " " +PrP2) + " ";
-				if (!(L2+PrP2).endsWith(",") && !(L2+PrP2).endsWith("."))
+				if (!(L2+PrP2).trim().endsWith(",") && !(L2+PrP2).endsWith("."))
 					ans = ans + ". ";
-			
-				System.err.println(ans);
 	    	}
 			else
 				ans = ans + sentence.toString()+" ";
@@ -166,7 +193,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Sandy has 10 books , Benny has 24 books , and Tim has 33 books .How many books do they have together ?",pipeline));
+		System.out.println(parse("At the beach , Miki and her sister both built sandcastles and then measured their heights . Miki 's sandcastle was 0.8333333333333334 foot tall and her sister 's was 0.5 foot tall . How much taller was Miki 's sandcastle than her sister 's ?",pipeline));
 	}
 	
 }
