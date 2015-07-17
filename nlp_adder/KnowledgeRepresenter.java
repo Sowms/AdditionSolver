@@ -885,7 +885,7 @@ public class KnowledgeRepresenter {
 							//System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
 		
 							if (!t.value.contains("x")) 
-								if((newPairs.getKey().equals("has") && (t.value.endsWith(".0")||t.value.contains("+")||t.value.contains("-")) && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has")) {
+								if((newPairs.getKey().equals("has") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has")) {
 									sum = sum + "+" + t.value;
 									sum1 = sum1 + "+" + t.value;
 								}
@@ -1233,9 +1233,26 @@ public class KnowledgeRepresenter {
 					if (t.name.contains(questionEntity) || questionEntity.contains(t.name)) 
 						sum = t.value + "+" + sum ;
 				}
-				finalAns = EquationSolver.getSolution(sum) + " " + questionEntity + " altogether";
-				return;
-			} else {
+				finalAns = questionOwner + " has " + EquationSolver.getSolution(sum) + " " + questionEntity + " altogether";
+				System.out.println(" " + sum.replace("+0", "")+" ");
+				if (!question.contains(" " + sum.replace("+0", "") + " ")) 
+					return;
+			} 
+				
+				if (question.contains(" " + sum.replace("+0", "") + " ")) {
+					sum = "0";
+					Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = null;
+					Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+					while (it.hasNext()) {
+						verbStory = it.next().getValue().situation.get("has");
+						for (TimeStamp t : verbStory) {
+							if (t.name.contains(questionEntity) || questionEntity.contains(t.name)) 
+								sum = t.value + "+" + sum ;
+							}
+					}
+					finalAns = EquationSolver.getSolution(sum) + " " + questionEntity + " altogether";
+					return;
+				}
 				Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = owner.situation.entrySet().iterator();
 				while (it1.hasNext()) {
 					verbStory = it1.next().getValue();
@@ -1244,9 +1261,8 @@ public class KnowledgeRepresenter {
 							sum = t.value + "+" + sum ;
 					}
 				}
-				finalAns = EquationSolver.getSolution(sum) + " " + questionEntity + " altogether";
+				
 				return;
-			}
 		}
 		//repair
 		if (isQuestionComparator && !questionEntity.isEmpty()) {

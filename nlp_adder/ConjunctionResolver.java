@@ -193,7 +193,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("At the beach , Miki and her sister both built sandcastles and then measured their heights . Miki 's sandcastle was 0.8333333333333334 foot tall and her sister 's was 0.5 foot tall . How much taller was Miki 's sandcastle than her sister 's ?",pipeline));
+		System.out.println(parse("Hoping to be named Salesperson of the Month , Rosa called the names from 10.2 pages of the phone book last week . This week , she called the people listed on another 8.6 pages of the same phone book. How many pages worth of people did Rosa call in all ?",pipeline));
 	}
 	
 }
