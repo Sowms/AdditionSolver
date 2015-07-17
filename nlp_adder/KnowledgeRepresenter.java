@@ -850,7 +850,7 @@ public class KnowledgeRepresenter {
 						ArrayList<TimeStamp> verbStory = newPairs.getValue();
 						for (TimeStamp t : verbStory) {
 							System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
-							if (!questionEntity.isEmpty() && !questionEntity.equals(t.name) && entities.contains(questionEntity))
+							if (!questionEntity.isEmpty() && !questionEntity.equals(t.name) && entities.contains(questionEntity) && !newPairs.getKey().isEmpty())
 								continue;
 							if (!t.value.contains("x"))
 								sum = sum + "+" + t.value;
