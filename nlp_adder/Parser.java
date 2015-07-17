@@ -329,7 +329,7 @@ public class Parser {
 	    			//System.out.println("v"+verb);
 	    			for (int j=i-1; j>=0; j--) {
 	    			
-	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().toLowerCase().contains("how") && !constituents[j-1].contains("and")) 
+	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().toLowerCase().contains("'") && !constituents[j-1].contains("and")) 
 	    					break;
 	    				//if (constituents[j+1].contains("how"))
 	    					//break;
@@ -338,8 +338,12 @@ public class Parser {
 						if (matcher.find()) {
 							String candidate = matcher.group();
 							if (words.contains(candidate)) {
-								if (coref.containsKey(candidate))
-									initialPart = coref.get(candidate) + " " + initialPart;
+								if (coref.containsKey(candidate)) {
+									if (initialPart.startsWith("'"))
+										initialPart = coref.get(candidate) + initialPart;
+									else
+										initialPart = coref.get(candidate) + " " + initialPart;
+								}
 								else
 									initialPart = candidate + " " + initialPart;
 							}
@@ -348,7 +352,7 @@ public class Parser {
 							initialPart = "," + initialPart;
 						if (constituents[j].contains("'")) {
 							System.err.println(constituents[j]);
-							initialPart = constituents[j].replaceAll("(\\s|\\))+","").trim() + initialPart;
+							initialPart = constituents[j].replaceAll("(\\s|\\))+","").trim() + " " + initialPart;
 						}
 
 						

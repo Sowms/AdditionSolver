@@ -1090,6 +1090,10 @@ public class KnowledgeRepresenter {
 				System.out.println("waka");
 				ArrayList<TimeStamp> verbStory1 = null;
 				ArrayList<TimeStamp> verbStory2 = null;
+				if (questionOwner1.isEmpty())
+					questionOwner1 = "unknown0";
+				if (questionOwner2.isEmpty())
+					questionOwner2 = "unknown0";
 				
 				if (story.get(questionOwner1).situation.containsKey(questionVerb))
 					verbStory1 = story.get(questionOwner1).situation.get(questionVerb);
