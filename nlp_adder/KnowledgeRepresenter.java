@@ -364,13 +364,15 @@ public class KnowledgeRepresenter {
 				if (!owner2.isEmpty() && !owner.isEmpty()) {
 					if (owner.contains(owner2) || owner2.contains(owner))
 						break;
-					owner1 = owner;
-					break;
+					if (owners.size() > 1 && story.containsKey(owner)) {
+						owner1 = owner;
+						break;
+					}
 				}
-			}
-			}
-			if (owner1.isEmpty())
+			}if (owner1.isEmpty())
 				owner1 = UNKNOWN + "0"; 
+			}
+			
 		}
 		else if (owner2.isEmpty()) {
 			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
@@ -379,13 +381,15 @@ public class KnowledgeRepresenter {
 				if (!owner1.isEmpty() && !owner.isEmpty()) {
 					if (owner.contains(owner1) || owner1.contains(owner))
 						break;
-					owner2 = owner;
-					break;
+					if (owners.size() > 1 && story.containsKey(owner)) {
+						owner2 = owner;
+						break;
+					}
 				}
-			}}
+			}if (owner2.isEmpty())
+				owner2 = UNKNOWN + "0";}
 			////System.out.println(owner2+"|"+owner1);
-			if (owner2.isEmpty())
-				owner2 = UNKNOWN + "0";
+			
 		}
 		// There is no keyword here, an entity has been assigned a value
 		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities);
