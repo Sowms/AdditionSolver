@@ -15,12 +15,13 @@ import edu.stanford.nlp.util.CoreMap;
 public class ConjunctionResolver {
 	
 	public static boolean containsVerb (List<CoreLabel> tokens) {
-		 int index=0;
+		 int index=1;
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
+		   	System.out.println(pos+token);
 		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
-		   	if (pos.contains("VB") && tokens.indexOf(token)==1 && !containsVerb(tokens.subList(index, tokens.size()-1)))
+		   	if (pos.contains("VB") && tokens.indexOf(token)==0 && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
 		   	index++;
 	     }
@@ -44,7 +45,7 @@ public class ConjunctionResolver {
 	}
 	public static String getVerbPhrase (List<CoreLabel> tokens) {
 		String verbPhrase = "";
-		int index=0;
+		int index=1;
 		for (CoreLabel token: tokens) {
 			//if (token.originalText().equals(text.split(" ")[0]) && tokens.get(tokens.indexOf(token)+1).originalText().equals(text.split(" ")[1])) 
 			//	begin = true;
@@ -193,7 +194,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Hoping to be named Salesperson of the Month , Rosa called the names from 10.2 pages of the phone book last week . This week , she called the people listed on another 8.6 pages of the same phone book. How many pages worth of people did Rosa call in all ?",pipeline));
+		System.out.println(parse("Jenny ran 0.6 mile and walked 0.4 mile . How much farther did Jenny run than walk ?",pipeline));
 	}
 	
 }

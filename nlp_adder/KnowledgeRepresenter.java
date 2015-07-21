@@ -369,10 +369,10 @@ public class KnowledgeRepresenter {
 						break;
 					}
 				}
-			}if (owner1.isEmpty())
-				owner1 = UNKNOWN + "0"; 
 			}
-			
+			}
+			if (owner1.isEmpty())
+				owner1 = UNKNOWN + "0"; 
 		}
 		else if (owner2.isEmpty()) {
 			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
@@ -386,10 +386,10 @@ public class KnowledgeRepresenter {
 						break;
 					}
 				}
-			}if (owner2.isEmpty())
-				owner2 = UNKNOWN + "0";}
+			}}
 			////System.out.println(owner2+"|"+owner1);
-			
+			if (owner2.isEmpty())
+				owner2 = UNKNOWN + "0";
 		}
 		// There is no keyword here, an entity has been assigned a value
 		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities);
@@ -1102,25 +1102,37 @@ public class KnowledgeRepresenter {
 					questionOwner1 = "unknown0";
 				if (questionOwner2.isEmpty())
 					questionOwner2 = "unknown0";
-				
+				if (questionOwner2.equals("unknown0") && !story.containsKey("unknown0"))
+					questionOwner2 = questionOwner1;
 				if (story.get(questionOwner1).situation.containsKey(questionVerb))
 					verbStory1 = story.get(questionOwner1).situation.get(questionVerb);
 				else
 					verbStory1 = story.get(questionOwner1).situation.entrySet().iterator().next().getValue();
-				if (story.get(questionOwner2).situation.containsKey(questionVerb))
+				if (story.get(questionOwner2).situation.containsKey(questionVerb) && !questionOwner1.equals(questionOwner2))
 					verbStory2 = story.get(questionOwner2).situation.get(questionVerb);
-				else
+				else if (!questionOwner1.equals(questionOwner2))
 					verbStory2 = story.get(questionOwner2).situation.entrySet().iterator().next().getValue();
-				
+				else {
+					System.out.println("cccc");
+					it1 = story.get(questionOwner2).situation.entrySet().iterator();
+					while (it1.hasNext()) {
+						Entry<String, ArrayList<TimeStamp>> pair = it1.next();
+						if (!pair.getKey().equals(questionVerb)) {
+							verbStory2 = pair.getValue();
+							System.out.println(pair.getKey());
+							break;
+						}
+					}
+				}
 				String value1 = "", value2 = "";
 				for (TimeStamp t : verbStory1) {
-					if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) {
+					if (t.time.equals(TIMESTAMP_PREFIX + questionTime) || questionOwner1.equals(questionOwner2)) {
 						value1 = t.value;
 						questionEntity = t.name;
 					}
 				}
 				for (TimeStamp t : verbStory2) {
-					if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) { 
+					if (t.time.equals(TIMESTAMP_PREFIX + questionTime) || questionOwner1.equals(questionOwner2)) { 
 						value2 = t.value;
 						questionEntity = t.name;
 					}
@@ -1338,14 +1350,17 @@ public class KnowledgeRepresenter {
 					}
 					candidates.add(ans);
 				}
+				ans = "";
 				for (String candidate : candidates) {
-					if (candidate!=null && !candidate.contains("x")) {
+					//System.out.println(question.contains(" "+ans.replace("0+", "")+" "));
+					if (candidate!=null && !candidate.contains("x") && !question.contains(" "+candidate.replace("0+", "")+" ")) {
 						ans = candidate;
+						System.out.println("c"+candidate);
 						questionOwner = own.get(candidates.indexOf(candidate));
 					}
 				}
-				System.out.println("aaa"+ans+candidates);
-				if (question.contains(" "+ans.replace("+0", "")+" ")) {
+				System.out.println("aaa"+ans);
+				if (ans.isEmpty()) {
 					String sum = "0";
 					System.out.println("check1"+questionOwner+"|"+questionVerb);
 					for (TimeStamp t : verbStory) {
@@ -1360,7 +1375,7 @@ public class KnowledgeRepresenter {
 		}
 		
 		if (ans == null) {
-			System.out.println("check"+questionOwner+"|"+questionVerb);
+			System.out.println("checkx"+questionOwner+"|"+questionVerb);
 			ArrayList<TimeStamp> verbStory = null;
 			if (story.get(questionOwner).situation.containsKey(questionVerb))
 				verbStory = story.get(questionOwner).situation.get(questionVerb);

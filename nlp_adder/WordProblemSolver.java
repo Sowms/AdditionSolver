@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Alyssa's cat had 8 kittens and 8 had spots . She gave 4 to her friends .How many kittens does she now have ?", pipeline);
+		solveWordProblems("Jenny ran 0.6 mile and walked 0.4 mile . How much farther did Jenny run than walk ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
