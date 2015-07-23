@@ -21,8 +21,12 @@ public class ConjunctionResolver {
 		   	System.out.println(pos+token);
 		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
-		   	if (pos.contains("VB") && tokens.indexOf(token)==0 && !containsVerb(tokens.subList(index, tokens.size()-1)))
-		   		return true;
+		   	if (pos.contains("VB") && tokens.indexOf(token)==0) {
+		   		if (tokens.size() > 1 && !containsVerb(tokens.subList(index, tokens.size()-1)))
+		   			return true;
+		   		if (tokens.size()==1)
+		   			return true;
+		   	}
 		   	index++;
 	     }
 	    return false;
@@ -106,7 +110,7 @@ public class ConjunctionResolver {
 			boolean condition1 = sentence.toString().contains(" and ");
 			boolean condition2 = sentence.toString().contains(" but ");
 			boolean condition3 = sentence.toString().contains(" if ");
-			//boolean condition4 = sentence.toString().contains(" to ");
+			boolean condition4 = sentence.toString().contains(" then ");
 			System.out.println(condition1);
 			String splitString = "";
 			if (condition1)
@@ -115,9 +119,9 @@ public class ConjunctionResolver {
 				splitString = " but ";
 			if (condition3)
 				splitString = " if ";
-			//if (condition4)
-				//splitString = "to";
-			if (condition1 || condition2 || condition3) {
+			if (condition4)
+				splitString = " then ";
+			if (condition1 || condition2 || condition3 || condition4) {
 				String firstPart = sentence.toString().split(splitString)[0];
 				String secondPart = sentence.toString().split(splitString)[1];
 				String VP1="", VP2="", PrP1="", PrP2="", L1="", L2="", P1="", P2="";
@@ -194,7 +198,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Jenny ran 0.6 mile and walked 0.4 mile . How much farther did Jenny run than walk ?",pipeline));
+		System.out.println(parse("This afternoon Craig left school , rode the bus 3.8333333333333335 miles , and then walked 0.16666666666666666 mile to get home .How much farther did Craig ride than walk ?",pipeline));
 	}
 	
 }

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Jenny ran 0.6 mile and walked 0.4 mile . How much farther did Jenny run than walk ?", pipeline);
+		solveWordProblems(" A car company produced 3884 cars in North America and 2871 cars in Europe . How many cars is that in all ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

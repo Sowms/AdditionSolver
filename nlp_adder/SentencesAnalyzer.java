@@ -95,7 +95,7 @@ public class SentencesAnalyzer {
 		aggregators.add("sum");
 		
 		differences.add("left");
-		differences.add("remaining");
+		differences.add("remain");
 		differences.add("over");
 		differences.add("difference");
 		

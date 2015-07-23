@@ -80,7 +80,8 @@ public class KnowledgeRepresenter {
 	static ArrayList<String> storyTense = new ArrayList<String>();
 	static HashMap<String,String> keywordMap = new HashMap<String,String>();
 	static ArrayList<String> allEquations = new ArrayList<String>();
-	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();;
+	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();
+	
 	
 
 	private static void loadProcedureLookup() {
@@ -151,8 +152,16 @@ public class KnowledgeRepresenter {
 
 	private static void updateTimestamp (String owner, Entity newEntity, String tense, String nounQual, String verbQual) {
 		//System.out.println(owner + "|update|" + newEntity.name + "|" + tense + "|" + newEntity.value + "|" +timeStep +"|"+nounQual+"|"+verbQual);
-		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has"))
-			updateTimestamp (owner, newEntity, tense, nounQual, "has") ;
+		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has")) {
+			if (story.containsKey(owner)) {
+				if (!story.get(owner).situation.containsKey("has") && !story.get(owner).situation.containsKey(verbQual))
+					updateTimestamp (owner, newEntity, tense, nounQual, "has");
+				if (story.get(owner).situation.containsKey("has") && story.get(owner).situation.containsKey(verbQual))
+					updateTimestamp (owner, newEntity, tense, nounQual, "has");
+			}
+			else
+				updateTimestamp (owner, newEntity, tense, nounQual, "has") ;
+		}
 		if (newEntity.name == null)
 			return;
 		entities.add(newEntity.name);
@@ -417,7 +426,7 @@ public class KnowledgeRepresenter {
 				variables.put(newEntity.value, null);
 				varCount++;
 			}
-			//System.out.println(verbQual+"||");
+			System.out.println(verbQual+"||"+verb);
 			updateTimestamp (owner, newEntity, tense, nounQual, verb);				
 		}
 		if (procedure.isEmpty() && newEntity.name != null) 
@@ -801,8 +810,8 @@ public class KnowledgeRepresenter {
 
 		if (questionVerb.equals("spend"))
 			questionEntity = "dollar";
-		if (questionOwner.isEmpty() && questionVerb.equals("has"))
-			questionVerb = "";
+		//if (questionOwner.isEmpty() && questionVerb.equals("has"))
+			//questionVerb = "";
 		System.out.println("ques|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+isQuestionAggregator+"|"+isQuestionDifference + "|" + isQuestionComparator+"|"+questionVerb+questionTime);
 		
 		if (!allEquations.isEmpty()) {
@@ -967,11 +976,11 @@ public class KnowledgeRepresenter {
 							////////System.out.println(questionEntity+"|"+t.name);
 							if (!questionEntity.isEmpty() && !(questionEntity.contains(t.name) || t.name.contains(questionEntity)) && entities.contains(questionEntity) && !t.name.contains(questionEntity))
 								continue;
-							if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) {
+							if (!t.value.contains("x")) {
 								if (counter == 0) {
 									big = t.value;
 									counter++;
-								} else {
+								} else if (!t.value.contains("x")){
 									small = t.value;
 								}
 							}
@@ -989,6 +998,34 @@ public class KnowledgeRepresenter {
 				else
 					finalAns = "Altogether " + ans + " " + questionEntity;
 				////////////System.out.println("false");
+				return;
+			}
+			if (isQuestionComparator) {
+				Iterator<Map.Entry<String, Owner>> it = story.entrySet().iterator();
+				int counter = 0;
+				while (it.hasNext()) {
+				     Map.Entry<String, Owner> pairs = it.next();
+				     Owner owner = pairs.getValue();
+				     counter = 0;
+				     Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = owner.situation.entrySet().iterator();
+					 while (it1.hasNext()) {
+						 Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
+						 ArrayList<TimeStamp> verbStory = newPairs.getValue();
+						for (TimeStamp t : verbStory) {
+							if (!questionEntity.isEmpty() && !(questionEntity.contains(t.name) || t.name.contains(questionEntity)) && entities.contains(questionEntity) && !t.name.contains(questionEntity))
+								continue;
+							if (!t.value.contains("x")) {
+								if (counter == 0) {
+									big = t.value;
+									counter++;
+								} else if (!t.value.contains("x") && !t.value.equals(big)){
+									small = t.value;
+								}
+							}
+						}
+					 }
+				}
+				finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(big + "-" + "(" + small + ")") + " " + questionEntity + " more than " + questionOwner2;
 				return;
 			}
 		}
@@ -1193,12 +1230,12 @@ public class KnowledgeRepresenter {
 				Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
 				ArrayList<TimeStamp> verbStory = newPairs.getValue();
 				for (TimeStamp t : verbStory) {
-					if (t.name.equals(questionEntity)) {
+					if (t.name.equals(questionEntity) && !t.value.contains("x")) {
 						if (counter == 0) {
 							big = t.value;
 							counter++;
 						}
-						else
+						else if (!t.value.contains("x"))
 							small = t.value;
 					}
 				}
@@ -1285,14 +1322,32 @@ public class KnowledgeRepresenter {
 			ArrayList<TimeStamp> verbStory1 = null;
 			ArrayList<TimeStamp> verbStory2 = null;
 			
+			if (questionOwner1.isEmpty())
+				questionOwner1 = "unknown0";
+			if (questionOwner2.isEmpty())
+				questionOwner2 = "unknown0";
+			if (questionOwner2.equals("unknown0") && !story.containsKey("unknown0"))
+				questionOwner2 = questionOwner1;
 			if (story.get(questionOwner1).situation.containsKey(questionVerb))
 				verbStory1 = story.get(questionOwner1).situation.get(questionVerb);
 			else
 				verbStory1 = story.get(questionOwner1).situation.entrySet().iterator().next().getValue();
-			if (story.get(questionOwner2).situation.containsKey(questionVerb))
+			if (story.get(questionOwner2).situation.containsKey(questionVerb) && !questionOwner1.equals(questionOwner2))
 				verbStory2 = story.get(questionOwner2).situation.get(questionVerb);
-			else
+			else if (!questionOwner1.equals(questionOwner2) || questionOwner2.equals("unknown0"))
 				verbStory2 = story.get(questionOwner2).situation.entrySet().iterator().next().getValue();
+			else {
+				System.out.println("cccc");
+				Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = story.get(questionOwner2).situation.entrySet().iterator();
+				while (it1.hasNext()) {
+					Entry<String, ArrayList<TimeStamp>> pair = it1.next();
+					if (!pair.getKey().equals(questionVerb)) {
+						verbStory2 = pair.getValue();
+						System.out.println(pair.getKey());
+						break;
+					}
+				}
+			}
 			
 			String value1 = "", value2 = "";
 			for (TimeStamp t : verbStory1) {
@@ -1302,6 +1357,18 @@ public class KnowledgeRepresenter {
 			for (TimeStamp t : verbStory2) {
 				if (t.name.contains(questionEntity) && t.time.equals(TIMESTAMP_PREFIX + questionTime)) 
 					value2 = t.value;
+			}
+			if (value1.isEmpty()) {
+				for (TimeStamp t : verbStory1) {
+					if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) 
+						value1 = t.value;
+				}
+			}
+			if (value2.isEmpty()) {
+				for (TimeStamp t : verbStory2) {
+					if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) 
+						value2 = t.value;
+				}
 			}
 			finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(value1 + "-" + "(" + value2 + ")") + " " + questionEntity + " more than " + questionOwner2;
 			return;

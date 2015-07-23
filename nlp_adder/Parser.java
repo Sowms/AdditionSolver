@@ -279,7 +279,7 @@ public class Parser {
                 		}
                 		continue;
                 	}
-                	if ((clust2.contains("she") || clust2.contains("he")) && clust.contains(" "))
+                	if ((clust2.equals("she") || clust2.equals("he")) && clust.contains(" "))
                 		continue;
                 	if (clust.matches("\\d+\\.\\d*")||clust.matches(".*\\d.*"))
                 		continue;
