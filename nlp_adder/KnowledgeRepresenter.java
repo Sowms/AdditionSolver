@@ -807,7 +807,8 @@ public class KnowledgeRepresenter {
 				ownerSwap = true;
 			}
 		}
-
+		if (!owners.contains(questionOwner))
+			questionOwner = "";
 		if (questionVerb.equals("spend"))
 			questionEntity = "dollar";
 		//if (questionOwner.isEmpty() && questionVerb.equals("has"))
@@ -868,7 +869,7 @@ public class KnowledgeRepresenter {
 							if (newPairs.getKey().isEmpty())
 								continue;
 							if (!t.value.contains("x")) {
-								if((newPairs.getKey().equals("has") && (t.value.endsWith(".0")||t.value.contains("+")||t.value.contains("-")) && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has"))
+								//if((newPairs.getKey().equals("has") && (t.value.endsWith(".0")||t.value.contains("+")||t.value.contains("-")) && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has"))
 									sum = sum + "+" + t.value;
 							}
 							System.err.println(sum+newPairs.getKey()+"|");
