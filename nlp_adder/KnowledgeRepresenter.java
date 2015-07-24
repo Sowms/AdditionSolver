@@ -91,6 +91,8 @@ public class KnowledgeRepresenter {
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
+		keywordMap.put("load", CHANGE_OUT);
+		
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("less than", COMPARE_MINUS);
 		keywordMap.put("get", CHANGE_IN);
@@ -104,6 +106,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("more", INCREASE);
+		keywordMap.put("increase", INCREASE);
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("find", INCREASE);
@@ -1573,7 +1576,7 @@ public class KnowledgeRepresenter {
 		if (ans.contains(X_VALUE)) {
 			////////////System.out.println("Cannot be solved!");
 			////////////System.out.println("Assuming initial conditions");
-			ans = ans.replaceFirst(VAR_PATTERN, "");
+			ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
 		}
 		////////////System.out.println("--");
 		if (ans.contains("+") || ans.contains("-"))

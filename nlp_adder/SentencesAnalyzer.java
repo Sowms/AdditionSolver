@@ -86,6 +86,8 @@ public class SentencesAnalyzer {
 		keywordMap.put("more", INCREASE);
 		keywordMap.put("build", CHANGE_OUT);
 		keywordMap.put("taller", INCREASE);
+		keywordMap.put("load", CHANGE_OUT);
+		keywordMap.put("increase", INCREASE);
 		keywordMap.put("find", INCREASE);
 		
 		aggregators.add(" together ");
