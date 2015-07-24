@@ -84,20 +84,22 @@ public class SentencesAnalyzer {
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("more", INCREASE);
+		keywordMap.put("build", CHANGE_OUT);
+		keywordMap.put("taller", INCREASE);
 		keywordMap.put("find", INCREASE);
 		
-		aggregators.add("together");
-		aggregators.add("overall");
-		aggregators.add("total");
+		aggregators.add(" together ");
+		aggregators.add(" overall ");
+		aggregators.add(" total ");
 		aggregators.add("in all");
 		aggregators.add("In all");
 		aggregators.add("combine");
 		aggregators.add("sum");
 		
-		differences.add("left");
-		differences.add("remain");
-		differences.add("over");
-		differences.add("difference");
+		differences.add(" left ");
+		differences.add(" remain ");
+		differences.add(" over ");
+		differences.add(" difference ");
 		
 		comparators.add("more");
 		comparators.add("longer");
@@ -327,7 +329,7 @@ public class SentencesAnalyzer {
     		sentenceEntities.add(newEntity);}
 		}
 		
-		if (newEntity.value == null) {
+		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ")) {
 			System.out.println("waka"+owners);
 			isQuestion = true;
     		String questionEntity = "", questionOwner1 = "", questionOwner2 = "",prevWord = "", prevLemma = "";

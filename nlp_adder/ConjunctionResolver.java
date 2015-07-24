@@ -19,10 +19,10 @@ public class ConjunctionResolver {
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
 		   	System.out.println(pos+token);
-		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && !containsVerb(tokens.subList(index, tokens.size()-1)))
+		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && index < tokens.size() && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
 		   	if (pos.contains("VB") && tokens.indexOf(token)==0) {
-		   		if (tokens.size() > 1 && !containsVerb(tokens.subList(index, tokens.size()-1)))
+		   		if (tokens.size() > 1 && index < tokens.size() && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   			return true;
 		   		if (tokens.size()==1)
 		   			return true;
