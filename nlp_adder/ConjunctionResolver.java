@@ -18,7 +18,7 @@ public class ConjunctionResolver {
 		 int index=1;
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
-		   	System.out.println(pos+token);
+		   	//System.out.println(pos+token);
 		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && index < tokens.size() && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
 		   	if (pos.contains("VB") && tokens.indexOf(token)==0) {
@@ -75,19 +75,30 @@ public class ConjunctionResolver {
 	    //boolean begin = false;
 	    for (CoreLabel token: tokens) {
 			String pos = token.get(PartOfSpeechAnnotation.class);
-			System.out.println(token.originalText()+pos);
+			//System.out.println(token.originalText()+pos);
 			if (pos.contains("VB"))
 	    		crossVerb = true;
 			if (containsVerb(tokens) && !crossVerb)
 				continue;
 			/*if (!prepPhrase.isEmpty() && !prepPhrase.endsWith(" ") && !prepPhrase.endsWith("$"))
 	    		prepPhrase = prepPhrase + " ";*/
-			if (pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO"))
+			if (!crossPrep && pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO")) {
 	    		crossPrep = true;
+	    		prepPhrase = prepPhrase + token.originalText() + " ";
+	    		continue;
+			}
+			if (crossPrep && (pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO"))) {
+				prepPhrase = "";
+				System.out.println("\twaka" + prepPhrase);
+				prepPhrase = prepPhrase + token.originalText() + " ";
+	    		continue;
+			}
 			if (crossPrep && !pos.equals("$"))
 				prepPhrase = prepPhrase + token.originalText() + " ";
 			else if (crossPrep)
 				prepPhrase = prepPhrase + token.originalText();
+    		
+			
      	}
 	    prepPhrase = prepPhrase.replace(" .",".");
 	    prepPhrase = prepPhrase.replace(" ,",",");
@@ -162,7 +173,14 @@ public class ConjunctionResolver {
 				if (containsPrep(secondPartTokens)) {
 					PrP2 = getPrepPhrase(secondPart,secondPartTokens);
 				}
-				////System.out.println(PrP2);
+				System.out.println("aa"+PrP2);
+				System.out.println("aa"+PrP1);
+				System.out.println("aa"+verb2);
+				System.out.println("aa"+P2);
+				System.out.println("aa"+VP2);
+				
+				
+				
 				if (verb2.isEmpty())
 					verb2 = verb1;
 				if (VP2.isEmpty())
@@ -172,7 +190,7 @@ public class ConjunctionResolver {
 				}
 				if (PrP1.isEmpty())
 					PrP1 = PrP2;
-				System.out.println(VP1+"|"+VP2);
+				//System.out.println(VP1+"|"+VP2);
 				L1 = firstPart.replace(VP1,"");
 				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
@@ -181,7 +199,8 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1 + "|" + P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				else
@@ -198,7 +217,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Darnel sprinted 0.875 lap and then took a break by jogging 0.75 lap .How much farther did Darnel sprint than jog ?",pipeline));
+		System.out.println(parse("A waitress put leftover tarts into the fridge on Thursday night . She noticed that the restaurant had 0.08333333333333333 tart filled with cherries , 0.75 tart filled with blueberries , and 0.08333333333333333 tart filled with peaches . How many leftover tarts did the restaurant have in all ?",pipeline));
 	}
 	
 }

@@ -816,6 +816,7 @@ public class KnowledgeRepresenter {
 	public static void solve() {
 		boolean ownerSwap = false;
 		if (story.isEmpty()) {
+			System.out.println(question);
 			Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
 			Matcher varMatcher = numPattern.matcher(question);
 			String sum = "0";
