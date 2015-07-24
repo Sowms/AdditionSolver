@@ -470,6 +470,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Hoping to be named Salesperson of the Month , Rosa called the names from 10.2 pages of the phone book last week . This week , she called the people listed on another 8.6 pages of the same phone book. How many pages worth of people did Rosa call in all ?",pipeline));
+		System.out.println(parse("This year , 712261 male and 259378 female salmon returned to their rivers.",pipeline));
 	}
 }

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("A bucket contains 3 gallons of water . If Derek adds 6.8 gallons more ,how many gallons will there be in all ?", pipeline);
+		solveWordProblems(" Karen added 0.25 cup of walnuts to a batch of trail mix . Later , she added 0.25 cup of almonds . How many cups of nuts did Karen put in the trail mix in all ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

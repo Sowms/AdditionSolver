@@ -1368,30 +1368,16 @@ public class KnowledgeRepresenter {
 					fans =  EquationSolver.getSolution(ans);
 				else
 					fans = ans;
-				System.out.println(fans);
-				if (Double.parseDouble(fans) < 0) {
-					Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+				System.err.println(fans);
+				if (Double.parseDouble(fans) < 0 ) {
+					Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+					Matcher varMatcher = numPattern.matcher(question);
 					sum = "0";
-					while (it.hasNext()) {
-						verbStory = it.next().getValue().situation.get("has");
-						for (TimeStamp t : verbStory) {
-							if ((t.name.contains(questionEntity) || questionEntity.contains(t.name)) && !t.value.contains("x") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) 
-								sum = t.value + "+" + sum ;
-							}
+					while (varMatcher.find()) {
+						sum = sum + "+" + varMatcher.group();
 					}
-					ans = sum;
-					if (ans.contains(X_VALUE)) {
-						////////////System.out.println("Cannot be solved!");
-						////////////System.out.println("Assuming initial conditions");
-						ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
-					}
-					////////////System.out.println("--");
-					fans = "";
-					if (ans.contains("+") || ans.contains("-"))
-						fans =  EquationSolver.getSolution(ans);
-					else
-						fans = ans;
-					
+					finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
+					return;	
 				}
 				finalAns = questionOwner + " " + questionVerb + " " + fans + " " + questionEntity;
 				if (!question.contains(" " + sum.replace("+0", "") + " ")) 
