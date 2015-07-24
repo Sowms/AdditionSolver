@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("There are 5 scissors and 3 pencils in the drawer . Jason placed 4 scissors in the drawer . How many scissors are now there in total ?", pipeline);
+		solveWordProblems("A bucket contains 3 gallons of water . If Derek adds 6.8 gallons more ,how many gallons will there be in all ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

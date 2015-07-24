@@ -70,6 +70,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("place", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
+		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("get", CHANGE_IN);
@@ -104,7 +105,7 @@ public class SentencesAnalyzer {
 		differences.add(" over ");
 		differences.add(" difference ");
 		
-		comparators.add("more");
+		comparators.add(" more ");
 		comparators.add("longer");
 		comparators.add("larger");
 		comparators.add("further");

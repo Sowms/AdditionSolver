@@ -87,6 +87,7 @@ public class KnowledgeRepresenter {
 	private static void loadProcedureLookup() {
 		keywordMap.put("put", CHANGE_OUT);
 		keywordMap.put("place", CHANGE_OUT);
+		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("plant", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
@@ -1355,8 +1356,44 @@ public class KnowledgeRepresenter {
 					if (t.name.contains(questionEntity) || questionEntity.contains(t.name)) 
 						sum = t.value + "+" + sum ;
 				}
-				finalAns = questionOwner + " has " + EquationSolver.getSolution(sum) + " " + questionEntity + " altogether";
-				System.out.println(" " + sum.replace("+0", "")+" ");
+				String ans = sum;
+				if (ans.contains(X_VALUE)) {
+					////////////System.out.println("Cannot be solved!");
+					////////////System.out.println("Assuming initial conditions");
+					ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
+				}
+				////////////System.out.println("--");
+				String fans = "";
+				if (ans.contains("+") || ans.contains("-"))
+					fans =  EquationSolver.getSolution(ans);
+				else
+					fans = ans;
+				System.out.println(fans);
+				if (Double.parseDouble(fans) < 0) {
+					Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+					sum = "0";
+					while (it.hasNext()) {
+						verbStory = it.next().getValue().situation.get("has");
+						for (TimeStamp t : verbStory) {
+							if ((t.name.contains(questionEntity) || questionEntity.contains(t.name)) && !t.value.contains("x") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) 
+								sum = t.value + "+" + sum ;
+							}
+					}
+					ans = sum;
+					if (ans.contains(X_VALUE)) {
+						////////////System.out.println("Cannot be solved!");
+						////////////System.out.println("Assuming initial conditions");
+						ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
+					}
+					////////////System.out.println("--");
+					fans = "";
+					if (ans.contains("+") || ans.contains("-"))
+						fans =  EquationSolver.getSolution(ans);
+					else
+						fans = ans;
+					
+				}
+				finalAns = questionOwner + " " + questionVerb + " " + fans + " " + questionEntity;
 				if (!question.contains(" " + sum.replace("+0", "") + " ")) 
 					return;
 			} 
@@ -1383,7 +1420,18 @@ public class KnowledgeRepresenter {
 							sum = t.value + "+" + sum ;
 					}
 				}
-				
+
+				String ans = sum;
+				if (ans.contains(X_VALUE)) {
+					////////////System.out.println("Cannot be solved!");
+					////////////System.out.println("Assuming initial conditions");
+					ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
+				}
+				////////////System.out.println("--");
+				if (ans.contains("+") || ans.contains("-"))
+					finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				else
+					finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
 				return;
 		}
 		//repair
@@ -1391,12 +1439,13 @@ public class KnowledgeRepresenter {
 			ArrayList<TimeStamp> verbStory1 = null;
 			ArrayList<TimeStamp> verbStory2 = null;
 			
-			if (questionOwner1.isEmpty())
+			if (questionOwner1.isEmpty() || !story.containsKey(questionOwner1))
 				questionOwner1 = "unknown0";
-			if (questionOwner2.isEmpty())
+			if (questionOwner2.isEmpty() || !story.containsKey(questionOwner2))
 				questionOwner2 = "unknown0";
 			if (questionOwner2.equals("unknown0") && !story.containsKey("unknown0"))
 				questionOwner2 = questionOwner1;
+			System.out.println(questionOwner1+questionOwner2);
 			if (story.get(questionOwner1).situation.containsKey(questionVerb))
 				verbStory1 = story.get(questionOwner1).situation.get(questionVerb);
 			else
