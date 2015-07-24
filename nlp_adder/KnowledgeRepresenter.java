@@ -113,6 +113,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("build", CHANGE_OUT);
 		keywordMap.put("decrease", REDUCTION);
 		
+		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity]. [owner2]+[entity]");
 		procedureMap.put(CHANGE_IN, "[owner1]+[entity]. [owner2]-[entity]");
 		procedureMap.put(COMPARE_PLUS, "[entity]+[owner2]");
@@ -814,6 +815,17 @@ public class KnowledgeRepresenter {
 	
 	public static void solve() {
 		boolean ownerSwap = false;
+		if (story.isEmpty()) {
+			Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+			Matcher varMatcher = numPattern.matcher(question);
+			String sum = "0";
+			while (varMatcher.find()) {
+				sum = sum + "+" + varMatcher.group();
+			}
+			finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
+			return;
+		}
+		System.out.println("ques|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+isQuestionAggregator+"|"+isQuestionDifference + "|" + isQuestionComparator+"|"+questionVerb+questionTime);
 		System.out.println(owners);
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
 			if (story.entrySet().iterator().next().getKey().contains(questionOwner))
@@ -829,6 +841,13 @@ public class KnowledgeRepresenter {
 			questionEntity = "dollar";
 		if (questionVerb.equals("weigh"))
 			questionEntity = "";
+		if (question.contains("taller") || question.contains("longer")) {
+			if (entities.contains("foot"))
+				questionEntity = "foot";
+			if (entities.contains("inch"))
+				questionEntity = "inch";
+			
+		}
 		//if (questionOwner.isEmpty() && questionVerb.equals("has"))
 			//questionVerb = "";
 		System.out.println("ques|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+isQuestionAggregator+"|"+isQuestionDifference + "|" + isQuestionComparator+"|"+questionVerb+questionTime);
@@ -872,8 +891,8 @@ public class KnowledgeRepresenter {
 			     counter = 0;
 			     Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = owner.situation.entrySet().iterator();
 				 while (it1.hasNext()) {
-					 Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
-					 ArrayList<TimeStamp> verbStory = newPairs.getValue();
+					Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
+					ArrayList<TimeStamp> verbStory = newPairs.getValue();
 					for (TimeStamp t : verbStory) {
 						if (!questionEntity.isEmpty() && !(questionEntity.contains(t.name) || t.name.contains(questionEntity)) && entities.contains(questionEntity) && !t.name.contains(questionEntity))
 							continue;

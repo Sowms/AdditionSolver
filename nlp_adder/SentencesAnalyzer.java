@@ -88,6 +88,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("increase", INCREASE);
+		
 		keywordMap.put("find", INCREASE);
 		
 		aggregators.add(" together ");
@@ -218,7 +219,7 @@ public class SentencesAnalyzer {
     			entities.add(newEntity.name);
     			sentenceEntities.add(newEntity);
     		}
-    		if (edge.getTarget().toString().contains("NN")) {
+			if (edge.getTarget().toString().contains("NN")) {
     			relation = edge.getRelation().toString(); 
     			if (relation.equals(PARSER_SUBJECT)) {
     				if (owner1.isEmpty()) {

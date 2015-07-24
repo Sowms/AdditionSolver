@@ -82,7 +82,7 @@ public class ConjunctionResolver {
 				continue;
 			/*if (!prepPhrase.isEmpty() && !prepPhrase.endsWith(" ") && !prepPhrase.endsWith("$"))
 	    		prepPhrase = prepPhrase + " ";*/
-			if (pos.contains("IN") || pos.contains("TO"))
+			if (pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO"))
 	    		crossPrep = true;
 			if (crossPrep && !pos.equals("$"))
 				prepPhrase = prepPhrase + token.originalText() + " ";
@@ -115,11 +115,11 @@ public class ConjunctionResolver {
 			String splitString = "";
 			if (condition1)
 				splitString = " and ";
-			if (condition2)
+			else if (condition2)
 				splitString = " but ";
-			if (condition3)
+			else if (condition3)
 				splitString = " if ";
-			if (condition4)
+			else if (condition4)
 				splitString = " then ";
 			if (condition1 || condition2 || condition3 || condition4) {
 				String firstPart = sentence.toString().split(splitString)[0];
@@ -198,7 +198,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("This afternoon Craig left school , rode the bus 3.8333333333333335 miles , and then walked 0.16666666666666666 mile to get home .How much farther did Craig ride than walk ?",pipeline));
+		System.out.println(parse("Darnel sprinted 0.875 lap and then took a break by jogging 0.75 lap .How much farther did Darnel sprint than jog ?",pipeline));
 	}
 	
 }
