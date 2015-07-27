@@ -95,6 +95,7 @@ public class SentencesAnalyzer {
 		aggregators.add(" together ");
 		aggregators.add(" overall ");
 		aggregators.add(" total ");
+		aggregators.add(" either ");
 		aggregators.add("in all");
 		aggregators.add("In all");
 		aggregators.add("combine");

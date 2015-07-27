@@ -466,7 +466,10 @@ public class Parser {
 	    }
 	    
 	    ////System.out.println(ans);	    
-	    return entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
+	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
+	    if (!finalAns.matches("/d"))
+	    	return input;
+	    return finalAns;
 	}
 	
 	public static void main(String[] args) {
