@@ -1,6 +1,7 @@
 package nlp_adder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -237,7 +238,9 @@ public class Parser {
 	}
 	
 	public static String parse(String input, StanfordCoreNLP pipeline) {
+		
 		input = input.replace("-", "");
+		ArrayList<String> numbers = new ArrayList<String>();
 		input = ConjunctionResolver.parse(input, pipeline);
 		String ans = "", text = dollarPreprocess(input);
 		System.out.println(text);
@@ -309,11 +312,13 @@ public class Parser {
 	    		String word = token.get(TextAnnotation.class);
 	    	//	String lemma;
 	   			//lemma = token.get(LemmaAnnotation.class);
-	    		//String pos = token.get(PartOfSpeechAnnotation.class);
+	    		String pos = token.get(PartOfSpeechAnnotation.class);
 	    		////////////System.out.println(word+"|"+pos+"|"+lemma+"|"+token.get(NamedEntityTagAnnotation.class));
 	    		words.add(word);
 	    //		if (pos.contains("W"))
 	    	//		questionSentence = counter;
+	    	    if (pos.contains("CD"))
+		    		numbers.add(token.originalText());
 	    	}
 	    	Tree tree = sentence.get(TreeAnnotation.class);
 	    	String parseExpr = tree.toString();
@@ -467,10 +472,12 @@ public class Parser {
 	    
 	    ////System.out.println(ans);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
-	    Pattern wordPattern = Pattern.compile("\\d");
-		Matcher matcher = wordPattern.matcher(finalAns); 
+	    Pattern numPattern = Pattern.compile("\\d");
+		Matcher matcher = numPattern.matcher(finalAns); 
 		if (!matcher.find())
 	    	return input;
+		if (!new ArrayList<String>(Arrays.asList(finalAns.split(" "))).containsAll(numbers))
+			return input;
 	    return finalAns;
 	}
 	

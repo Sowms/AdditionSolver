@@ -836,7 +836,7 @@ public class KnowledgeRepresenter {
 				questionOwner = story.entrySet().iterator().next().getKey();
 			else {
 				questionOwner = "";
-				ownerSwap = true;
+				//ownerSwap = true;
 			}
 		}
 		if (!owners.contains(questionOwner))
