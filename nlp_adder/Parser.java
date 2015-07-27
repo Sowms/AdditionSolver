@@ -320,6 +320,7 @@ public class Parser {
 	    	System.out.println(parseExpr);
 	    	String[] constituents = parseExpr.split(" ");
 	    	//boolean quesFlag = false;
+	    	int prevj = 0;
 	    	for (int i=0; i<constituents.length; i++) {
 	    		String initialPart = "", finalPart = "", tempFinal = "", tempInitial = "", verb = "";
 	    		int pos = -1;
@@ -329,7 +330,8 @@ public class Parser {
 	    			////System.out.println(constituents[i] + "|" + constituents[i+1] + "|" + constituents[i-1]);
 	    			verb = constituents[i+1].replace(")", "");
 	    			//System.out.println("v"+verb);
-	    			for (int j=i-1; j>=0; j--) {
+	    			
+	    			for (int j=i-1; j>=prevj; j--) {
 	    			
 	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().toLowerCase().contains("'") && !constituents[j-1].contains("and")) 
 	    					break;
@@ -453,6 +455,7 @@ public class Parser {
 	    			else*/
 	    			ans = (ans + initialPart + " " + finalPart).trim() + ".\n";
 	    			i = next;
+	    			prevj = i;
 	    			//initialPart = (initialPart.charAt(0) + "").toUpperCase() + initialPart.substring(1);
 	    			
 	    			//System.out.println("P" + initialPart + "|" + finalPart+ans);
@@ -470,6 +473,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ?",pipeline));
+		System.out.println(parse("There are 7.75 gallons of water in Becky's fish tank . If Becky adds 7 gallons more , how many gallons will there be in all ?",pipeline));
 	}
 }
