@@ -478,6 +478,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Joan found 70 seashells on the beach. She gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam?",pipeline));
+		System.out.println(parse(" Darnel sprinted 0.875 lap and then took a break by jogging 0.75 lap .How much farther did Darnel sprint than jog ?",pipeline));
 	}
 }
