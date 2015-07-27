@@ -467,7 +467,9 @@ public class Parser {
 	    
 	    ////System.out.println(ans);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
-	    if (!finalAns.matches("/d"))
+	    Pattern wordPattern = Pattern.compile("\\d");
+		Matcher matcher = wordPattern.matcher(finalAns); 
+		if (!matcher.find())
 	    	return input;
 	    return finalAns;
 	}
@@ -476,6 +478,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("There are 7.75 gallons of water in Becky's fish tank . If Becky adds 7 gallons more , how many gallons will there be in all ?",pipeline));
+		System.out.println(parse("Joan found 70 seashells on the beach. She gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam?",pipeline));
 	}
 }
