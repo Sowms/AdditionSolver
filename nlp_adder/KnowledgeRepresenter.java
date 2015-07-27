@@ -87,8 +87,8 @@ public class KnowledgeRepresenter {
 	private static void loadProcedureLookup() {
 		keywordMap.put("put", CHANGE_OUT);
 		keywordMap.put("place", CHANGE_OUT);
-		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("plant", CHANGE_OUT);
+		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
@@ -823,7 +823,9 @@ public class KnowledgeRepresenter {
 			String sum = "0";
 			while (varMatcher.find()) {
 				sum = sum + "+" + varMatcher.group();
+				System.out.println(sum);
 			}
+			System.out.println(sum);
 			finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
 			return;
 		}
@@ -1380,11 +1382,11 @@ public class KnowledgeRepresenter {
 					return;	
 				}
 				finalAns = questionOwner + " " + questionVerb + " " + fans + " " + questionEntity;
-				if (!question.contains(" " + sum.replace("+0", "") + " ")) 
+				if (!question.contains(" " + fans.replace("+0", "").replace(".0 ", " ") + " ")) 
 					return;
 			} 
 				
-				if (question.contains(" " + sum.replace("+0", "") + " ")) {
+				if (question.contains(" " + sum.replace("+0", "").replace(".0 ", " ") + " ")) {
 					sum = "0";
 					Iterator<Entry<String, ArrayList<TimeStamp>>> it1 = null;
 					Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
