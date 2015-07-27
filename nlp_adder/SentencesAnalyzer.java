@@ -120,13 +120,12 @@ public class SentencesAnalyzer {
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 	    for (CoreMap sentence : sentences) {
-	    	String tense = "", keyword = "", verb = "", prevPos = "";
-	    	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+	    	String tense = "", keyword = "", verb = "";
+	    	List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+	    	for (CoreLabel token: tokens) {
 		    	String lemma = token.get(LemmaAnnotation.class);
 		    	String pos = token.get(PartOfSpeechAnnotation.class);
 		    	if (pos.contains(POS_VERB) || pos.contains(POS_ADVMOD) || pos.contains(POS_MOD)) {
-		    		if (prevPos.contains("TO"))
-		    			continue;
 		    		if (pos.contains(POS_VERB))
 		    			verb = lemma;		  
 		    		System.err.println("ervb"+verb+"|"+sentence.toString());
@@ -146,7 +145,6 @@ public class SentencesAnalyzer {
 		    				keyword = "more";
 		    		}	
 		    	}
-		    	prevPos = pos;
 			}
 	    	////////////System.err.println(sentence.toString()+tense);
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
