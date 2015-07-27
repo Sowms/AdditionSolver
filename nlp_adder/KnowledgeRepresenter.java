@@ -1177,6 +1177,18 @@ public class KnowledgeRepresenter {
 			////////////System.out.println("aaa"+sum);
 			if (isQuestionAggregator) {
 				String ans = sum;
+				if (question.contains(sum.replace("0+", ""))) {
+					sum = "0";
+					Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+					Matcher varMatcher = numPattern.matcher(question);
+					while (varMatcher.find()) {
+						sum = sum + "+" + varMatcher.group();
+						System.out.println(sum);
+					}
+					System.out.println(sum);
+					finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
+					return;
+				}
 				if (ans.contains(X_VALUE)) {
 					//////////System.out.println("Cannot be solved!");
 					//////////System.out.println("Assuming initial conditions");
