@@ -1640,12 +1640,13 @@ public class KnowledgeRepresenter {
 		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 	else
 		finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
-		if (ans.equals("0") || !finalAns.contains(".") || question.contains(" " + ans.replace(".0", "") + " ") || (question.contains(" " + EquationSolver.getSolution(ans).replace(".0", "") +" ") && (!ans.replace("0+","").contains("+") && !ans.replace("0+","").contains("-") || !ans.replace("+0","").contains("+") && !ans.replace("+0","").contains("-")))) {
+		if (ans.equals("0") || !finalAns.contains(".") || finalAns.contains("-") || question.contains(" " + ans.replace(".0", "") + " ") || (question.contains(" " + EquationSolver.getSolution(ans).replace(".0", "") +" ") && (!ans.replace("0+","").contains("+") && !ans.replace("0+","").contains("-") || !ans.replace("+0","").contains("+") && !ans.replace("+0","").contains("-")))) {
 			
 			ArrayList<TimeStamp> verbStory = null;
 			ArrayList<String> candidates = new ArrayList<String>();
 			ArrayList<String> own = new ArrayList<String>();
 			Iterator<Entry<String, Owner>> it = story.entrySet().iterator();
+			String fineAns = "";
 			while (it.hasNext()) {
 				questionOwner = it.next().getKey();
 				own.add(questionOwner);
@@ -1663,12 +1664,17 @@ public class KnowledgeRepresenter {
 				else {
 					ans = "0";
 					for (TimeStamp t : verbStory) {
+						if ((t.name.contains(questionEntity) || questionEntity.contains(t.name)) && t.time.equals(TIMESTAMP_PREFIX + timeStep))
+							fineAns = t.value;
 						if ((t.name.contains(questionEntity) || questionEntity.contains(t.name))) 
 							ans = ans + "+" + t.value;
 				 	}
 				}
 				System.out.println("bbb"+ans+"|");
-				candidates.add(ans);
+				if (fineAns.contains(".0") || fineAns.contains("+"))
+					candidates.add(fineAns);
+				else
+					candidates.add(ans);
 			}
 			for (String candidate : candidates) {
 				if (candidate!=null && !candidate.contains("x") && !candidate.equals("0")) {
