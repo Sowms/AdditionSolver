@@ -105,7 +105,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("lose", REDUCTION);
 		keywordMap.put("leave", REDUCTION);
-		keywordMap.put("sleep", REDUCTION);
+		keywordMap.put("spill", REDUCTION);
 		keywordMap.put("remove", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);

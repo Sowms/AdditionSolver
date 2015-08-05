@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -275,7 +276,7 @@ public class Parser {
                 if(clust.equals(clust2))
                     continue;
                 System.out.println("\t" + clust2 + tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class));
-                if (tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class).startsWith("P")) {
+                if (tks.get(m.startIndex-1).get(PartOfSpeechAnnotation.class).startsWith("P") || clust2.toLowerCase().contains("the")) {
                 	if (clust.contains("his ") || clust.contains("her ") || clust.contains("His ") || clust.contains("Her ") || clust.toLowerCase().equals("she") || clust.toLowerCase().equals("he")) {
                 		System.out.println("check!"+clust);
                 		if (!coref.isEmpty()) {
@@ -301,12 +302,21 @@ public class Parser {
                 			coref.put(clust2, clust);
                 		continue;
                 	}
+                	System.out.println("hiiii"+clust2+"|"+clust);
                 	if(!clust2.isEmpty())
                 		coref.put(clust2, clust);
                 }
             }
         }
-
+        Iterator<Entry<String, String>> it = coref.entrySet().iterator();
+        while (it.hasNext()) {
+        	Entry<String, String> pair = it.next();
+        	if (pair.getKey().toLowerCase().contains("the"))
+        		text = text.replace(pair.getKey(), pair.getValue());
+        }
+        document = new Annotation(text);
+	    pipeline.annotate(document);
+	    sentences = document.get(SentencesAnnotation.class);
 	    for(CoreMap sentence: sentences) {
 	    	ArrayList<String> words = new ArrayList<String>();
 	    	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
