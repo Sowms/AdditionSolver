@@ -81,6 +81,8 @@ public class SentencesAnalyzer {
 		keywordMap.put("pick", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("decrease", REDUCTION);
+		keywordMap.put("leave", REDUCTION);
+		keywordMap.put("sleep", REDUCTION);
 		keywordMap.put("lose", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
