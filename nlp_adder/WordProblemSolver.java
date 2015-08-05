@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("The Silvergrove Public Library used a grant to purchase 2647 books . Now the library has a total of 8582 books . How many books did the library have before the grant ? ", pipeline);
+		solveWordProblems("Diane is a beekeeper . Last year , she harvested 2479 pounds of honey . This year , she bought some new hives and increased her honey harvest by 6085 pounds . How many pounds of honey did Diane harvest this year ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

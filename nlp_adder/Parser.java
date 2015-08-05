@@ -302,7 +302,6 @@ public class Parser {
                 			coref.put(clust2, clust);
                 		continue;
                 	}
-                	System.out.println("hiiii"+clust2+"|"+clust);
                 	if(!clust2.isEmpty())
                 		coref.put(clust2, clust);
                 }
@@ -483,11 +482,17 @@ public class Parser {
 	    
 	    ////System.out.println(ans);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
-	    Pattern numPattern = Pattern.compile("\\d");
+	    Pattern numPattern = Pattern.compile("\\d+(\\.\\d+)*");
 		Matcher matcher = numPattern.matcher(finalAns); 
 		if (!matcher.find())
 	    	return input;
 		if (!new ArrayList<String>(Arrays.asList(finalAns.split(" "))).containsAll(numbers))
+			return input;
+		int countNum = 0;
+		matcher = numPattern.matcher(finalAns);
+		while (matcher.find()) 
+			countNum++;
+		if (countNum != numbers.size())
 			return input;
 	    return finalAns;
 	}
