@@ -415,6 +415,9 @@ public class KnowledgeRepresenter {
 			procedure = INCREASE;
 		if (owner1.contains(UNKNOWN) && !owners.isEmpty())
 			owner1 = owners.iterator().next();
+		if (owner2.contains(UNKNOWN) && !owners.isEmpty() && entities.contains(owner1))
+			owner2 = owners.iterator().next();
+		
 		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities);
 		String owner = "";
 		if (procedure == null)
@@ -838,6 +841,8 @@ public class KnowledgeRepresenter {
 			return;
 		}
 		System.out.println("ques|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+isQuestionAggregator+"|"+isQuestionDifference + "|" + isQuestionComparator+"|"+questionVerb+questionTime);
+		if(!isQuestionAggregator && checkEntityIncrease() && !questionEntity.contains("dollar"))
+			return;
 		System.out.println(owners);
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
 			if (story.entrySet().iterator().next().getKey().contains(questionOwner))
@@ -1709,6 +1714,35 @@ public class KnowledgeRepresenter {
 		
 			
 	}
+	private static boolean checkEntityIncrease() {
+		Iterator<Map.Entry<String, Owner>> it = story.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, Owner> pair = it.next();
+			ArrayList<TimeStamp> verbStory = pair.getValue().situation.get("has");
+			String big = "", small = "", entity = "";
+			for (TimeStamp t : verbStory) {
+				if (big.isEmpty() && !t.value.contains("x") && !t.value.contains(".0") && !t.value.contains("+") && !t.value.contains("-")) {
+					big = t.value;
+					entity = t.name;
+				}
+				if (!big.isEmpty() && !t.value.contains("x") && !t.value.contains(".0") && !t.value.contains("+") && !t.value.contains("-") && small.isEmpty() && t.value != big && t.name.equals(entity))
+					small = t.value;
+			}
+			if (!big.isEmpty() && !small.isEmpty()) {
+				double num1 = Double.parseDouble(big);
+				double num2 = Double.parseDouble(small);
+				double ans = 0;
+				if (num2 > num1)
+					ans = num2 - num1;
+				else
+					ans = num1 - num2;
+				finalAns = pair.getKey() + " has " + ans + " " + entity;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static void startGUI() {
 		JFrame KRGUI = new JFrame();
 		KRGUI.setTitle("Explanation");

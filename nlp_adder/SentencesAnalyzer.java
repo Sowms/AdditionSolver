@@ -93,9 +93,9 @@ public class SentencesAnalyzer {
 		
 		keywordMap.put("find", INCREASE);
 		
-		aggregators.add(" together ");
-		aggregators.add(" overall ");
-		aggregators.add(" total ");
+		aggregators.add(" together");
+		aggregators.add(" overall");
+		aggregators.add(" total");
 		aggregators.add(" either ");
 		aggregators.add("in all");
 		aggregators.add("In all");
@@ -401,7 +401,7 @@ public class SentencesAnalyzer {
     	    	prevLemma = lemma;
     		}
     		//////////System.out.println("a"+questionEntity);
-    		System.out.println("q"+"|"+questionOwner1+"|"+questionOwner2);
+    		System.out.println("q"+"|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+entities);
     		//if (questionOwner.equals(DUMMY))
     			//questionOwner = "";
     		
