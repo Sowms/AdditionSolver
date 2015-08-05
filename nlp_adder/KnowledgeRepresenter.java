@@ -113,7 +113,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
-		
+		keywordMap.put("break", REDUCTION);
 		
 		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity]. [owner2]+[entity]");
@@ -1623,7 +1623,18 @@ public class KnowledgeRepresenter {
 			ans = sum;
 		}
 		System.out.println("bbb"+ans+"|");
-		if (ans.equals("0")) {
+////////////System.out.println("a"+ans);
+	if (ans.contains(X_VALUE)) {
+		////////////System.out.println("Cannot be solved!");
+		//	//////////System.out.println("Assuming initial conditions");
+		ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
+	}
+	//	//////////System.out.println("--");
+	if (ans.contains("+") || ans.contains("-"))
+		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+	else
+		finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
+		if (ans.equals("0") || !finalAns.contains(".") || question.contains(" " + ans.replace(".0", "") + " ") || question.contains(" " + EquationSolver.getSolution(ans).replace(".0", "")+" ")) {
 			
 			ArrayList<TimeStamp> verbStory = null;
 			ArrayList<String> candidates = new ArrayList<String>();
@@ -1670,18 +1681,32 @@ public class KnowledgeRepresenter {
 				 }
 				ans = sum;
 			}
+			if (question.contains(ans.replace("+0", ""))) {
+				if (story.get(questionOwner).situation.containsKey("has"))
+					questionVerb = "has";
+				else
+					questionVerb = story.get(questionOwner).situation.entrySet().iterator().next().getKey();//check
+				verbStory = story.get(questionOwner).situation.get(questionVerb);
+				ans = "0";
+				for (TimeStamp t : verbStory) {
+					if ((t.name.contains(questionEntity) || questionEntity.contains(t.name))) 
+						ans = ans + "+" + t.value;
+			 	}
+			}
+			if (ans.contains(X_VALUE)) {
+				////////////System.out.println("Cannot be solved!");
+				//	//////////System.out.println("Assuming initial conditions");
+				ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
+			}
+			//	//////////System.out.println("--");
+			if (ans.contains("+") || ans.contains("-"))
+				finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			else
+				finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
+			
 		}
-		////////////System.out.println("a"+ans);
-		if (ans.contains(X_VALUE)) {
-			////////////System.out.println("Cannot be solved!");
-			////////////System.out.println("Assuming initial conditions");
-			ans = ans.replaceAll(VAR_PATTERN, "").replaceAll("\\++", "\\+");
-		}
-		////////////System.out.println("--");
-		if (ans.contains("+") || ans.contains("-"))
-			finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
-		else
-			finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
+		
+			
 	}
 	public static void startGUI() {
 		JFrame KRGUI = new JFrame();
