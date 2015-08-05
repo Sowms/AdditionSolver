@@ -43,12 +43,12 @@ public class DatasetTest {
 		int counter = 400;
 		try {
 			builder = builderFactory.newDocumentBuilder();
-			Document document = builder.parse(new FileInputStream("arithmeticquestions.xml"));
+			Document document = builder.parse(new FileInputStream("TN.xml"));
 			Element rootElement = document.getDocumentElement();
 			NodeList nodes = rootElement.getElementsByTagName("Worksheet");
 			Properties props = new Properties();
 		    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
-		    BufferedWriter br = new BufferedWriter(new FileWriter("output2"));
+		    BufferedWriter br = new BufferedWriter(new FileWriter("tnoutput2"));
 		    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 		    int total = 0, count = 0, nocount = 0;
 			for (int i = 0; i < nodes.getLength(); i++){

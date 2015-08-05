@@ -240,6 +240,7 @@ public class Parser {
 	public static String parse(String input, StanfordCoreNLP pipeline) {
 		
 		input = input.replace("-", "");
+		input = input.replace(", but", ".");
 		ArrayList<String> numbers = new ArrayList<String>();
 		input = ConjunctionResolver.parse(input, pipeline);
 		String ans = "", text = dollarPreprocess(input);

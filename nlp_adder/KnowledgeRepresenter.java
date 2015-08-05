@@ -93,6 +93,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("load", CHANGE_OUT);
+		keywordMap.put("build", CHANGE_OUT);
 		
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("less than", COMPARE_MINUS);
@@ -111,8 +112,8 @@ public class KnowledgeRepresenter {
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("find", INCREASE);
-		keywordMap.put("build", CHANGE_OUT);
 		keywordMap.put("decrease", REDUCTION);
+		
 		
 		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity]. [owner2]+[entity]");
@@ -387,6 +388,8 @@ public class KnowledgeRepresenter {
 				}
 			}
 			}
+			else if (!owners.isEmpty())
+				owner1 = owners.iterator().next();
 			if (owner1.isEmpty())
 				owner1 = UNKNOWN + "0"; 
 		}
@@ -408,6 +411,10 @@ public class KnowledgeRepresenter {
 				owner2 = UNKNOWN + "0";
 		}
 		// There is no keyword here, an entity has been assigned a value
+		if (procedure != null && procedure.equals(COMPARE_PLUS) && owner2.isEmpty())
+			procedure = INCREASE;
+		if (owner1.contains(UNKNOWN) && !owners.isEmpty())
+			owner1 = owners.iterator().next();
 		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities);
 		String owner = "";
 		if (procedure == null)
@@ -1284,13 +1291,14 @@ public class KnowledgeRepresenter {
 				 while (it1.hasNext()) {
 					Entry<String, ArrayList<TimeStamp>> newPairs = it1.next();
 					ArrayList<TimeStamp> verbStory = newPairs.getValue();
+					if (newPairs.getKey().equals("has")) {
 					for (TimeStamp t : verbStory) {
 						if (t.time.equals(TIMESTAMP_PREFIX + questionTime))
 							sum = sum + "+" + t.value;
-					}
+					}}
 				 }
 			}	
-			finalAns = "Altogether " + EquationSolver.getSolution(sum);
+			finalAns = "Altogether " + EquationSolver.getSolution(sum.replaceAll(VAR_PATTERN, ""));
 			return;
 		}
 		if (isQuestionDifference && questionOwner.isEmpty() && questionEntity.isEmpty()) {
@@ -1395,7 +1403,7 @@ public class KnowledgeRepresenter {
 				else
 					fans = ans;
 				System.err.println(fans);
-				if (Double.parseDouble(fans) < 0 ) {
+				if (Double.parseDouble(fans) < 0 || question.contains(fans.replace(".0", ""))) {
 					Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
 					Matcher varMatcher = numPattern.matcher(question);
 					sum = "0";
@@ -1478,7 +1486,17 @@ public class KnowledgeRepresenter {
 					}
 				}
 			}
-			
+			if (verbStory2 == null) {
+				for (String owner : owners) {
+					if (!owner.equals(questionOwner1) && story.containsKey(owner)) {
+						questionOwner2 = owner;
+						verbStory2 = story.get(questionOwner2).situation.get(questionVerb);
+						if (verbStory2 == null)
+							verbStory2 = story.get(questionOwner2).situation.entrySet().iterator().next().getValue();
+						break;
+					}
+				}
+			}
 			String value1 = "", value2 = "";
 			for (TimeStamp t : verbStory1) {
 				if (t.name.contains(questionEntity) && t.time.equals(TIMESTAMP_PREFIX + questionTime)) 

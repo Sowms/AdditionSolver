@@ -323,7 +323,10 @@ public class SentencesAnalyzer {
     		}
     		
     	}
-		System.out.println(owner1+"|"+owner2);
+		System.out.println("ssss"+owner1+"|"+owner2);
+		if (keyword.isEmpty() || !keyword.isEmpty() && !keywordMap.get(keyword).contains("change") && !keywordMap.get(keyword).contains("compare") && !keywordMap.get(keyword).contains("Eq"))
+			if (owner1.isEmpty() || !entities.contains(owner1))
+				owner2 = "";
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ")) {
 		    if(!entities.isEmpty()) {
 			for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
