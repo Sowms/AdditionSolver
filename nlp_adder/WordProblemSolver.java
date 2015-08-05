@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Diane is a beekeeper . Last year , she harvested 2479 pounds of honey . This year , she bought some new hives and increased her honey harvest by 6085 pounds . How many pounds of honey did Diane harvest this year ? ", pipeline);
+		solveWordProblems("Elizabeth went to the salon and had 0.375 inch of hair cut off . The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

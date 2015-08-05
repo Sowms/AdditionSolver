@@ -56,14 +56,16 @@ public class ConjunctionResolver {
 			//if (!begin)
 			//	continue;
 	    	String pos = token.get(PartOfSpeechAnnotation.class);
-	    	if (!verbPhrase.isEmpty() &&!verbPhrase.endsWith(" "))
+	    	if (!verbPhrase.isEmpty() && !verbPhrase.endsWith(" "))
 	    		verbPhrase = verbPhrase + " ";
 	    	if (pos.equals("$") || pos.equals(","))
 	    		verbPhrase = verbPhrase + token.originalText();
 	    	else
 	    		verbPhrase = verbPhrase + token.originalText() + " ";
 	    	//System.out.println("vvvvv"+verbPhrase+pos);
-	    	if (pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1)))
+	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
+	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
+	    	if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
 	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	index++;
      	}
@@ -188,7 +190,7 @@ public class ConjunctionResolver {
 				if (P2.trim().isEmpty()) {
 					P2 = P1; 
 				}
-				if (PrP1.isEmpty())
+				if (PrP1.isEmpty() && !PrP2.startsWith("for"))
 					PrP1 = PrP2;
 				//System.out.println(VP1+"|"+VP2);
 				L1 = firstPart.replace(VP1,"");
@@ -217,7 +219,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("his year , 712261 male and 259378 female salmon returned to their rivers.",pipeline));
+		System.out.println(parse("The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ? ",pipeline));
 	}
 	
 }

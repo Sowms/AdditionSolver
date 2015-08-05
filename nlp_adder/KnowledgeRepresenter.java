@@ -104,14 +104,18 @@ public class KnowledgeRepresenter {
 		keywordMap.put("take", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("lose", REDUCTION);
+		keywordMap.put("use", REDUCTION);
 		keywordMap.put("leave", REDUCTION);
+		keywordMap.put("transfer", REDUCTION);
 		keywordMap.put("spill", REDUCTION);
 		keywordMap.put("remove", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("more", INCREASE);
+		keywordMap.put("immigrate", INCREASE);
 		keywordMap.put("increase", INCREASE);
 		keywordMap.put("carry", INCREASE);
+		keywordMap.put("saw", REDUCTION);
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
@@ -815,6 +819,9 @@ public class KnowledgeRepresenter {
 			currentEntity.value = ls.entityValue;
 			System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual);
 			if (ls.isQuestion) {
+				if (isQuestionAggregator)
+					continue;
+				System.out.println("waka");
 				questionOwner = questionOwner1 = ls.owner1;
 				if (!ls.owner2.isEmpty())
 					questionOwner2 = ls.owner2;
@@ -827,6 +834,7 @@ public class KnowledgeRepresenter {
 				isQuestionDifference = ls.difference;
 				isQuestionComparator = ls.comparator;
 				questionVerb = ls.verbQual;
+				System.out.println("krq" + ls.owner1 + "|" + ls.owner2 + "|" + currentEntity.name + "|" + currentEntity.value + "|" + ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual+ ls.aggregator);
 				if (ls.entityValue == null)
 					continue;
 			}
@@ -1001,7 +1009,7 @@ public class KnowledgeRepresenter {
 							//System.out.println(questionEntity+"|"+t.name+"|"+owner.name+entities);
 		
 							if (!t.value.contains("x")) 
-								if((newPairs.getKey().equals("has") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has")) {
+								if((newPairs.getKey().equals("has") && t.time.equals(TIMESTAMP_PREFIX+questionTime)) || !newPairs.getKey().equals("has") && !owner.situation.containsKey("has")) {
 									sum = sum + "+" + t.value;
 									sum1 = sum1 + "+" + t.value;
 								}
@@ -1317,8 +1325,11 @@ public class KnowledgeRepresenter {
 					ArrayList<TimeStamp> verbStory = newPairs.getValue();
 					if (newPairs.getKey().equals("has")) {
 					for (TimeStamp t : verbStory) {
-						if (t.time.equals(TIMESTAMP_PREFIX + questionTime))
+						if (t.time.equals(TIMESTAMP_PREFIX + questionTime)) {
+							if (t.value.contains("x1-") || t.value.contains("x2-") || t.value.contains("x3-"))
+								continue;
 							sum = sum + "+" + t.value;
+						}
 					}}
 				 }
 			}	
@@ -1770,6 +1781,8 @@ public class KnowledgeRepresenter {
 		while (it.hasNext()) {
 			Entry<String, Owner> pair = it.next();
 			ArrayList<TimeStamp> verbStory = pair.getValue().situation.get("has");
+			if (verbStory == null)
+				return false;
 			String big = "", small = "", entity = "";
 			for (TimeStamp t : verbStory) {
 				if (big.isEmpty() && !t.value.contains("x") && !t.value.contains(".0") && !t.value.contains("+") && !t.value.contains("-")) {

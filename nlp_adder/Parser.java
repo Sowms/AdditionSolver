@@ -307,6 +307,14 @@ public class Parser {
                 }
             }
         }
+	    for(CoreMap sentence: sentences) {
+	    	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+	    		String pos = token.get(PartOfSpeechAnnotation.class);
+	    		if (pos.contains("CD"))
+		    		numbers.add(token.originalText());
+	    	}
+	    }
+	    
         Iterator<Entry<String, String>> it = coref.entrySet().iterator();
         while (it.hasNext()) {
         	Entry<String, String> pair = it.next();
@@ -327,8 +335,7 @@ public class Parser {
 	    		words.add(word);
 	    //		if (pos.contains("W"))
 	    	//		questionSentence = counter;
-	    	    if (pos.contains("CD"))
-		    		numbers.add(token.originalText());
+	    	    
 	    	}
 	    	Tree tree = sentence.get(TreeAnnotation.class);
 	    	String parseExpr = tree.toString();
@@ -492,6 +499,7 @@ public class Parser {
 		matcher = numPattern.matcher(finalAns);
 		while (matcher.find()) 
 			countNum++;
+		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
 			return input;
 	    return finalAns;
@@ -501,6 +509,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse(" Darnel sprinted 0.875 lap and then took a break by jogging 0.75 lap .How much farther did Darnel sprint than jog ?",pipeline));
+		System.out.println(parse("During a canned food drive , items were sorted into bins . The drive resulted in 0.125 bin of soup , 0.125 bin of vegetables , and 0.5 bin of pasta . Altogether , how many bins would the canned food take up ? ",pipeline));
 	}
 }

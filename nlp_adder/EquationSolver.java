@@ -52,6 +52,6 @@ public class EquationSolver {
 		} catch (ScriptException e) {
 		e.printStackTrace();
 		}
-		return answer;
+		return answer.replace("-", "");
 	}
 }

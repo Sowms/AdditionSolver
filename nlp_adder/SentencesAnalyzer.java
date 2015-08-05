@@ -69,6 +69,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("plant", CHANGE_OUT);
 		keywordMap.put("place", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
+		keywordMap.put("transfer", REDUCTION);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("add", CHANGE_OUT);
@@ -84,7 +85,9 @@ public class SentencesAnalyzer {
 		keywordMap.put("leave", REDUCTION);
 		keywordMap.put("spill", REDUCTION);
 		keywordMap.put("lose", REDUCTION);
+		keywordMap.put("use", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
+		keywordMap.put("saw", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
 		keywordMap.put("break", REDUCTION);
 		keywordMap.put("more", INCREASE);
@@ -92,10 +95,12 @@ public class SentencesAnalyzer {
 		keywordMap.put("taller", INCREASE);
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("increase", INCREASE);
-		
+		keywordMap.put("immigrate", INCREASE);
 		keywordMap.put("find", INCREASE);
 		
 		aggregators.add(" together");
+		aggregators.add(" either ");
+		aggregators.add("ltogether");
 		aggregators.add(" overall");
 		aggregators.add(" total");
 		aggregators.add(" either ");
@@ -148,6 +153,7 @@ public class SentencesAnalyzer {
 		    			else if (keyword.isEmpty() && !lemma.equals("take"))
 		    				keyword = "more";
 		    		}	
+		    		
 		    	}
 			}
 	    	////////////System.err.println(sentence.toString()+tense);
@@ -326,12 +332,12 @@ public class SentencesAnalyzer {
     		}
     		
     	}
-		System.out.println("ssss"+owner1+"|"+owner2);
+		System.out.println("ssss"+owner1+"|"+owner2+"|"+newEntity.value);
 		if (keyword.isEmpty() || !keyword.isEmpty() && !keywordMap.get(keyword).contains("change") && !keywordMap.get(keyword).contains("compare") && !keywordMap.get(keyword).contains("Eq"))
 			if (owner1.isEmpty() || !entities.contains(owner1))
 				owner2 = "";
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ")) {
-		    if(!entities.isEmpty()) {
+		    if(!entities.isEmpty() && newEntity.value == null) {
 			for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
 		    	String lemma = token.get(LemmaAnnotation.class);
 		    	if (entities.contains(lemma))
