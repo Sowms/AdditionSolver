@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Tom found 7 seashells but 4 were broken . How many unbroken seashells did Tom find ?", pipeline);
+		solveWordProblems("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
@@ -20,7 +20,7 @@ public class WordProblemSolver {
 	    KnowledgeRepresenter.clear();
 	    KnowledgeRepresenter.represent(extractedInformation, simplifiedProblem);
 	    KnowledgeRepresenter.solve();
-	    System.out.println(KnowledgeRepresenter.finalAns);
+	    System.err.println(KnowledgeRepresenter.finalAns);
 	    return KnowledgeRepresenter.finalAns;
 	}
 }

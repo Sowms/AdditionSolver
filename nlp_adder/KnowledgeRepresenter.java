@@ -807,7 +807,8 @@ public class KnowledgeRepresenter {
 				isQuestionDifference = ls.difference;
 				isQuestionComparator = ls.comparator;
 				questionVerb = ls.verbQual;
-				continue;
+				if (ls.entityValue == null)
+					continue;
 			}
 			String nounQual = ls.nounQual, verbQual = ls.verbQual;
 			if (verbQual == null)
@@ -1634,7 +1635,7 @@ public class KnowledgeRepresenter {
 		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 	else
 		finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
-		if (ans.equals("0") || !finalAns.contains(".") || question.contains(" " + ans.replace(".0", "") + " ") || question.contains(" " + EquationSolver.getSolution(ans).replace(".0", "")+" ")) {
+		if (ans.equals("0") || !finalAns.contains(".") || question.contains(" " + ans.replace(".0", "") + " ") || (question.contains(" " + EquationSolver.getSolution(ans).replace(".0", "") +" ") && (!ans.replace("0+","").contains("+") && !ans.replace("0+","").contains("-") || !ans.replace("+0","").contains("+") && !ans.replace("+0","").contains("-")))) {
 			
 			ArrayList<TimeStamp> verbStory = null;
 			ArrayList<String> candidates = new ArrayList<String>();
