@@ -494,14 +494,14 @@ public class Parser {
 		if (!matcher.find())
 	    	return input;
 		if (!new ArrayList<String>(Arrays.asList(finalAns.split(" "))).containsAll(numbers))
-			return input;
+			return entityResolution(input,pipeline);
 		int countNum = 0;
 		matcher = numPattern.matcher(finalAns);
 		while (matcher.find()) 
 			countNum++;
 		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
-			return input;
+			return entityResolution(input,pipeline);
 	    return finalAns;
 	}
 	
