@@ -14,6 +14,7 @@ public class Solve {
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 		System.out.println(WordProblemSolver.solveWordProblems(input, pipeline));
+		///check
 	}
 
 }
