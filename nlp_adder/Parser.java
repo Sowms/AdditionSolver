@@ -406,7 +406,7 @@ public class Parser {
 	    					if (candidate.equals("s"))
 	    						candidate = "'s";
 	    					System.out.println(candidate);
-							if (candidate.equals("mmmmmmmmm")) {
+							if (candidate.contains(",")) {
 								tempFinal = tempFinal + "mmmm";
 								tempInitial = new String(initialPart + " " + finalPart);
 								pos = j+1;
@@ -451,8 +451,10 @@ public class Parser {
 	    				System.out.println(tempInitial + "|" + tempFinal);
 	    				if (containsVerb(tempInitial, pipeline) && containsVerb(tempFinal, pipeline)) {
 	    					tempInitial = (tempInitial.charAt(0) + "").toUpperCase() + tempInitial.substring(1);
-	    	    			ans = (ans + tempInitial).trim() + ".\n";
+	    	    			ans = (ans + tempInitial).replaceAll("\\s+"," ").trim() + "\n";
+	    	    			System.out.println(ans);
 	    	    			i = pos;
+	    	    			prevj = i;
 		    				continue;
 	    				}
 	    			}
@@ -509,6 +511,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("During a canned food drive , items were sorted into bins . The drive resulted in 0.125 bin of soup , 0.125 bin of vegetables , and 0.5 bin of pasta . Altogether , how many bins would the canned food take up ? ",pipeline));
+		System.out.println(parse("Ruth had 3 apples. She put 2 apples into a basket. How many apples are there in the basket now, if in the beginning there were 4 apples in the basket?",pipeline));
 	}
 }
