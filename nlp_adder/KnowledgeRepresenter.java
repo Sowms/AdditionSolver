@@ -188,8 +188,6 @@ public class KnowledgeRepresenter {
 			newEntity.value = newEntity.value.replace("some", varName);
 		}
 		int changeTime = timeStep;
-		if (tense.equals(PAST) && timeStep!=0 && storyTense.contains(PRESENT))
-			changeTime = 0;
 		storyTense.add(tense);
 		TimeStamp newTimeStamp = new TimeStamp();
 		newTimeStamp.qualifier = nounQual;
@@ -1650,6 +1648,7 @@ public class KnowledgeRepresenter {
 					sum = t.value + "+" + sum;
 			 }
 			ans = sum;
+			System.out.println("bbbb"+ans+"|");
 			if (question.contains(ans.replace("+0", ""))) {
 				sum = "0";
 				

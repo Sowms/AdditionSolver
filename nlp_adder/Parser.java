@@ -330,7 +330,7 @@ public class Parser {
 	    		String word = token.get(TextAnnotation.class);
 	    	//	String lemma;
 	   			//lemma = token.get(LemmaAnnotation.class);
-	    		String pos = token.get(PartOfSpeechAnnotation.class);
+	    		//String pos = token.get(PartOfSpeechAnnotation.class);
 	    		////////////System.out.println(word+"|"+pos+"|"+lemma+"|"+token.get(NamedEntityTagAnnotation.class));
 	    		words.add(word);
 	    //		if (pos.contains("W"))
@@ -406,13 +406,18 @@ public class Parser {
 	    					if (candidate.equals("s"))
 	    						candidate = "'s";
 	    					System.out.println(candidate);
-							if (candidate.equals("mmmmmmmmm")) {
+	    					if (candidate.contains(",")) {
+								tempFinal = tempFinal + "mmmm";
+								tempInitial = new String(initialPart + " " + finalPart);
+								pos = j+1;
+							}
+							/*if (candidate.equals("mmmmmmmmm")) {
 								tempFinal = tempFinal + "mmmm";
 								tempInitial = new String(initialPart + " " + finalPart);
 								pos = j+1;
 								////System.err.println(tempInitial+"|"+tempFinal);
 								
-							}
+							}*/
 							else if (!tempFinal.isEmpty()) {
 								if (words.contains(candidate)) {
 									if (coref.containsKey(candidate))
@@ -447,12 +452,14 @@ public class Parser {
 	    			}*/
 	    			if (!tempFinal.isEmpty()) {
 	    				tempFinal = tempFinal.replace("mmmm", "");
-	    				
 	    				System.out.println(tempInitial + "|" + tempFinal);
 	    				if (containsVerb(tempInitial, pipeline) && containsVerb(tempFinal, pipeline)) {
-	    					tempInitial = (tempInitial.charAt(0) + "").toUpperCase() + tempInitial.substring(1);
-	    	    			ans = (ans + tempInitial).trim() + ".\n";
+	    					System.out.println("hello");
+	    					tempInitial = (tempInitial.charAt(0) + "").toUpperCase() + tempInitial.substring(1).replace(",","");
+	    	    			ans = (ans + tempInitial).replaceAll("\\s+", " ").trim() + ".\n";
+	    	    			System.out.println(ans);
 	    	    			i = pos;
+	    	    			prevj = i;
 		    				continue;
 	    				}
 	    			}
@@ -475,7 +482,7 @@ public class Parser {
 	    				initialPart = "";
 	    			}
 	    			else*/
-	    			ans = (ans + initialPart + " " + finalPart).trim() + ".\n";
+	    			ans = (ans + initialPart + finalPart).trim() + ".\n";
 	    			i = next;
 	    			prevj = i;
 	    			//initialPart = (initialPart.charAt(0) + "").toUpperCase() + initialPart.substring(1);
@@ -509,6 +516,6 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("During a canned food drive , items were sorted into bins . The drive resulted in 0.125 bin of soup , 0.125 bin of vegetables , and 0.5 bin of pasta . Altogether , how many bins would the canned food take up ? ",pipeline));
+		System.out.println(parse("There are 41 crayons and 26 pencils in the drawer . Sam placed 12 crayons in the drawer . How many crayons are now there in total ? ",pipeline));
 	}
 }
