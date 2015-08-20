@@ -2,7 +2,6 @@ package nlp_adder;
 import java.util.Properties;
 
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import nlp_adder.WordProblemSolver;
 
 
 public class Solve {

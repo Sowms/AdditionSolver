@@ -4,12 +4,13 @@ import java.util.ArrayList;
 
 public class OrderSteps {
 
-	private static ArrayList<String> allTenses = new ArrayList<>();; 
+	private static ArrayList<String> allTenses = new ArrayList<>();
 	public static LinguisticInfo order(LinguisticInfo info) {
 		LinguisticInfo newInfo = new LinguisticInfo();
 		newInfo.entities = info.entities;
 		newInfo.owners = info.owners;
 		newInfo.sentences = new ArrayList<>();
+		allTenses = new ArrayList<>();
 		for (LinguisticStep step : info.sentences) {
 			String tense = step.tense; 
 			if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()))
