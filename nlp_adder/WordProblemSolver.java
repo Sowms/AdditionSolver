@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("John has 3 apples. He gave 1 to Mary. How many apples does John have now?", pipeline);
+		solveWordProblems("In March it rained 0.81 inches. It rained 0.35 inches less in April than in March. How much did it rain in April?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
