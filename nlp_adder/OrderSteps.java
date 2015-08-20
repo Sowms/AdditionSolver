@@ -12,8 +12,8 @@ public class OrderSteps {
 		newInfo.sentences = new ArrayList<>();
 		allTenses = new ArrayList<>();
 		for (LinguisticStep step : info.sentences) {
-			String tense = step.tense; 
-			if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()))
+		    String tense = step.tense; 
+			if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
 				newInfo.sentences.add(0,step);
 			else
 				newInfo.sentences.add(step);
