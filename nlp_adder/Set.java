@@ -1,32 +1,84 @@
 package nlp_adder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 public class Set {
 	
 	String name;
-	String entity;
-	int cardinality;
-	final Set Empty = new Set();
+	String cardinality;
+	String compute = "";
+	HashMap<String,Set> components; 
+	static final Set Empty = new Set();
 	public Set() {
-		name = "";
-		entity = "";
-		cardinality = 0;
+		name = "\u03D5";
+		cardinality = "0";
+		components = new HashMap<>();
+		components.put(name,Empty);
+		compute = name;
 	}
-	public Set(String name, String entity, int cardinality) {
+	public boolean isEmpty() {
+		return this.name.equals(Empty.name);
+	}
+	public Set(String name, String cardinality) {
 		this.name = name;
-		this.entity = entity;
 		this.cardinality = cardinality;
+		compute = name;
 	}
-	public Set union(Set a, Set b) {
+	// because we're dealing with disjoint sets, A intersection B = 0
+	public static Set union(Set a, Set b) {
 		Set ans = new Set();
-		ans.name = "("+a.name+") U ("+b.name+")";
-		ans.cardinality = a.cardinality + b.cardinality;
+		ans.name = a.name + "U" + b.name;
+		ans.cardinality = a.cardinality + "+" + b.cardinality;
+		ans.components.put(a.name,a);
+		ans.components.put(b.name,b);
+		ans.compute = "+"+a.compute+b.compute;
 		return ans;
 	}
-	public Set difference(Set a, Set b) {
+	public Set unknownComponent() {
+		Iterator<Entry<String, Set>> it = components.entrySet().iterator(); 
+		while (it.hasNext()) {
+			Set s = it.next().getValue();
+			if (s.cardinality.equals("x"))
+				return s;
+		}
+		return Empty;
+	}
+	public static Set difference(Set a, Set b) {
 		Set ans = new Set();
-		ans.name = "("+a.name+") - ("+b.name+")";
-		ans.cardinality = a.cardinality - b.cardinality;
+		ans.name = a.name + "-" + b.name;
+		ans.cardinality = a.cardinality + "-" + b.cardinality;
+		ans.components.put(a.name,a);
+		ans.components.put(b.name,b);
+		ans.compute = "-"+a.compute+b.compute;
 		return ans;
 	}
-
+	private boolean isOperand(char check){
+		return check != '-' && check != 'U';
+	}
+	public void computeCardinality() {
+		ArrayList<Set> operandStack = new ArrayList<>();
+		System.out.println(compute);
+		for (int i = compute.length() - 1; i >=0; i--) {
+			if (isOperand(compute.charAt(i))) {
+				char operand = compute.charAt(i);
+				operandStack.add(0,components.get(operand+""));
+			}
+			else {
+				System.out.println(operandStack);
+				Set operand1 = operandStack.remove(0);
+				Set operand2 = operandStack.remove(0);
+				Set ans = new Set();
+				char operator = compute.charAt(i);
+				if (operator == '-')
+					ans = difference(operand1,operand2);
+				else
+					ans = union(operand1,operand2);
+				operandStack.add(0,ans);
+			}
+		}
+		cardinality = operandStack.get(0).cardinality;
+	}
 }

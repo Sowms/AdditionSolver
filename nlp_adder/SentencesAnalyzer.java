@@ -96,7 +96,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("increase", INCREASE);
 		keywordMap.put("immigrate", INCREASE);
-		keywordMap.put("find", INCREASE);
+		//keywordMap.put("find", INCREASE);
 		
 		aggregators.add(" together");
 		aggregators.add(" either ");

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("A ship is filled with 5973 tons of cargo . It stops in the Bahamas , where sailors load 8723 tons of cargo onboard . How many tons of cargo does the ship hold now ?", pipeline);
+		solveWordProblems("Joan found 70 seashells on the beach . she gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
@@ -21,7 +21,7 @@ public class WordProblemSolver {
 	    KnowledgeRepresenter.clear();
 	    KnowledgeRepresenter.represent(extractedInformation, simplifiedProblem);
 	    KnowledgeRepresenter.solve();
-	    System.err.println(KnowledgeRepresenter.finalAns);
-	    return KnowledgeRepresenter.finalAns;
+	    System.err.println(KnowledgeRepresenter.finalAns.replace(".0 ", " "));
+	    return KnowledgeRepresenter.finalAns.replace(".0 ", "");
 	}
 }
