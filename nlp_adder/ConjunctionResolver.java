@@ -18,7 +18,7 @@ public class ConjunctionResolver {
 		 int index=1;
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
-		   	//System.out.println(pos+token);
+		   	////System.out.println(pos+token);
 		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && index < tokens.size() && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
 		   	if (pos.contains("VB") && tokens.indexOf(token)==0) {
@@ -62,7 +62,7 @@ public class ConjunctionResolver {
 	    		verbPhrase = verbPhrase + token.originalText();
 	    	else
 	    		verbPhrase = verbPhrase + token.originalText() + " ";
-	    	//System.out.println("vvvvv"+verbPhrase+pos);
+	    	////System.out.println("vvvvv"+verbPhrase+pos);
 	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
 	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
@@ -77,7 +77,7 @@ public class ConjunctionResolver {
 	    //boolean begin = false;
 	    for (CoreLabel token: tokens) {
 			String pos = token.get(PartOfSpeechAnnotation.class);
-			//System.out.println(token.originalText()+pos);
+			////System.out.println(token.originalText()+pos);
 			if (pos.contains("VB"))
 	    		crossVerb = true;
 			if (containsVerb(tokens) && !crossVerb)
@@ -91,7 +91,7 @@ public class ConjunctionResolver {
 			}
 			if (crossPrep && (pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO"))) {
 				prepPhrase = "";
-				System.out.println("\twaka" + prepPhrase);
+				//System.out.println("\twaka" + prepPhrase);
 				prepPhrase = prepPhrase + token.originalText() + " ";
 	    		continue;
 			}
@@ -104,7 +104,7 @@ public class ConjunctionResolver {
      	}
 	    prepPhrase = prepPhrase.replace(" .",".");
 	    prepPhrase = prepPhrase.replace(" ,",",");
-	    System.out.println("waka" + prepPhrase);
+	    //System.out.println("waka" + prepPhrase);
 		
 	    return prepPhrase.replace(" '","'").trim();
 	}
@@ -115,7 +115,7 @@ public class ConjunctionResolver {
 		input = input.replace("$ ", "$").replace(" '","'").trim();;
 		input = input.replaceAll("\\s+", " ").trim();
 		input = input.trim();
-		System.out.println(input);
+		//System.out.println(input);
 		Annotation document = new Annotation(input);
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
@@ -124,7 +124,7 @@ public class ConjunctionResolver {
 			boolean condition2 = sentence.toString().contains(" but ");
 			boolean condition3 = sentence.toString().contains(" if ");
 			boolean condition4 = sentence.toString().contains(" then ");
-			System.out.println(condition1);
+			//System.out.println(condition1);
 			String splitString = "";
 			if (condition1)
 				splitString = " and ";
@@ -138,7 +138,7 @@ public class ConjunctionResolver {
 				String firstPart = sentence.toString().split(splitString)[0];
 				String secondPart = sentence.toString().split(splitString)[1];
 				String VP1="", VP2="", PrP1="", PrP2="", L1="", L2="", P1="", P2="";
-				System.out.println(firstPart+"|"+secondPart);
+				//System.out.println(firstPart+"|"+secondPart);
 				List<CoreLabel> firstPartTokens = new ArrayList<CoreLabel>();
 				List<CoreLabel> secondPartTokens = new ArrayList<CoreLabel>();
 				boolean endFirst = false;
@@ -153,13 +153,13 @@ public class ConjunctionResolver {
 					else
 						firstPartTokens.add(token);
 				}
-				System.out.println(firstPart+"|"+secondPart);
+				//System.out.println(firstPart+"|"+secondPart);
 				if (!containsVerb(firstPartTokens)) {
 					ans = ans + sentence.toString()+" ";
 					continue;
 				}
 				VP1 = getVerbPhrase(firstPartTokens);
-				//System.out.println("vp1"+VP1);
+				////System.out.println("vp1"+VP1);
 				String[] words = VP1.split(" ");
 				String verb1 = words[words.length-1], verb2 = "";
 				P1 = VP1.substring(0, VP1.length()-verb1.length()).trim();
@@ -175,11 +175,11 @@ public class ConjunctionResolver {
 				if (containsPrep(secondPartTokens)) {
 					PrP2 = getPrepPhrase(secondPart,secondPartTokens);
 				}
-				System.out.println("aa"+PrP2);
-				System.out.println("aa"+PrP1);
-				System.out.println("aa"+verb2);
-				System.out.println("aa"+P2);
-				System.out.println("aa"+VP2);
+				//System.out.println("aa"+PrP2);
+				//System.out.println("aa"+PrP1);
+				//System.out.println("aa"+verb2);
+				//System.out.println("aa"+P2);
+				//System.out.println("aa"+VP2);
 				
 				
 				
@@ -192,7 +192,7 @@ public class ConjunctionResolver {
 				}
 				if (PrP1.isEmpty() && !PrP2.startsWith("for"))
 					PrP1 = PrP2;
-				//System.out.println(VP1+"|"+VP2);
+				////System.out.println(VP1+"|"+VP2);
 				L1 = firstPart.replace(VP1,"");
 				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
@@ -201,8 +201,8 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
-				System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				//System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				//System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				else
@@ -219,7 +219,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ? ",pipeline));
+		//System.out.println(parse("The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ? ",pipeline));
 	}
 	
 }

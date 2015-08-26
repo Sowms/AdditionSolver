@@ -56,7 +56,7 @@ public class Set {
 		return ans;
 	}
 	private boolean isOperand(char check){
-		return check != '-' && check != 'U';
+		return check != '-' && check != 'U' && check != '+';
 	}
 	public void computeCardinality() {
 		ArrayList<Set> operandStack = new ArrayList<>();
@@ -67,11 +67,11 @@ public class Set {
 				operandStack.add(0,components.get(operand+""));
 			}
 			else {
-				System.out.println(operandStack);
 				Set operand1 = operandStack.remove(0);
 				Set operand2 = operandStack.remove(0);
 				Set ans = new Set();
 				char operator = compute.charAt(i);
+				System.out.println(operand1.name+"|"+operand2.name);
 				if (operator == '-')
 					ans = difference(operand1,operand2);
 				else
@@ -79,6 +79,7 @@ public class Set {
 				operandStack.add(0,ans);
 			}
 		}
+		System.out.println(operandStack.size());
 		cardinality = operandStack.get(0).cardinality;
 	}
 }

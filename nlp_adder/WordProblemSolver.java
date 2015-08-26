@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Joan found 70 seashells on the beach . she gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam ? ", pipeline);
+		solveWordProblems("There were 28 bales of hay in the barn . Tim stacked bales in the barn today . There are now 54 bales of hay in the barn . How many bales did he store in the barn ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
@@ -21,7 +21,7 @@ public class WordProblemSolver {
 	    KnowledgeRepresenter.clear();
 	    KnowledgeRepresenter.represent(extractedInformation, simplifiedProblem);
 	    KnowledgeRepresenter.solve();
-	    System.err.println(KnowledgeRepresenter.finalAns.replace(".0 ", " "));
+	    System.out.println(KnowledgeRepresenter.finalAns.replace(".0 ", " "));
 	    return KnowledgeRepresenter.finalAns.replace(".0 ", "");
 	}
 }
