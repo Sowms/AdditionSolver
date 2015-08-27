@@ -5,6 +5,7 @@ public class LinguisticStep {
     boolean aggregator;
     boolean comparator;
     boolean difference;
+    boolean setCompletor;
     String keyword;
     String owner1;
     String owner2;

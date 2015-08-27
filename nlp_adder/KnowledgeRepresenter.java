@@ -70,6 +70,7 @@ public class KnowledgeRepresenter {
 	static boolean isQuestionAggregator = false;
 	static boolean isQuestionDifference = false;
 	static boolean isQuestionComparator = false;
+	static boolean isQuestionSet = false;
 
 	static HashMap<String,Set> sets = new HashMap<>();
 	static HashMap<String,Situation> story = new HashMap<>();
@@ -141,6 +142,7 @@ public class KnowledgeRepresenter {
 		isQuestionAggregator = false;
 		isQuestionDifference = false;
 		isQuestionComparator = false;
+		isQuestionSet = false;
 
 		questionTime = 0;
 		questionEntity = "";
@@ -169,7 +171,7 @@ public class KnowledgeRepresenter {
 
 	private static void updateTimestamp (String owner, Set value, 
 			String tense, String verbQual, String entity) {
-		//System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual);
+		System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual);
 		String changeTime = "";
 		if (tense.equals(PAST) && storyTense.contains(PRESENT))
 			changeTime  = "0";
@@ -190,6 +192,8 @@ public class KnowledgeRepresenter {
 			if (t.time.equals(time)) {
 				existingValue = t.value;
 				lhs = existingValue.cardinality;
+				if (!lhs.contains("+") && !rhs.contains("+") && !lhs.contains("-") && !rhs.contains("-"))
+					break;
 				Set unknown;
 				if (lhs.contains("x") || rhs.contains("x")) {
 					String ans = EquationSolver.getSolution(lhs + "=" + rhs);
@@ -580,6 +584,7 @@ public class KnowledgeRepresenter {
 				isQuestionAggregator = ls.aggregator;
 				isQuestionDifference = ls.difference;
 				isQuestionComparator = ls.comparator;
+				isQuestionSet = ls.setCompletor;
 				questionVerb = ls.verbQual;
 				//System.out.println("krq" + ls.owner1 + "|" + ls.owner2 + "|" + 
 				  // currentEntity.name + "|" + currentEntity.value + "|" + 
@@ -600,6 +605,69 @@ public class KnowledgeRepresenter {
 	
 	
 	public static void solve() {
+		if (isQuestionSet && !questionOwner.isEmpty()) {
+			Set complete = null, subset = null;
+			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<String, State> pair = it.next();
+				State candidate = pair.getValue();
+				String verb = pair.getKey();
+				if (candidate.get(0).value.cardinality.contains("x"))
+					continue;
+				if (verb.equals("has"))
+					complete = candidate.get(0).value; 
+				if (!verb.equals("has") && new SentencesAnalyzer().isAntonym(questionVerb, verb)) {
+					subset = candidate.get(0).value;
+					break;
+				}
+			}
+			if (complete.name.equals(subset.name)) {
+				Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
+				while (it1.hasNext()) {
+					Situation currentSituation = it1.next().getValue();
+					it = currentSituation.entrySet().iterator();
+					while (it.hasNext()) {
+						Entry<String, State> pair = it.next();
+						State candidate = pair.getValue();
+						String verb = pair.getKey();
+						if (candidate.get(0).value.cardinality.contains("x"))
+							continue;
+						if (verb.equals("has") && !candidate.get(0).value.equals(complete))
+							complete = candidate.get(0).value; 
+						if (!verb.equals("has") && new SentencesAnalyzer().isAntonym(questionVerb, verb)) {
+							subset = candidate.get(0).value;
+							break;
+						}
+					}
+				}
+			}
+			System.out.println(complete.name+"|"+subset.name);
+		}
+		if (isQuestionSet && questionOwner.isEmpty()) {
+			Set complete = null, subset = null;
+			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
+			while (it1.hasNext()) {
+				Situation currentSituation = it1.next().getValue();
+				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<String, State> pair = it.next();
+					State candidate = pair.getValue();
+					String verb = pair.getKey();
+					//System.out.println(verb+"|"+candidate.get(0).value.name);
+					if (candidate.get(0).value.cardinality.contains("x"))
+						continue;
+					if (verb.equals("has"))
+						complete = candidate.get(0).value; 
+					if (!verb.equals("has") && new SentencesAnalyzer().isAntonym(questionVerb, verb)) {
+						subset = candidate.get(0).value;
+					}
+				}
+			}
+			//System.out.println(complete+"|"+subset);
+			String ans = EquationSolver.getSolution(complete.cardinality + "-" + subset.cardinality);
+			finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
+			return;
+		}
 		State ansState = story.get(questionOwner).get(questionVerb);
 		if (ansState == null) {
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();

@@ -1,10 +1,16 @@
 package nlp_adder;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -60,6 +66,7 @@ public class SentencesAnalyzer {
 
 	private LinkedHashSet<String> entities = new LinkedHashSet<String>();
 	private LinkedHashSet<String> owners = new LinkedHashSet<String>();
+	private LinkedHashSet<String> verbs = new LinkedHashSet<String>();
 	private ArrayList<String> aggregators = new ArrayList<String>();
 	private ArrayList<String> differences = new ArrayList<String>();
 	private ArrayList<String> comparators = new ArrayList<String>();
@@ -123,7 +130,42 @@ public class SentencesAnalyzer {
 		comparators.add("taller");
 		comparators.add("bigger");
 	}
-	
+	public boolean isAntonym (String word1, String word2) {
+		try {
+			Document doc = Jsoup.connect("http://www.thesaurus.com/browse/"+word1)
+					  .userAgent("Mozilla")
+					  .cookie("auth", "token")
+					  .timeout(3000)
+					  .post();
+			Elements sections = doc.select("section");
+			for (Element section : sections) {
+				//System.out.println(section.attr("abs:class"));
+				String className = section.attr("abs:class");
+				if (className.contains("container-info antonyms")) {
+					//System.out.println("in");
+					Elements links = section.select("a");
+					for (Element link : links) {
+						//System.out.println(link.attr("abs:href"));
+						String linkAddress = link.attr("abs:href");
+						if (linkAddress.contains(word2))
+							return true;
+					}
+					return false;
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("errrr");
+			return false;
+		}
+		return false;
+	}
+	public boolean isAntonym (String word) {
+		for (String verb : verbs) {
+			if (isAntonym(verb,word))
+				return true;
+		}
+		return false;
+	}
 	public LinguisticInfo extract(String simplifiedProblem, StanfordCoreNLP pipeline) {
 		ArrayList<LinguisticStep> preprocessedSteps = new ArrayList<LinguisticStep>();
 		Annotation document = new Annotation(simplifiedProblem);
@@ -169,8 +211,6 @@ public class SentencesAnalyzer {
 	    problemInfo.sentences = preprocessedSteps;
 		return problemInfo;
 	}
-	// will be replaced with learner later
-	
 	private ArrayList<LinguisticStep> processDependencies(CoreMap sentence,
 			ArrayList<SemanticGraphEdge> edges, String tense, String keyword, String verb) {
 		ArrayList<LinguisticStep> steps = new ArrayList<LinguisticStep>();
@@ -206,12 +246,14 @@ public class SentencesAnalyzer {
     						}
     					}
     				}
+    				secondNode = null;
     				if (innerEdge.getSource().equals(intermediateNode)) {
-    					if (innerRelation.contains("prep_of") && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD)) || innerRelation.contains(PARSER_NN) && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
+    					if (innerRelation.contains("prep_of") && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
     						if (!innerEdge.getTarget().originalText().equals("more")) {
     							secondNode = innerEdge.getTarget();
     						}
     					}
+    					System.out.println("second"+secondNode);
     					IndexedWord innNode = null, ijjNode = null;
     	    			for (SemanticGraphEdge iEdge : edges) {
     	    				String iRelation = iEdge.getRelation().toString();
@@ -368,7 +410,7 @@ public class SentencesAnalyzer {
 				owner2 = "";
 		boolean someFlag = false;
 		for (String name : entities) {
-			if (sentence.toString().contains(name))
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
 				someFlag = true;
 		}
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
@@ -459,6 +501,7 @@ public class SentencesAnalyzer {
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";
 			s.verbQual = verb;
+			verbs.add(verb);
 			s.procedureName = keywordMap.get(keyword);
 			s.keyword = keyword;
 			s.aggregator = false;
@@ -476,6 +519,7 @@ public class SentencesAnalyzer {
 				if (sentence.toString().contains(difference))
 					s.difference = true;	
 			}
+			s.setCompletor = isAntonym(verb);
 			////////////////System.out.println("q" + owner1 + "|" + owner2);
 			steps.add(s);
     	}
