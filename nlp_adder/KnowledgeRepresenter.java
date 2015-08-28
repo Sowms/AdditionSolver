@@ -207,6 +207,7 @@ public class KnowledgeRepresenter {
 						ans = ans.replace(".0", ""); 
 					unknown.cardinality = ans;
 					replace.components.put(unknown.name, unknown);
+					sets.put(unknown.name, unknown);
 					replace.computeCardinality();
 				}
 			}
@@ -214,6 +215,7 @@ public class KnowledgeRepresenter {
 		TimeStamp t = new TimeStamp();
 		t.time = time;
 		t.value = value;
+		sets.put(t.value.name, t.value);
 		t.entity = entity;
 		newState.add(t);
 		newSituation.put(verbQual,newState);
@@ -354,10 +356,13 @@ public class KnowledgeRepresenter {
 			verb = "has";
 		Set oldValue1 = new Set(), oldValue2 = new Set();
 		try {
-			State verbStory = story.get(owner1).get(verb);
+			String retrieve = verb;
+			if (keywordMap.containsKey(verb) && keyword.equals(verb))
+				retrieve = "has";
+			State verbStory = story.get(owner1).get(retrieve);
 			//modularize
 			for (TimeStamp currentTimeStamp : verbStory) {
-				if (currentTimeStamp.entity.equals(newEntity.name)) {
+				if (currentTimeStamp.entity.contains(newEntity.name)) {
 					oldValue1 = currentTimeStamp.value;
 				}
 			}
@@ -605,6 +610,35 @@ public class KnowledgeRepresenter {
 	
 	
 	public static void solve() {
+		System.out.println(questionVerb+"|"+questionEntity);
+		if (isQuestionAggregator && !questionOwner.isEmpty() && !questionVerb.isEmpty()) {
+			State currentState = story.get(questionOwner).get(questionVerb);
+			String ans = "";
+			for (TimeStamp t : currentState) {
+				if (sets.get(t.value.name).cardinality.contains("x"))
+					continue;
+				ans = sets.get(t.value.name).cardinality + "+" + ans;
+			}
+			ans = ans.substring(0,ans.length()-1);
+			finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			return;
+		}
+		if (isQuestionAggregator && questionOwner.isEmpty() && !questionVerb.isEmpty()) {
+			String ans = "";
+			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
+			while (it1.hasNext()) {
+				Situation currentSituation = it1.next().getValue();
+				State currentState = currentSituation.get(questionVerb);
+				for (TimeStamp t : currentState) {
+					if (sets.get(t.value.name).cardinality.contains("x"))
+						continue;
+					ans = sets.get(t.value.name).cardinality + "+" + ans;
+				}
+			}
+			ans = ans.substring(0,ans.length()-1);
+			finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			return;
+		}
 		if (isQuestionSet && !questionOwner.isEmpty()) {
 			Set complete = null, subset = null;
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
@@ -679,24 +713,36 @@ public class KnowledgeRepresenter {
 		}
 		ansState = story.get(questionOwner).get(questionVerb);
 		boolean isEvent = keywordMap.containsKey(questionVerb);
-		String ans = "";
+		String ans = "", entity = "";
 		for (TimeStamp t : ansState) {
-			if (t.entity.equals(questionEntity)) {
+			if (questionEntity.isEmpty())
+				entity = t.entity;
+			else
+				entity = questionEntity;
+			if (t.entity.contains(entity) || entity.contains(t.entity)) {
 				if (!isEvent) {
-					if (t.time.equals(TIMESTAMP_PREFIX+questionTime))
+					if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
 						ans = sets.get(t.value.name).cardinality;
+						questionEntity = entity;
+					}
 				}
-				else
-					ans = sets.get(t.value).cardinality;
+				else {
+					ans = sets.get(t.value.name).cardinality;
+					questionEntity = entity;
+				}
 			}		
 		}
-		if (ans.contains("x")) {
+		System.out.println("final"+ans);
+		if (ans.contains("x") || ans.isEmpty()) {
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
 			while (it.hasNext()) {
 				questionVerb = it.next().getKey();
 				if (!questionVerb.equals("has"))
 					break;
 			}
+		} else {
+			finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			return;
 		}
 		isEvent = keywordMap.containsKey(questionVerb);
 		ans = "";
@@ -712,6 +758,6 @@ public class KnowledgeRepresenter {
 			}		
 		}
 		
-		finalAns = questionOwner + " " + questionVerb + " " + ans + " " + questionEntity;
+		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 	}
 }

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Sara 's high school played 12 basketball games this year . The team won most of their games . They were defeated during 4 games . How many games did they win ? ", pipeline);
+		solveWordProblems("Alyssa 's dog had puppies . She gave 7 to her friends . She now has 5 puppies . How many puppies did she have to start with ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

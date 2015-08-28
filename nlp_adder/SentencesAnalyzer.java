@@ -132,6 +132,8 @@ public class SentencesAnalyzer {
 	}
 	public boolean isAntonym (String word1, String word2) {
 		try {
+			if (word1.equals(word2))
+				return false;
 			Document doc = Jsoup.connect("http://www.thesaurus.com/browse/"+word1)
 					  .userAgent("Mozilla")
 					  .cookie("auth", "token")
@@ -147,8 +149,10 @@ public class SentencesAnalyzer {
 					for (Element link : links) {
 						//System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
-						if (linkAddress.contains(word2))
+						if (linkAddress.contains(word2)) {
+							System.out.println(word1+word2);
 							return true;
+						}
 					}
 					return false;
 				}
@@ -199,6 +203,7 @@ public class SentencesAnalyzer {
 		    		
 		    	}
 			}
+	    	System.out.println(verb);
 	    	//////////////System.err.println(sentence.toString()+tense);
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    	////System.out.println(dependencies);
@@ -413,6 +418,12 @@ public class SentencesAnalyzer {
 			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
 				someFlag = true;
 		}
+		for (String name : Parser.entities) {
+			System.out.println(name);
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
+				someFlag = true;
+		}
+		System.out.println(someFlag);
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
 		    if(!entities.isEmpty() && newEntity.value == null) {
 			for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
@@ -563,7 +574,7 @@ public class SentencesAnalyzer {
 				if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 					verb = "has";
 				//////System.out.println(s.tense+"|"+verb);
-				
+				verbs.add(verb);
 				s.verbQual = verb;
 				s.entityName = tempEntity.name;
 				s.entityValue = tempEntity.value;

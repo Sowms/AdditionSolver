@@ -50,6 +50,8 @@ public class Parser {
 	private final String PARSER_IOBJ = "iobj";
 	private final String PARSER_POBJ = "pobj";
 	
+	public static ArrayList<String> entities = new ArrayList<String>();
+	
 	public static String dollarPreprocess(String input) {
 		if (input.contains("$")) {
 			String ans = "";
@@ -122,6 +124,7 @@ public class Parser {
 	     				continue;
 	     			String name = "";
 	     			name = edge.getSource().originalText();
+	     			entities.add(name);
 	     			possibleEntities.add(name);
 	     			IndexedWord intermediateNode = edge.getSource();
 	     			IndexedWord nnNode = null, jjNode = null;
@@ -240,6 +243,7 @@ public class Parser {
 	
 	public static String parse(String input, StanfordCoreNLP pipeline) {
 		
+		entities = new ArrayList<String>();
 		input = input.replace("-", "");
 		input = input.replace(", but", ".");
 		ArrayList<String> numbers = new ArrayList<String>();
