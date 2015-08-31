@@ -124,6 +124,8 @@ public class Parser {
 	     				continue;
 	     			String name = "";
 	     			name = edge.getSource().originalText();
+	     			if (edge.getSource().tag().equals(POS_NOUN) || edge.getSource().tag().equals(POS_MOD))
+	     				continue;
 	     			entities.add(name);
 	     			possibleEntities.add(name);
 	     			IndexedWord intermediateNode = edge.getSource();
@@ -147,13 +149,14 @@ public class Parser {
 	     					name = nnNode.originalText() + " " + name;
 	     			else if (jjNode != null)
 	     				name = jjNode.originalText() + " " + name;
-	         		possibleEntities.add(name);
+	     			entities.add(name);
+	     			possibleEntities.add(name);
 	     		}
 	 	    }
 	 	    
 	    }
 	    String ans = "";
-	    //////System.out.println(possibleEntities);
+	    System.out.println("PE"+possibleEntities);
 	    for (CoreMap sentence: sentences) {
 	    	boolean entity = true;
 	    	Tree tree = sentence.get(TreeAnnotation.class);
@@ -242,7 +245,6 @@ public class Parser {
 	}
 	
 	public static String parse(String input, StanfordCoreNLP pipeline) {
-		
 		entities = new ArrayList<String>();
 		input = input.replace("-", "");
 		input = input.replace(", but", ".");
@@ -520,6 +522,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//System.out.println(parse("There are 41 crayons and 26 pencils in the drawer . Sam placed 12 crayons in the drawer . How many crayons are now there in total ? ",pipeline));
+		System.out.println(parse("Jason had Pokemon cards . He gave 9 to his friends . He now has 4 Pokemon cards . How many Pokemon cards did he have to start with ?",pipeline));
+		System.out.println(entities);
 	}
 }

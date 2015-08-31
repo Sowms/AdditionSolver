@@ -134,6 +134,8 @@ public class SentencesAnalyzer {
 		try {
 			if (word1.equals(word2))
 				return false;
+			if (word1.equals("has") || word2.equals("has"))
+				return false;
 			Document doc = Jsoup.connect("http://www.thesaurus.com/browse/"+word1)
 					  .userAgent("Mozilla")
 					  .cookie("auth", "token")
@@ -165,8 +167,10 @@ public class SentencesAnalyzer {
 	}
 	public boolean isAntonym (String word) {
 		for (String verb : verbs) {
-			if (isAntonym(verb,word))
+			if (isAntonym(verb,word)) {
+				System.out.println("anti"+verb+"|"+word);
 				return true;
+			}
 		}
 		return false;
 	}
@@ -182,8 +186,10 @@ public class SentencesAnalyzer {
 		    	String lemma = token.get(LemmaAnnotation.class);
 		    	String pos = token.get(PartOfSpeechAnnotation.class);
 		    	if (pos.contains(POS_VERB) || pos.contains(POS_ADVMOD) || pos.contains(POS_MOD)) {
-		    		if (pos.contains(POS_VERB))
+		    		if (pos.contains(POS_VERB)) {
+		    			//System.out.println("sentence"+verb+sentence.toString());
 		    			verb = lemma;		  
+		    		}
 		    		//System.err.println("ervb"+verb+"|"+sentence.toString());
 		    		if ((pos.contains(POS_VBD) || pos.contains(POS_VBN)) && tense.isEmpty())
 			    		tense = PAST;
@@ -274,11 +280,11 @@ public class SentencesAnalyzer {
     	    					}
     	    				}
     	    			}
-    	    			if (innNode != null)
-        					newEntity.name = newEntity.name + " of " + nnNode.originalText().toLowerCase() + "_" + secondNode.originalText();
-    	    			else if (ijjNode != null)
-    	    				newEntity.name = newEntity.name + " of " + jjNode.originalText().toLowerCase() + "_" + secondNode.originalText();
-    	    			else if (secondNode !=null)
+    	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()))
+        					newEntity.name = newEntity.name + " of " + innNode.originalText().toLowerCase() + "_" + secondNode.originalText();
+    	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText()))
+    	    				newEntity.name = newEntity.name + " of " + ijjNode.originalText().toLowerCase() + "_" + secondNode.originalText();
+    	    			else if (secondNode !=null && !newEntity.name.equals(secondNode.originalText()))
     	    				newEntity.name = newEntity.name + " of " + secondNode.originalText();
             		
     					
@@ -425,25 +431,36 @@ public class SentencesAnalyzer {
 		}
 		System.out.println(someFlag);
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
-		    if(!entities.isEmpty() && newEntity.value == null) {
-			for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-		    	String lemma = token.get(LemmaAnnotation.class);
-		    	if (entities.contains(lemma))
-    				newEntity.name = lemma;
-    		}
+		    if (newEntity.value == null) {
+		    	ArrayList<CoreLabel> tokens = (ArrayList<CoreLabel>) sentence.get(TokensAnnotation.class);
+		    	for (CoreLabel token: tokens) {
+		    		String lemma = token.get(LemmaAnnotation.class);
+		    		if (!entities.isEmpty() && entities.contains(lemma) || Parser.entities.contains(token.originalText())) {
+		    			String temp = token.originalText();
+		    			temp = tokens.get(tokens.indexOf(token)-1).originalText() + " " + temp;
+		    			if (Parser.entities.contains(temp))
+		    				newEntity.name = temp.replace(" ", "_");
+		    			else
+		    				newEntity.name = token.originalText();
+		    		}
+		    	}
     		newEntity.value = "some";
-    		sentenceEntities.add(newEntity);}
+    		sentenceEntities.add(newEntity);
+    		}
 		}
-		
+		System.out.println(newEntity.value);
 		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ")) {
 			//System.out.println("waka"+owners);
 			isQuestion = true;
     		String questionEntity = "", questionOwner1 = "", questionOwner2 = "",prevWord = "", prevLemma = "";
+    		
     		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+    		System.out.println(entities+"|"+owners);
     		for (CoreLabel token: tokens) {
-    	    	String word = token.get(TextAnnotation.class);
+    	    	String word = token.originalText().toLowerCase();
     	    	String lemma = token.get(LemmaAnnotation.class);
-    	    	////System.out.println(word+"|"+lemma+"|"+prevLemma+"|"+prevWord+"|"+prevLemma.toLowerCase()+"_"+lemma);
+    	    	String pos = token.get(PartOfSpeechAnnotation.class);
+    	    	//System.out.println(word+"|"+lemma+"|"+prevLemma+"|"+prevWord+"|"+prevLemma.toLowerCase()+"_"+lemma+"|"+prevWord.toLowerCase() + "_" + word.toLowerCase()+"|"+questionEntity+questionOwner1+questionOwner2);
     	    	if (word.equals("'s"))
     	    		continue;
     	    	if (tokens.indexOf(token) != tokens.size()-1) {
@@ -453,6 +470,12 @@ public class SentencesAnalyzer {
     	    			continue;
     	    		}
     	    	}
+    	    	if (pos.equals(POS_NOUN) || pos.equals(POS_ADVMOD) || pos.equals(POS_MOD)) {
+    	    		prevWord = word;
+        	    	prevLemma = lemma;
+    	    		continue;
+    	    	}
+    	    	System.out.println(pos+"|"+word);
     	    	if (entities.contains(word.toLowerCase()) && questionEntity.isEmpty()) { 
     	    		if (entities.contains(prevWord + "_" + word))
     	    			questionEntity = prevWord.toLowerCase() + "_" + word.toLowerCase();
@@ -462,12 +485,15 @@ public class SentencesAnalyzer {
     	    	if (entities.contains(lemma.toLowerCase()) && questionEntity.isEmpty()) { 
     	    		if (entities.contains(prevLemma + "_" + lemma))
     	    			questionEntity = prevLemma + "_" + lemma;
+    	    		else if ((entities.contains(prevWord + "_" + word)))
+    	    			questionEntity = prevWord + "_" + word;
     	    		else
     	    			questionEntity = lemma;
     	    	}
+    	    	
     	    	if (owners.contains(word) && questionOwner1.isEmpty()) { 
-    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word))
-    	    			questionOwner1 = prevWord.toLowerCase() + "_" + word;
+    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word.toLowerCase()))
+    	    			questionOwner1 = prevWord.toLowerCase() + "_" + word.toLowerCase();
     	    		else
     	    			questionOwner1 = word;
     	    	}
@@ -478,10 +504,11 @@ public class SentencesAnalyzer {
     	    			questionOwner1 = lemma;
     	    	}
     	    	if (owners.contains(word) && questionOwner2.isEmpty()) { 
-    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word))
-    	    			questionOwner2 = prevWord.toLowerCase() + "_" + word;
+    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word.toLowerCase()))
+    	    			questionOwner2 = prevWord.toLowerCase() + "_" + word.toLowerCase();
     	    		else
     	    			questionOwner2 = word;
+    	    		System.out.println(questionOwner2);
     	    		if (questionOwner2.equals(questionOwner1))
     	    			questionOwner2 = "";
     	    	}
@@ -490,6 +517,7 @@ public class SentencesAnalyzer {
     	    			questionOwner2 = prevLemma.toLowerCase() + "_" + lemma;
     	    		else
     	    			questionOwner2 = lemma;
+    	    		System.out.println(questionOwner2);
     	    		if (questionOwner2.equals(questionOwner1))
     	    			questionOwner2 = "";
     	    	}
@@ -500,7 +528,6 @@ public class SentencesAnalyzer {
     		//System.out.println("q"+"|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+entities);
     		//if (questionOwner.equals(DUMMY))
     			//questionOwner = "";
-    		
     		LinguisticStep s = new LinguisticStep();
 			s.owner1 = questionOwner1;
 			s.owner2 = questionOwner2;
@@ -531,7 +558,7 @@ public class SentencesAnalyzer {
 					s.difference = true;	
 			}
 			s.setCompletor = isAntonym(verb);
-			////////////////System.out.println("q" + owner1 + "|" + owner2);
+			//System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb);
 			steps.add(s);
     	}
 		else {

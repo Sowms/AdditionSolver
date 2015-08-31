@@ -67,8 +67,10 @@ public class Set {
 				operandStack.add(0,components.get(operand+""));
 			}
 			else {
+				System.out.println(operandStack);
 				Set operand1 = operandStack.remove(0);
 				Set operand2 = operandStack.remove(0);
+				System.out.println(operandStack);
 				Set ans = new Set();
 				char operator = compute.charAt(i);
 				System.out.println(operand1.name+"|"+operand2.name);
