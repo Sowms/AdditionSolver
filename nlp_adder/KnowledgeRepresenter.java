@@ -225,7 +225,7 @@ public class KnowledgeRepresenter {
 	}
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
 			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
-		//System.out.println(owners);
+		System.out.println(keyword+verbQual);
 		if (verbQual.equals("buy") || verbQual.equals("purchase"))
 			if (entities.contains("dollar") || entities.contains("dollars"))
 				verbQual = "spend";
@@ -348,10 +348,8 @@ public class KnowledgeRepresenter {
 			owner = owner2;
 		else
 			owner = owner1;
-		if (procedure.contains(CHANGE)) { 
-			tense = "";
-			timeStep++;
-		}
+		tense = "";
+		timeStep++;
 		if (procedure.isEmpty() && newEntity.name != null) {
 			displayStory();
 			return;
@@ -951,7 +949,7 @@ public class KnowledgeRepresenter {
 				entity = questionEntity;
 			if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 				continue;
-			System.out.println(sets.get(t.value.name).cardinality);
+			System.out.println(sets.get(t.value.name).cardinality+t.time);
 			if (t.entity.contains(entity) || entity.contains(t.entity)) {
 				if (!isEvent) {
 					if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {

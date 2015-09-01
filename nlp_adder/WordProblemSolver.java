@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Sara got fast food for lunch . Sara spent $ 5.36 on a hotdog and $ 5.10 on a salad . What was the total of the lunch bill ? ", pipeline);
+		solveWordProblems("Joan has 9 blue balloons but lost 2 of them . How many blue balloons does Joan have now ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
