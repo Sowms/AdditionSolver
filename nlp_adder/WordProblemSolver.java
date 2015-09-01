@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("There are 7 crayons in the drawer . Mary took 3 crayons out of the drawer . How many crayons are there now ?", pipeline);
+		solveWordProblems("Tom has 9 yellow balloons Sara has 8 yellow balloons . How many yellow balloons do they have in total ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

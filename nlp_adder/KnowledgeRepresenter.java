@@ -818,6 +818,13 @@ public class KnowledgeRepresenter {
 				if (currentSituation.containsKey(questionVerb)) {
 					questionOwner = owner;
 					for (TimeStamp t : currentSituation.get(questionVerb)) {
+						if (questionEntity.isEmpty())
+							entity = t.entity;
+						else
+							entity = questionEntity;
+						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
+						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || inQues)
+							continue;
 						if (t.entity.contains(entity) || entity.contains(t.entity)) {
 							if (!isEvent) {
 								if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
@@ -831,8 +838,11 @@ public class KnowledgeRepresenter {
 							}
 						}
 					}
-					finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
-					return;	
+					if (!ans.isEmpty()) {
+						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+						return;	
+					}
+					continue;
 				}
 				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
 				while (it.hasNext()) {
@@ -845,7 +855,7 @@ public class KnowledgeRepresenter {
 							entity = t.entity;
 						else
 							entity = questionEntity;
-						if (sets.get(t.value.name).cardinality.contains("x"))
+						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || question.contains(EquationSolver.getSolution(sets.get(t.value.name).cardinality).replace(".0", "")))
 							continue;
 						if (t.entity.contains(entity) || entity.contains(t.entity)) {
 							if (!isEvent) {
@@ -942,7 +952,7 @@ public class KnowledgeRepresenter {
 					entity = t.entity;
 				else
 					entity = questionEntity;
-				if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || question.contains(sets.get(t.value.name).cardinality))
+				if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || question.contains(EquationSolver.getSolution(sets.get(t.value.name).cardinality).replace(".0", "")))
 					continue;
 				System.out.println(sets.get(t.value.name).cardinality);
 				if (t.entity.contains(entity) || entity.contains(t.entity)) {
