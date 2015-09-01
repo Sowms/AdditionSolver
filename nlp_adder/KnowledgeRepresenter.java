@@ -759,6 +759,7 @@ public class KnowledgeRepresenter {
 					String verb = pair.getKey();
 					if (verb.equals(questionVerb))
 						continue;
+					isEvent = keywordMap.containsKey(verb);
 					for (TimeStamp t : currentState) {
 						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
 							continue;
@@ -772,6 +773,8 @@ public class KnowledgeRepresenter {
 				}
 				if (!ans.isEmpty()) {
 					ans = ans.substring(0,ans.length()-1);
+					if (questionEntity.isEmpty())
+						questionEntity = entities.iterator().next();
 					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 					return;
 				}

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ? ", pipeline);
+		solveWordProblems("Sara got fast food for lunch . Sara spent $ 5.36 on a hotdog and $ 5.10 on a salad . What was the total of the lunch bill ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
