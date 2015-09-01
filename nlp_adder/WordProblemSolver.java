@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Joan has 9 blue balloons but lost 2 of them . How many blue balloons does Joan have now ? ", pipeline);
+		solveWordProblems("Joan went to 4 football games this year . She went to 9 games last year . How many football games did Joan go to in all ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

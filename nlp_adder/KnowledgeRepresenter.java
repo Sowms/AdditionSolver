@@ -348,12 +348,12 @@ public class KnowledgeRepresenter {
 			owner = owner2;
 		else
 			owner = owner1;
-		tense = "";
-		timeStep++;
 		if (procedure.isEmpty() && newEntity.name != null) {
 			displayStory();
 			return;
 		}
+		tense = "";
+		timeStep++;
 		String verb = verbQual;
 		String newName1 = "", newName2 = "";
 		if (!keyword.contains("more") && !keyword.contains("less"))
