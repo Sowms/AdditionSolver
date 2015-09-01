@@ -315,7 +315,7 @@ public class KnowledgeRepresenter {
 		String owner = "";
 		if (procedure == null)
 			procedure = "";
-		if (procedure.contains(CHANGE)) {
+		if (!procedure.isEmpty()) {
 			timeStep++;
 			inertia(owner1,owner2,newEntity.name);
 		}

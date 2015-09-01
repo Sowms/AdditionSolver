@@ -132,6 +132,8 @@ public class SentencesAnalyzer {
 	}
 	public boolean isAntonym (String word1, String word2) {
 		try {
+			if (entities.contains("dollars"))
+				return false;
 			if (word1.equals(word2))
 				return false;
 			if (word1.equals("has") || word2.equals("has"))
@@ -424,6 +426,9 @@ public class SentencesAnalyzer {
 			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
 				someFlag = true;
 		}
+		if (verb.equals("buy") || verb.equals("purchase"))
+			if (entities.contains("dollar") || entities.contains("dollars"))
+				someFlag = true;
 		for (String name : Parser.entities) {
 			//System.out.println(name);
 			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
@@ -445,6 +450,8 @@ public class SentencesAnalyzer {
 		    		}
 		    	}
     		newEntity.value = "some";
+    		if (newEntity.name == null)
+    			newEntity.name = "dollars";
     		sentenceEntities.add(newEntity);
     		}
 		}
