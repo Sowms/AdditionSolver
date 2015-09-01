@@ -226,6 +226,9 @@ public class KnowledgeRepresenter {
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
 			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
 		//System.out.println(owners);
+		if (verbQual.equals("buy") || verbQual.equals("purchase"))
+			if (entities.contains("dollar") || entities.contains("dollars"))
+				verbQual = "spend";
 		Set newSet = new Set();
 		if (newEntity.value.equals("some"))
 			newSet.cardinality = "x";
@@ -739,10 +742,40 @@ public class KnowledgeRepresenter {
 					else if (questionEntity.contains(t.entity) || t.entity.contains(questionEntity))
 						ans = sets.get(t.value.name).cardinality + "+" + ans;
 				}
+				
 			}
-			ans = ans.substring(0,ans.length()-1);
-			finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
-			return;
+			if (!ans.isEmpty()) {
+				ans = ans.substring(0,ans.length()-1);
+				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				return;
+			}
+			it1 = story.entrySet().iterator();
+			while (it1.hasNext()) {
+				Situation currentSituation = it1.next().getValue();
+				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<String, State> pair = it.next();
+					State currentState = pair.getValue();
+					String verb = pair.getKey();
+					if (verb.equals(questionVerb))
+						continue;
+					for (TimeStamp t : currentState) {
+						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+							continue;
+						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
+							continue;
+						if (questionEntity.isEmpty())
+							ans = sets.get(t.value.name).cardinality + "+" + ans;
+						else if (questionEntity.contains(t.entity) || t.entity.contains(questionEntity))
+							ans = sets.get(t.value.name).cardinality + "+" + ans;
+					}
+				}
+				if (!ans.isEmpty()) {
+					ans = ans.substring(0,ans.length()-1);
+					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					return;
+				}
+			}
 		}
 		if (isQuestionSet && !questionOwner.isEmpty()) {
 			Set complete = null, subset = null;
@@ -877,6 +910,20 @@ public class KnowledgeRepresenter {
 						return;
 					}
 				}
+			}
+			if (ans.isEmpty()) {
+				System.out.println(question);
+				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Matcher varMatcher = numPattern.matcher(question);
+				String sum = "0";
+				while (varMatcher.find()) {
+					sum = sum + "+" + varMatcher.group();
+					System.out.println(sum);
+				}
+				System.out.println(sum);
+				if (questionEntity.isEmpty())
+					questionEntity = entities.iterator().next();
+				finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
 			}
 			return;
 		}

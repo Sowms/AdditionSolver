@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Tom has 9 yellow balloons Sara has 8 yellow balloons . How many yellow balloons do they have in total ? ", pipeline);
+		solveWordProblems("Joan purchased a basketball game for $ 5.20 , and a racing game for $ 4.23 .", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
