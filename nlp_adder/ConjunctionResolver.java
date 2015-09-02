@@ -192,7 +192,7 @@ public class ConjunctionResolver {
 				}
 				if (PrP1.isEmpty() && !PrP2.startsWith("for"))
 					PrP1 = PrP2;
-				if (VP1.contains("bought") && !VP2.contains("bought")) {
+				if (VP1.contains("bought") && !VP2.contains("bought") && !VP2.contains("spent")) {
 					P2 = VP1 + " " + P2;
 				}
 				System.out.println(VP1+"|"+VP2);
@@ -222,7 +222,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Mike joined his school 's band . He bought a trumpet for $ 145.16 , and a song book which was $ 5.84 . How much did Mike spend at the music store ? ",pipeline));
+		System.out.println(parse("Last week Tom had 74 dollars . He washed cars over the weekend and now has 86 dollars . How much money did he make washing cars ?",pipeline));
 	}
 	
 }

@@ -336,7 +336,6 @@ public class Parser {
 	    		String word = token.get(TextAnnotation.class);
 	    	//	String lemma;
 	   			//lemma = token.get(LemmaAnnotation.class);
-	    		//String pos = token.get(PartOfSpeechAnnotation.class);
 	    		//////////////System.out.println(word+"|"+pos+"|"+lemma+"|"+token.get(NamedEntityTagAnnotation.class));
 	    		words.add(word);
 	    //		if (pos.contains("W"))
@@ -390,17 +389,21 @@ public class Parser {
 						
 						//////System.out.println(initialPart);
 	    			}
-	    			//////System.out.println(initialPart);
+	    			System.out.println(initialPart);
 	    			ArrayList<String> parenthesisStack = new ArrayList<String>();
 	    			parenthesisStack.add("(");
 	    			int j = i;
 	    			for (; j<constituents.length; j++) {
 	    				Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|[^\\W\\d]+|\\d+");
-	    				////////System.err.println("\\d+\\.\\d+|[^\\W\\d]+|\\d+.");
-						Matcher matcher = wordPattern.matcher(constituents[j]);
+	    				Matcher matcher = wordPattern.matcher(constituents[j]);
 						if (parenthesisStack.isEmpty()){ 
 	    					break;
 	    				}
+						if (constituents[j].contains("NNP") && tempFinal.isEmpty()) {
+							tempFinal = tempFinal + "mmmm";
+							tempInitial = new String(initialPart + " " + finalPart);
+							pos = j+1;
+						}
 	    				if (matcher.find() || constituents[j].contains(",")) {
 	    					String candidate;
 	    					try {
@@ -439,7 +442,8 @@ public class Parser {
 									finalPart = finalPart + " " + candidate;
 							}
 							
-	    				}
+	    				} 
+						
 	    				Pattern leftParenthesisPattern = Pattern.compile("\\(");
 	    				Pattern rightParenthesisPattern = Pattern.compile("\\)");
 	    				matcher = leftParenthesisPattern.matcher(constituents[j]);
@@ -522,7 +526,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Mike joined his school 's band . He bought a trumpet for $ 145.16 , and a song book which was $ 5.84 . How much did Mike spend at the music store ? ",pipeline));
+		System.out.println(parse("Tom has 9 yellow balloons Sara has 8 yellow balloons .",pipeline));
 		System.out.println(entities);
 	}
 }

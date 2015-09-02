@@ -80,6 +80,7 @@ public class KnowledgeRepresenter {
 	static ArrayList<String> storyTense = new ArrayList<String>();
 	static HashMap<String,String> keywordMap = new HashMap<String,String>();
 	static ArrayList<String> allEquations = new ArrayList<String>();
+	static ArrayList<String> ignoreWords = new ArrayList<String>();
 	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();
 	
 	
@@ -132,6 +133,11 @@ public class KnowledgeRepresenter {
 		procedureMap.put(ALTOGETHER_EQ, "[owner1]+[owner2]=[entity]");
 		procedureMap.put(COMPARE_PLUS_EQ, "[owner1] = [owner2]+[entity]");
 		procedureMap.put(COMPARE_MINUS_EQ, "[owner1] = [owner2]-[entity]");
+		
+		ignoreWords.add("crack");
+		ignoreWords.add("paint");
+		ignoreWords.add("go");
+		ignoreWords.add("pay");
 	}
 	
 	static void clear() {
@@ -192,8 +198,31 @@ public class KnowledgeRepresenter {
 			if (t.time.equals(time)) {
 				existingValue = t.value;
 				lhs = existingValue.cardinality;
-				if (!lhs.contains("+") && !rhs.contains("+") && !lhs.contains("-") && !rhs.contains("-"))
+				if (!lhs.contains("+") && !rhs.contains("+") && !lhs.contains("-") && !rhs.contains("-")) {
+					if (!t.entity.equals(entity) || entity.equals("dollars") && !verbQual.equals("has"))
+						break;
+					timeStep++;
+					State tempState = new State();
+					TimeStamp t1 = new TimeStamp();
+					t1.time = TIMESTAMP_PREFIX + timeStep;
+					if (Double.parseDouble(rhs) > Double.parseDouble(lhs)) {
+						t1.value = Set.difference(value, t.value);
+						sets.put(t1.value.name, t1.value);
+						t1.entity = entity;
+						tempState.add(t1);
+						newSituation.put("get", tempState);
+					}
+					if (Double.parseDouble(rhs) < Double.parseDouble(lhs)) {
+						t1.value = Set.difference(t.value, value);
+						sets.put(t1.value.name, t1.value);
+						t1.entity = entity;
+						tempState.add(t1);
+						newSituation.put("lost", tempState);
+					}
+					timeStep++;
+					time = TIMESTAMP_PREFIX + timeStep;
 					break;
+				}
 				Set unknown;
 				if (lhs.contains("x") || rhs.contains("x")) {
 					String ans = EquationSolver.getSolution(lhs + "=" + rhs);
@@ -220,7 +249,7 @@ public class KnowledgeRepresenter {
 		newState.add(t);
 		newSituation.put(verbQual,newState);
 		story.put(owner, newSituation);
-		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has"))
+		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has") && !ignoreWords.contains(verbQual)) 
 			updateTimestamp(owner,value,tense,"has",entity);
 	}
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
@@ -648,9 +677,9 @@ public class KnowledgeRepresenter {
 			Entity currentEntity = new Entity();
 			currentEntity.name = ls.entityName;
 			currentEntity.value = ls.entityValue;
-			//System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + 
-				//currentEntity.name + "|" + currentEntity.value + "|" + 
-				//	ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual);
+			System.out.println("kr" + ls.owner1 + "|" + ls.owner2 + "|" + 
+				currentEntity.name + "|" + currentEntity.value + "|" + 
+					ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual);
 			if (ls.isQuestion) {
 				if (isQuestionAggregator)
 					continue;
@@ -711,7 +740,7 @@ public class KnowledgeRepresenter {
 				Entry<String, State> pair = it.next();
 				State candidate = pair.getValue();
 				String verb = pair.getKey();
-				if (!verb.equals("has"))
+				if (story.get(questionOwner).containsKey("has") && !verb.equals("has"))
 					continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
 				for (TimeStamp t : candidate) {
@@ -782,9 +811,9 @@ public class KnowledgeRepresenter {
 							totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 							continue;
 						}
-						totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
+						totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 						if (questionEntity.isEmpty())
 							ans = sets.get(t.value.name).cardinality + "+" + ans;
 						else if (questionEntity.contains(t.entity) || t.entity.contains(questionEntity))
@@ -870,7 +899,6 @@ public class KnowledgeRepresenter {
 			return;
 		}
 		if (questionOwner.isEmpty()) {
-			displayStory();
 			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
 			String entity = "", ans = "";
 			while (it1.hasNext()) {
@@ -884,8 +912,10 @@ public class KnowledgeRepresenter {
 							entity = t.entity;
 						else
 							entity = questionEntity;
+						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
+							continue;
 						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
-						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || inQues)
+						if (inQues)
 							continue;
 						if (t.entity.contains(entity) || entity.contains(t.entity)) {
 							if (!isEvent) {
@@ -904,14 +934,15 @@ public class KnowledgeRepresenter {
 						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 						return;	
 					}
-					continue;
+					//continue;
 				}
 				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
 				while (it.hasNext()) {
 					Entry<String, State> pair = it.next();
 					State candidate = pair.getValue();
 					String verb = pair.getKey();
-					//System.out.println(verb+"|"+candidate.get(0).value.name);
+					System.out.println(verb+"|"+candidate.get(0).value.name);
+					isEvent = keywordMap.containsKey(verb);
 					for (TimeStamp t : candidate) {
 						if (questionEntity.isEmpty())
 							entity = t.entity;
@@ -919,6 +950,7 @@ public class KnowledgeRepresenter {
 							entity = questionEntity;
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-") || question.contains(EquationSolver.getSolution(sets.get(t.value.name).cardinality).replace(".0", "")))
 							continue;
+						System.out.println("hhh");
 						if (t.entity.contains(entity) || entity.contains(t.entity)) {
 							if (!isEvent) {
 								if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
@@ -940,6 +972,7 @@ public class KnowledgeRepresenter {
 					}
 				}
 			}
+			System.out.println("aa");
 			if (ans.isEmpty()) {
 				System.out.println(question);
 				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
@@ -1083,7 +1116,7 @@ public class KnowledgeRepresenter {
 					if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 						continue;
 					isEvent = keywordMap.containsKey(questionVerb);
-					System.out.println(sets.get(t.value.name).cardinality);
+					System.out.println(sets.get(t.value.name).cardinality + questionVerb);
 					if (t.entity.contains(entity) || entity.contains(t.entity)) {
 						if (!isEvent) {
 							if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
@@ -1126,7 +1159,11 @@ public class KnowledgeRepresenter {
 					ans = sets.get(t.value.name).cardinality;
 			}		
 		}
-		
+		if (ans.isEmpty() || ans.contains("x")) {
+			questionOwner = "";
+			solve();
+			return;
+		}
 		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 	}
 }

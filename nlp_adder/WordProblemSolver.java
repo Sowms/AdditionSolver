@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Last week Tom had 74 dollars . He washed cars over the weekend and now has 86 dollars . How much money did he make washing cars ?", pipeline);
+		solveWordProblems("Alyssa loves eating fruits . Alyssa paid $ 12.08 for grapes , and $ 9.85 for cherries . In total , how much money did Alyssa spend ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

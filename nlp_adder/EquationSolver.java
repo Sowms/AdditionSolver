@@ -8,6 +8,7 @@ import javax.script.ScriptException;
 public class EquationSolver {
 	public static String answer = "";
 	public static String getSolution(String input) {
+		answer = "";
 		//http://stackoverflow.com/questions/3422673/evaluating-a-math-expression-given-in-string-form
 		try {
 			ScriptEngineManager mgr = new ScriptEngineManager();
