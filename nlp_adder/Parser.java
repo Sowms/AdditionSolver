@@ -522,7 +522,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Jason had Pokemon cards . He gave 9 to his friends . He now has 4 Pokemon cards . How many Pokemon cards did he have to start with ?",pipeline));
+		System.out.println(parse("Mike joined his school 's band . He bought a trumpet for $ 145.16 , and a song book which was $ 5.84 . How much did Mike spend at the music store ? ",pipeline));
 		System.out.println(entities);
 	}
 }

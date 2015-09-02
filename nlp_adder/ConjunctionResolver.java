@@ -192,7 +192,10 @@ public class ConjunctionResolver {
 				}
 				if (PrP1.isEmpty() && !PrP2.startsWith("for"))
 					PrP1 = PrP2;
-				////System.out.println(VP1+"|"+VP2);
+				if (VP1.contains("bought") && !VP2.contains("bought")) {
+					P2 = VP1 + " " + P2;
+				}
+				System.out.println(VP1+"|"+VP2);
 				L1 = firstPart.replace(VP1,"");
 				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
@@ -201,8 +204,8 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				//System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
-				//System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				else
@@ -219,7 +222,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//System.out.println(parse("The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ? ",pipeline));
+		System.out.println(parse("Mike joined his school 's band . He bought a trumpet for $ 145.16 , and a song book which was $ 5.84 . How much did Mike spend at the music store ? ",pipeline));
 	}
 	
 }

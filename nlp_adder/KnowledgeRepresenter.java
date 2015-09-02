@@ -371,8 +371,25 @@ public class KnowledgeRepresenter {
 				}
 			}
 		} catch (NullPointerException ex) {
-			Set correctValue = resolveNullEntity(newEntity.name, owner1, verb);
-			oldValue1 = correctValue;
+			if (procedure.equals(REDUCTION)) {
+				Iterator<Entry<String, Situation>> it = story.entrySet().iterator();
+				while (it.hasNext()) {
+					Entry<String, Situation> pair = it.next();
+					owner1 = pair.getKey();
+					if (!pair.getValue().containsKey("has"))
+						continue;
+					State verbStory = pair.getValue().get("has");
+					//modularize
+					for (TimeStamp currentTimeStamp : verbStory) {
+						if (currentTimeStamp.entity.contains(newEntity.name)) {
+							oldValue1 = currentTimeStamp.value;
+						}
+					}
+				}
+			} else {
+				Set correctValue = resolveNullEntity(newEntity.name, owner1, verb);
+				oldValue1 = correctValue;
+			}
 		} catch (IndexOutOfBoundsException ex) {
 		}
 		if (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq")) {
@@ -670,7 +687,7 @@ public class KnowledgeRepresenter {
 	
 	
 	public static void solve() {
-		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime);
+		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
 		boolean isEvent = keywordMap.containsKey(questionVerb);
 		if (isQuestionAggregator && !questionOwner.isEmpty() && !questionVerb.isEmpty() && story.get(questionOwner).containsKey(questionVerb)) {
 			State currentState = story.get(questionOwner).get(questionVerb);
@@ -742,12 +759,14 @@ public class KnowledgeRepresenter {
 				}
 				
 			}
-			if (!ans.isEmpty()) {
+			if (!ans.isEmpty())
 				ans = ans.substring(0,ans.length()-1);
+			if (!ans.isEmpty() && !question.contains(ans)) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
 			}
 			it1 = story.entrySet().iterator();
+			String totalans = "";
 			while (it1.hasNext()) {
 				Situation currentSituation = it1.next().getValue();
 				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
@@ -759,8 +778,11 @@ public class KnowledgeRepresenter {
 						continue;
 					isEvent = keywordMap.containsKey(verb);
 					for (TimeStamp t : currentState) {
-						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
+							totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 							continue;
+						}
+						totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
 						if (questionEntity.isEmpty())
@@ -769,7 +791,9 @@ public class KnowledgeRepresenter {
 							ans = sets.get(t.value.name).cardinality + "+" + ans;
 					}
 				}
-				if (!ans.isEmpty()) {
+				if (!ans.isEmpty())
+					ans = ans.substring(0,ans.length()-1);
+				if (!ans.isEmpty() && question.contains(ans)) {
 					ans = ans.substring(0,ans.length()-1);
 					if (questionEntity.isEmpty())
 						questionEntity = entities.iterator().next();
@@ -777,6 +801,10 @@ public class KnowledgeRepresenter {
 					return;
 				}
 			}
+			ans = totalans;
+			ans = ans.substring(0,ans.length()-1);
+			finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			return;
 		}
 		if (isQuestionSet && !questionOwner.isEmpty()) {
 			Set complete = null, subset = null;
@@ -958,13 +986,18 @@ public class KnowledgeRepresenter {
 					}
 				}
 				else {
-					ans = sets.get(t.value.name).cardinality;
+					ans = sets.get(t.value.name).cardinality + "+" + ans;
 					questionEntity = entity;
 				}
 			}	
 		}
+		if (ans.endsWith("+"))
+			ans = ans.substring(0,ans.length()-1);
 		if (question.contains(ans) && !questionVerb.equals("has")) {
 			questionVerb = "has";
+			ansState = story.get(questionOwner).get(questionVerb);
+			if (ansState == null)
+				questionVerb = story.get(questionOwner).entrySet().iterator().next().getKey();
 			ansState = story.get(questionOwner).get(questionVerb);
 			ans = ""; entity = "";
 			for (TimeStamp t : ansState) {
