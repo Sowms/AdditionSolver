@@ -93,6 +93,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
+		keywordMap.put("serve", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("build", CHANGE_OUT);

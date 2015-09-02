@@ -78,6 +78,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("stack", CHANGE_OUT);
 		keywordMap.put("transfer", REDUCTION);
+		keywordMap.put("serve", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("add", CHANGE_OUT);
