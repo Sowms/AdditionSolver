@@ -229,7 +229,7 @@ public class KnowledgeRepresenter {
 						sets.put(t1.value.name, t1.value);
 						t1.entity = entity;
 						tempState.add(t1);
-						newSituation.put("lost", tempState);
+						newSituation.put("lose", tempState);
 					}
 					timeStep++;
 					time = TIMESTAMP_PREFIX + timeStep;
@@ -751,6 +751,9 @@ public class KnowledgeRepresenter {
 				}
 			}
 		}
+		if (isQuestionComparator)
+			questionVerb = "lose";
+			
 		boolean isEvent = keywordMap.containsKey(questionVerb);
 		if (!story.containsKey(questionOwner))
 			questionOwner = "";
