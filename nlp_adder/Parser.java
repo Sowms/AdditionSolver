@@ -50,10 +50,11 @@ public class Parser {
 	private final String PARSER_IOBJ = "iobj";
 	private final String PARSER_POBJ = "pobj";
 	
-	public static ArrayList<String> entities = new ArrayList<String>();
+	public static LinkedHashSet<String> entities = new LinkedHashSet<String>();
 	
 	public static String dollarPreprocess(String input) {
 		if (input.contains("$")) {
+			input = input.replace("$ ", "$");
 			String ans = "";
 			//boolean dollarFlag = false;
 			for (String word : input.split(" ")) {
@@ -124,7 +125,7 @@ public class Parser {
 	     				continue;
 	     			String name = "";
 	     			name = edge.getSource().originalText();
-	     			if (edge.getSource().tag().equals(POS_NOUN) || edge.getSource().tag().equals(POS_MOD))
+	     			if (edge.getSource().tag().equals(POS_MOD))
 	     				continue;
 	     			entities.add(name);
 	     			possibleEntities.add(name);
@@ -208,7 +209,7 @@ public class Parser {
 			String sentence, boolean adjFlag) {
 		for (String entity : possibleEntities) {
 			//////System.out.println("aaaaaaaaaaaaaaaaaaaaaaaa"+entity+sentence);
-			if (sentence.contains(entity) && entity.contains(" "))
+			if (sentence.contains(entity) && entity.contains(" ") && !adjFlag)
 				return entity;
 		}
 		for (String entity : possibleEntities) {
@@ -245,12 +246,15 @@ public class Parser {
 	}
 	
 	public static String parse(String input, StanfordCoreNLP pipeline) {
-		entities = new ArrayList<String>();
+		entities = new LinkedHashSet<String>();
 		input = input.replace("-", "");
 		input = input.replace(", but", ".");
 		ArrayList<String> numbers = new ArrayList<String>();
+		input = dollarPreprocess(input);
+		System.out.println(input);
+		input = entityResolution(input,pipeline);
 		input = ConjunctionResolver.parse(input, pipeline);
-		String ans = "", text = dollarPreprocess(input);
+		String ans = "", text = input;
 		//System.out.println(text);
 		HashMap<String,String> coref = new HashMap<String,String>();
 		//////System.out.println(text);
@@ -399,7 +403,7 @@ public class Parser {
 						if (parenthesisStack.isEmpty()){ 
 	    					break;
 	    				}
-						if (constituents[j].contains("NNP") && tempFinal.isEmpty()) {
+						if (constituents[j].contains("NNP") && tempFinal.isEmpty() && !sentence.toString().toLowerCase().contains("how")) {
 							tempFinal = tempFinal + "mmmm";
 							tempInitial = new String(initialPart + " " + finalPart);
 							pos = j+1;
@@ -504,7 +508,7 @@ public class Parser {
 	    	
 	    }
 	    
-	    //////System.out.println(ans);	    
+	   System.out.println(numbers);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
 	    Pattern numPattern = Pattern.compile("\\d+(\\.\\d+)*");
 		Matcher matcher = numPattern.matcher(finalAns); 
@@ -516,7 +520,7 @@ public class Parser {
 		matcher = numPattern.matcher(finalAns);
 		while (matcher.find()) 
 			countNum++;
-		//System.out.println("hi"+countNum+numbers.size());
+		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
 			return entityResolution(input,pipeline);
 	    return finalAns;
@@ -526,7 +530,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Tom has 9 yellow balloons Sara has 8 yellow balloons .",pipeline));
+		System.out.println(parse("Joan spent $ 15 on shorts and $ 14.82 on a jacket , and $ 12.51 on a shirt . She went to 3 shops . In total , how much money did Joan spend on clothing ?",pipeline));
 		System.out.println(entities);
 	}
 }

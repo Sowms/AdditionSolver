@@ -108,6 +108,17 @@ public class ConjunctionResolver {
 		
 	    return prepPhrase.replace(" '","'").trim();
 	}
+	public static boolean manyOwners (List<CoreLabel> firstPartTokens) {
+		int c = 0;
+		for (CoreLabel token : firstPartTokens) {
+			String pos = token.get(PartOfSpeechAnnotation.class);
+			System.out.println(pos);
+			if (Character.isUpperCase(token.originalText().charAt(0)) && pos.equals("NNP"))
+				c++;
+		}
+		return (c > 1);
+		
+	}
 	public static String parse(String input, StanfordCoreNLP pipeline) {
 		String ans = "";
 		input = input.replace(" .", ". ");
@@ -115,7 +126,8 @@ public class ConjunctionResolver {
 		input = input.replace("$ ", "$").replace(" '","'").trim();;
 		input = input.replaceAll("\\s+", " ").trim();
 		input = input.trim();
-		//System.out.println(input);
+		System.out.println(input.split(" and ").length);
+		System.out.println("i"+input);
 		Annotation document = new Annotation(input);
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
@@ -126,6 +138,9 @@ public class ConjunctionResolver {
 			boolean condition4 = sentence.toString().contains(" then ");
 			//System.out.println(condition1);
 			String splitString = "";
+			int i = 0;
+			if (condition1 && sentence.toString().split(" and ").length > 2)
+				i = 1;
 			if (condition1)
 				splitString = " and ";
 			else if (condition2)
@@ -136,9 +151,11 @@ public class ConjunctionResolver {
 				splitString = " then ";
 			if (condition1 || condition2 || condition3 || condition4) {
 				String firstPart = sentence.toString().split(splitString)[0];
-				String secondPart = sentence.toString().split(splitString)[1];
+				if (i == 1)
+					firstPart = firstPart + " " + sentence.toString().split(splitString)[1];
+				String secondPart = sentence.toString().split(splitString)[i+1];
 				String VP1="", VP2="", PrP1="", PrP2="", L1="", L2="", P1="", P2="";
-				//System.out.println(firstPart+"|"+secondPart);
+				System.out.println(firstPart+"|"+secondPart);
 				List<CoreLabel> firstPartTokens = new ArrayList<CoreLabel>();
 				List<CoreLabel> secondPartTokens = new ArrayList<CoreLabel>();
 				boolean endFirst = false;
@@ -154,7 +171,7 @@ public class ConjunctionResolver {
 						firstPartTokens.add(token);
 				}
 				//System.out.println(firstPart+"|"+secondPart);
-				if (!containsVerb(firstPartTokens)) {
+				if (!containsVerb(firstPartTokens) || manyOwners(firstPartTokens)) {
 					ans = ans + sentence.toString()+" ";
 					continue;
 				}
@@ -206,9 +223,9 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
 				System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
-				if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
-					ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
-				else
+				//if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
+					//ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
+				//else
 					ans = ans + (P1 + " " + verb1 + " " + L1 + " " +PrP1) + ". " + (P2 + " " + verb2 +" "+ L2 + " " +PrP2) + " ";
 				if (!(L2+PrP2).trim().endsWith(",") && !(L2+PrP2).endsWith("."))
 					ans = ans + ". ";
@@ -222,7 +239,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Last week Tom had 74 dollars . He washed cars over the weekend and now has 86 dollars . How much money did he make washing cars ?",pipeline));
+		System.out.println(parse("Joan had 695 Pokemon cards , and 6 were torn . Sara bought 133 of Joan 's Pokemon cards . How many Pokemon cards does Joan have now ? ",pipeline));
 	}
 	
 }
