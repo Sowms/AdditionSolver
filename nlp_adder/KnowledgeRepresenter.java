@@ -203,7 +203,7 @@ public class KnowledgeRepresenter {
 		Set existingValue = new Set();
 		String lhs = "", rhs = value.cardinality;
 		for (TimeStamp t : newState) {
-			if (t.time.equals(time) && (t.entity.contains(entity) || entity.contains(t.entity))) {
+			if (t.time.equals(time) && (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))) {
 				System.err.println(entity+t.entity);
 				existingValue = t.value;
 				lhs = existingValue.cardinality;
@@ -786,6 +786,8 @@ public class KnowledgeRepresenter {
 					//continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
 				isEvent = keywordMap.containsKey(verb);
+				if (keywordMap.containsKey(questionVerb) && !isEvent)
+					continue;
 				for (TimeStamp t : candidate) {
 					if (questionEntity.isEmpty())
 						entity = t.entity;
@@ -793,7 +795,7 @@ public class KnowledgeRepresenter {
 						entity = questionEntity;
 					if (sets.get(t.value.name).cardinality.contains("x"))
 						continue;
-					if ((t.entity.contains(entity) || entity.contains(t.entity))  && !ans.contains(sets.get(t.value.name).cardinality)) {
+					if ((t.entity.contains(entity) || entity.contains(t.entity))) {
 						if (!isEvent) {
 							if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
 								ans = sets.get(t.value.name).cardinality + "+" + ans;
