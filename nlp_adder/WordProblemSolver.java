@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("An oil pipe in the sea broke . Before engineers started to fix the pipe , 6522 liters of oil leaked into the water . While the engineers worked , the pipe leaked 5165 liters of oil . In all , how many liters of oil leaked into the water ?", pipeline);
+		solveWordProblems("Ezra drew a white line that was 7.666666666666667 inches long . Then he drew a blue line that was 3.3333333333333335 inches long . How much longer was the white line than the blue line ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

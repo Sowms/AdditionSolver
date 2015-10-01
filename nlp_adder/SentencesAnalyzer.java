@@ -90,6 +90,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
+		keywordMap.put("produce", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
 		keywordMap.put("leave", REDUCTION);
 		keywordMap.put("spill", REDUCTION);
@@ -425,8 +426,10 @@ public class SentencesAnalyzer {
 			if (owner1.isEmpty() || !entities.contains(owner1))
 				owner2 = "";
 		boolean someFlag = false;
+		System.err.println(owner1+owner2+newEntity.value);
+		if (newEntity.value == null) {
 		for (String name : entities) {
-			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name))
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1))
 				someFlag = true;
 		}
 		if (verb.equals("buy") || verb.equals("purchase"))
@@ -434,10 +437,10 @@ public class SentencesAnalyzer {
 				someFlag = true;
 		for (String name : Parser.entities) {
 			//System.out.println(name);
-			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how"))
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1))
 				someFlag = true;
-		}
-		//System.out.println(someFlag);
+		}}
+		System.err.println(someFlag);
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
 		    if (newEntity.value == null) {
 		    	ArrayList<CoreLabel> tokens = (ArrayList<CoreLabel>) sentence.get(TokensAnnotation.class);
@@ -572,7 +575,7 @@ public class SentencesAnalyzer {
 			steps.add(s);
     	}
 		else {
-			System.err.println("b"+entities+owner1+owner2);
+			//System.err.println("b"+entities+owner1+owner2);
 			for (Entity e : sentenceEntities) {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;

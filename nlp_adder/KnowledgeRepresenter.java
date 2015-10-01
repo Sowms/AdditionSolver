@@ -112,6 +112,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("transfer", REDUCTION);
 		keywordMap.put("spill", REDUCTION);
 		keywordMap.put("leak", REDUCTION);
+		keywordMap.put("produce", INCREASE);
 		keywordMap.put("remove", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
@@ -142,6 +143,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("pay");
 		ignoreWords.add("tear");
 		ignoreWords.add("break");
+		ignoreWords.add("hike");
 		ignoreWords.add("read");
 	}
 	
@@ -183,7 +185,7 @@ public class KnowledgeRepresenter {
 
 	private static void updateTimestamp (String owner, Set value, 
 			String tense, String verbQual, String entity) {
-		System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual);
+		System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual+"|"+entity);
 		String changeTime = "";
 		if (tense.equals(PAST) && storyTense.contains(PRESENT))
 			changeTime  = "0";
@@ -202,11 +204,15 @@ public class KnowledgeRepresenter {
 		String lhs = "", rhs = value.cardinality;
 		for (TimeStamp t : newState) {
 			if (t.time.equals(time) && (t.entity.contains(entity) || entity.contains(t.entity))) {
+				System.err.println(entity+t.entity);
 				existingValue = t.value;
 				lhs = existingValue.cardinality;
 				if (!lhs.contains("+") && !rhs.contains("+") && !lhs.contains("-") && !rhs.contains("-")) {
-					if (!t.entity.equals(entity) || entity.equals("dollars") && !verbQual.equals("has"))
+					if (entity.equals("dollars") && !verbQual.equals("has"))
 						break;
+					if (ignoreWords.contains(verbQual))
+						break;
+					System.out.println(entity+t.entity+verbQual);
 					timeStep++;
 					State tempState = new State();
 					TimeStamp t1 = new TimeStamp();
