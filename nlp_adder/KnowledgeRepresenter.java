@@ -752,10 +752,44 @@ public class KnowledgeRepresenter {
 				}
 			}
 		}
-		if (isQuestionComparator)
-			questionVerb = "lose";
-			
 		boolean isEvent = keywordMap.containsKey(questionVerb);
+		if (isQuestionComparator && doesStory("lose"))
+			questionVerb = "lose";
+		else if (isQuestionComparator) {
+			questionOwner1 = questionOwner;
+			if (questionOwner2.isEmpty()) {
+				Iterator<Entry<String, Situation>> it = story.entrySet().iterator();
+				while (it.hasNext()) {
+					String potentialOwner = it.next().getKey();
+					if (!potentialOwner.equals(questionOwner1))
+						questionOwner2 = potentialOwner;
+				}
+			}
+			State currentState = story.get(questionOwner1).get(questionVerb);
+			String v1 = "", v2 = "";
+			for (TimeStamp t : currentState) {
+				if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+					continue;
+				if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+					continue;
+				v1 = sets.get(t.value.name).cardinality;
+			}
+			currentState = story.get(questionOwner2).get(questionVerb);
+			for (TimeStamp t : currentState) {
+				if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+					continue;
+				if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+					continue;
+				v2 = sets.get(t.value.name).cardinality;
+			}
+			String ans = "";
+			if (Double.parseDouble(v1) > Double.parseDouble(v2))
+				ans = v1 + "-" + v2;
+			else
+				ans = v2 + "-" + v1;
+			finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity + "than" + questionOwner2;
+			return;
+		}
 		if (!story.containsKey(questionOwner))
 			questionOwner = "";
 		System.out.println(questionOwner+"|"+questionVerb);
@@ -1249,5 +1283,17 @@ public class KnowledgeRepresenter {
 			return;
 		}
 		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+	}
+
+	private static boolean doesStory(String verb) {
+		Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
+		while (it1.hasNext()) {
+			Entry<String,Situation> entry = it1.next();
+			String owner = entry.getKey();
+			Situation currentSituation = entry.getValue();
+			if (currentSituation.containsKey(verb))
+				return true;
+		}
+		return false;
 	}
 }

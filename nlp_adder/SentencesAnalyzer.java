@@ -265,7 +265,7 @@ public class SentencesAnalyzer {
     				secondNode = null;
     				String prep = "";
     				if (innerEdge.getSource().equals(intermediateNode)) {
-    					if ((innerRelation.contains("prep_of") || innerRelation.startsWith("prep_with")) && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
+    					if ((innerRelation.contains("prep_of") || innerRelation.startsWith("prep_with") || innerRelation.startsWith("prep_for")) && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
     						prep = innerRelation.replace("prep_", "");
     						if (!innerEdge.getTarget().originalText().equals("more")) {
     							secondNode = innerEdge.getTarget();
