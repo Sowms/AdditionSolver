@@ -263,8 +263,10 @@ public class SentencesAnalyzer {
     					}
     				}
     				secondNode = null;
+    				String prep = "";
     				if (innerEdge.getSource().equals(intermediateNode)) {
-    					if (innerRelation.contains("prep_of") && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
+    					if ((innerRelation.contains("prep_of") || innerRelation.startsWith("prep_with")) && (innerPos.contains(POS_NOUN) || innerPos.equals(POS_MOD))) {
+    						prep = innerRelation.replace("prep_", "");
     						if (!innerEdge.getTarget().originalText().equals("more")) {
     							secondNode = innerEdge.getTarget();
     						}
@@ -286,11 +288,11 @@ public class SentencesAnalyzer {
     	    				}
     	    			}
     	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()))
-        					newEntity.name = newEntity.name + " of " + innNode.originalText().toLowerCase() + "_" + secondNode.originalText();
+        					newEntity.name = newEntity.name + " " + prep + " " + innNode.originalText().toLowerCase() + "_" + secondNode.originalText();
     	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText()))
-    	    				newEntity.name = newEntity.name + " of " + ijjNode.originalText().toLowerCase() + "_" + secondNode.originalText();
+    	    				newEntity.name = newEntity.name + " " + prep + " " + ijjNode.originalText().toLowerCase() + "_" + secondNode.originalText();
     	    			else if (secondNode !=null && !newEntity.name.equals(secondNode.originalText()))
-    	    				newEntity.name = newEntity.name + " of " + secondNode.originalText();
+    	    				newEntity.name = newEntity.name + " " + prep + " " + secondNode.originalText();
             		
     					
     				}	

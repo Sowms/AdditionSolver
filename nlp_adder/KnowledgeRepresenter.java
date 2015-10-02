@@ -142,6 +142,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("go");
 		ignoreWords.add("pay");
 		ignoreWords.add("tear");
+		ignoreWords.add("dye");
 		ignoreWords.add("break");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");
@@ -788,6 +789,7 @@ public class KnowledgeRepresenter {
 				isEvent = keywordMap.containsKey(verb);
 				if (keywordMap.containsKey(questionVerb) && !isEvent)
 					continue;
+				
 				for (TimeStamp t : candidate) {
 					if (questionEntity.isEmpty())
 						entity = t.entity;
@@ -807,6 +809,22 @@ public class KnowledgeRepresenter {
 							//questionEntity = entity;
 						}
 					}
+				}
+			}
+			if (ans.isEmpty()) {
+				questionVerb = "has";
+				State currentState = story.get(questionOwner).get(questionVerb);
+				for (TimeStamp t : currentState) {
+					if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+						continue;
+					if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+						continue;
+					ans = sets.get(t.value.name).cardinality + "+" + ans;
+				}
+				ans = ans.substring(0,ans.length()-1);
+				if (!question.contains(ans)) {
+					finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					return;
 				}
 			}
 			if (ans.endsWith("+"))
