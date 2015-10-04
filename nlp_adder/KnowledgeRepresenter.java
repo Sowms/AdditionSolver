@@ -140,12 +140,15 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("crack");
 		ignoreWords.add("paint");
 		ignoreWords.add("go");
+		ignoreWords.add("jog");
 		ignoreWords.add("pay");
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
 		ignoreWords.add("break");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");
+		ignoreWords.add("call");
+		ignoreWords.add("list");
 	}
 	
 	static void clear() {
@@ -765,6 +768,9 @@ public class KnowledgeRepresenter {
 						questionOwner2 = potentialOwner;
 				}
 			}
+			System.out.println("aa"+questionOwner2);
+			if (questionOwner2.isEmpty())
+				questionOwner2 = questionOwner1;
 			State currentState = story.get(questionOwner1).get(questionVerb);
 			String v1 = "", v2 = "";
 			for (TimeStamp t : currentState) {
@@ -780,7 +786,8 @@ public class KnowledgeRepresenter {
 					continue;
 				if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
 					continue;
-				v2 = sets.get(t.value.name).cardinality;
+				if (!sets.get(t.value.name).cardinality.equals(v1))
+					v2 = sets.get(t.value.name).cardinality;
 			}
 			String ans = "";
 			if (Double.parseDouble(v1) > Double.parseDouble(v2))
@@ -803,11 +810,14 @@ public class KnowledgeRepresenter {
 					continue;
 				ans = sets.get(t.value.name).cardinality + "+" + ans;
 			}
-			ans = ans.substring(0,ans.length()-1);
-			if (!question.contains(ans)) {
-				finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
-				return;
+			if (ans != null) {
+				ans = ans.substring(0,ans.length()-1);
+				if (!question.contains(ans)) {
+					finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					return;
+				}
 			}
+			
 		}
 		if (isQuestionAggregator && !questionOwner.isEmpty()) {
 			Situation currentSituation = story.get(questionOwner);
