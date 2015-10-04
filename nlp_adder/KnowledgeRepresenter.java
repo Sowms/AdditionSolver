@@ -769,8 +769,10 @@ public class KnowledgeRepresenter {
 				}
 			}
 			System.out.println("aa"+questionOwner2);
-			if (questionOwner2.isEmpty())
+			if (questionOwner2.isEmpty()) {
 				questionOwner2 = questionOwner1;
+				isEvent = true;
+			}
 			State currentState = story.get(questionOwner1).get(questionVerb);
 			String v1 = "", v2 = "";
 			for (TimeStamp t : currentState) {
@@ -790,6 +792,7 @@ public class KnowledgeRepresenter {
 					v2 = sets.get(t.value.name).cardinality;
 			}
 			String ans = "";
+			System.out.println("hi"+v1+v2);
 			if (Double.parseDouble(v1) > Double.parseDouble(v2))
 				ans = v1 + "-" + v2;
 			else
