@@ -118,6 +118,7 @@ public class SentencesAnalyzer {
 		aggregators.add("in all");
 		aggregators.add("In all");
 		aggregators.add("combine");
+		aggregators.add("combined");
 		aggregators.add("sum");
 		
 		differences.add(" left ");

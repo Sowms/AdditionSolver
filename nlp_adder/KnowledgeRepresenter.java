@@ -125,7 +125,7 @@ public class KnowledgeRepresenter {
 		//keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
 		keywordMap.put("break", REDUCTION);
-		
+		keywordMap.put("finish", REDUCTION);
 		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity].[owner2]+[entity]");
 		procedureMap.put(CHANGE_IN, "[owner1]+[entity].[owner2]-[entity]");
@@ -144,6 +144,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("pay");
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
+		ignoreWords.add("rain");
 		ignoreWords.add("break");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");
@@ -743,6 +744,8 @@ public class KnowledgeRepresenter {
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
 		if (questionVerb.equals("spend"))
 			questionEntity = "dollars";
+		if (question.contains("longer"))
+			questionEntity = "foot";
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
 			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
 			while (it1.hasNext()) {
@@ -773,6 +776,8 @@ public class KnowledgeRepresenter {
 				questionOwner2 = questionOwner1;
 				isEvent = true;
 			}
+			if (!story.get(questionOwner1).containsKey(questionVerb))
+				questionVerb = story.get(questionOwner1).entrySet().iterator().next().getKey();
 			State currentState = story.get(questionOwner1).get(questionVerb);
 			String v1 = "", v2 = "";
 			for (TimeStamp t : currentState) {
@@ -782,6 +787,8 @@ public class KnowledgeRepresenter {
 					continue;
 				v1 = sets.get(t.value.name).cardinality;
 			}
+			if (!story.get(questionOwner2).containsKey(questionVerb))
+				questionVerb = story.get(questionOwner2).entrySet().iterator().next().getKey();
 			currentState = story.get(questionOwner2).get(questionVerb);
 			for (TimeStamp t : currentState) {
 				if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
@@ -792,7 +799,18 @@ public class KnowledgeRepresenter {
 					v2 = sets.get(t.value.name).cardinality;
 			}
 			String ans = "";
-			System.out.println("hi"+v1+v2);
+			System.out.println("hi"+v1+"|"+v2);
+			if (v1.contains("+") || v1.contains("-") || v2.contains("+") || v2.contains("-")) {
+				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Matcher varMatcher = numPattern.matcher(question);
+				v1 = ""; v2 = "";
+				while (varMatcher.find()) {
+					if (v1.isEmpty())
+						v1 = varMatcher.group();
+					else
+						v2 = varMatcher.group();
+				} 
+			}
 			if (Double.parseDouble(v1) > Double.parseDouble(v2))
 				ans = v1 + "-" + v2;
 			else

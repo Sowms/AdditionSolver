@@ -239,7 +239,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Joan had 695 Pokemon cards , and 6 were torn . Sara bought 133 of Joan 's Pokemon cards . How many Pokemon cards does Joan have now ? ",pipeline));
+		System.out.println(parse("This afternoon Craig left school , rode the bus 3.8333333333333335 miles , and then walked 0.16666666666666666 mile to get home . How much farther did Craig ride than walk ? ",pipeline));
 	}
 	
 }

@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Milford Lake was originally blue because it only had 809 algae plants . Now there are 3263 algae plants , and the lake has turned green . How many more algae plants are in Milford Lake now ?", pipeline);
+		solveWordProblems("It rained 0.2 inches on Saturday and 0.4 inches on Sunday . How much did it rain on Saturday and Sunday combined ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

@@ -249,11 +249,15 @@ public class Parser {
 		entities = new LinkedHashSet<String>();
 		input = input.replace("-", "");
 		input = input.replace(", but", ".");
+		input = input.replace(" and then", " and");
 		ArrayList<String> numbers = new ArrayList<String>();
 		input = dollarPreprocess(input);
 		System.out.println(input);
 		input = entityResolution(input,pipeline);
 		input = ConjunctionResolver.parse(input, pipeline);
+		System.out.println(input);
+		//input = input.replaceAll("(\\s|\\))+","").trim();
+		input = input.replaceAll("(\\.|\\))+",".").trim();
 		String ans = "", text = input;
 		//System.out.println(text);
 		HashMap<String,String> coref = new HashMap<String,String>();
@@ -522,15 +526,15 @@ public class Parser {
 			countNum++;
 		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
-			return entityResolution(input,pipeline).replace(", .", ".");
-	    return finalAns.replace(", .", ".");
+			return entityResolution(input,pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",");
+	    return finalAns.replace(", .", ".").replace(". ,", ",").replace(".,", ",");
 	}
 	
 	public static void main(String[] args) {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Joan spent $ 15 on shorts and $ 14.82 on a jacket , and $ 12.51 on a shirt . She went to 3 shops . In total , how much money did Joan spend on clothing ?",pipeline));
+		System.out.println(parse("This afternoon Craig left school , rode the bus 3.8333333333333335 miles , and then walked 0.16666666666666666 mile to get home . How much farther did Craig ride than walk ? ",pipeline));
 		System.out.println(entities);
 	}
 }

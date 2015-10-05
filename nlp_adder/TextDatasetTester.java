@@ -18,8 +18,8 @@ public class TextDatasetTester {
 		Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|\\d+");
 		Matcher matcher = wordPattern.matcher(sysAns);
 		if(matcher.find()) {
-			double num1 = Math.round(Double.parseDouble(matcher.group()));
-			double num2 = Math.round(Double.parseDouble(ans));
+			double num1 = Math.round(Double.parseDouble(matcher.group())*100)/100.0;
+			double num2 = Math.round(Double.parseDouble(ans)*100)/100.0;
 			return (num1 == num2);
 		}
 		return false;
