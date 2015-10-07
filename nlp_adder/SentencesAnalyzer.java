@@ -36,6 +36,7 @@ public class SentencesAnalyzer {
 	private static final String CHANGE_OUT = "changeOut";
 	private static final String CHANGE_IN = "changeIn";
 	private static final String COMPARE_PLUS = "comparePlus";
+	private static final String COMPARE_MINUS = "compareMinus";
 	private static final String REDUCTION = "reduction";
 	private static final String INCREASE = "increase";
 	//private static final String DUMMY = "x";
@@ -83,6 +84,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
+		keywordMap.put("less than", COMPARE_MINUS);
 		keywordMap.put("get", CHANGE_IN);
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("buy", CHANGE_IN);
@@ -202,6 +204,8 @@ public class SentencesAnalyzer {
 		    		else if (tense.isEmpty() && pos.contains(POS_VERB))
 		    			tense = PRESENT;
 		    		////////System.out.println(sentence.toString() + "|" + (sentence.toString().contains("to")));
+		    		if (lemma.equals("less"))
+		    			keyword = "less than";
 		    		if (keywordMap.containsKey(lemma)) {
 		    			if (!lemma.equals("more") && lemma.equals(verb) && !lemma.equals("take")) 
 		    				keyword = lemma;
