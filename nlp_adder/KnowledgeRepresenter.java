@@ -145,6 +145,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
 		ignoreWords.add("rain");
+		ignoreWords.add("snow");
 		ignoreWords.add("break");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");

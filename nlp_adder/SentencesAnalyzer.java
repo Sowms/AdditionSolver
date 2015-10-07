@@ -272,26 +272,27 @@ public class SentencesAnalyzer {
     							secondNode = innerEdge.getTarget();
     						}
     					}
-    					//System.out.println("second"+secondNode);
+    					System.out.println("second"+secondNode);
     					IndexedWord innNode = null, ijjNode = null;
     	    			for (SemanticGraphEdge iEdge : edges) {
     	    				String iRelation = iEdge.getRelation().toString();
     	    				String iPos = iEdge.getTarget().tag();
     	    				if (iEdge.getSource().equals(secondNode)) {
     	    					if (iRelation.contains(PARSER_MOD)&& (iPos.contains(POS_NOUN) || iPos.equals(POS_MOD)) || iRelation.contains(PARSER_NN) && (iPos.contains(POS_NOUN) || iPos.equals(POS_MOD))) {
-    	    						if (!innerEdge.getTarget().originalText().equals("more")) {
-    	    							if (innerRelation.contains(PARSER_NN))
-    	    								innNode = innerEdge.getTarget();
+    	    						if (!iEdge.getTarget().originalText().equals("more")) {
+    	    							if (iRelation.contains(PARSER_NN))
+    	    								innNode = iEdge.getTarget();
     	    							else
-    	    								ijjNode = innerEdge.getTarget();
+    	    								ijjNode = iEdge.getTarget();
     	    						}
     	    					}
     	    				}
     	    			}
-    	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()))
-        					newEntity.name = newEntity.name + " " + prep + " " + innNode.originalText().toLowerCase() + "_" + secondNode.originalText();
-    	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText()))
-    	    				newEntity.name = newEntity.name + " " + prep + " " + ijjNode.originalText().toLowerCase() + "_" + secondNode.originalText();
+    	    			System.out.println(innNode);
+    	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()) && !innNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase()))
+        					newEntity.name = newEntity.name + " " + prep + " " + innNode.originalText().toLowerCase() + " " + secondNode.originalText();
+    	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText())  && !ijjNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase()))
+    	    				newEntity.name = newEntity.name + " " + prep + " " + ijjNode.originalText().toLowerCase() + " " + secondNode.originalText();
     	    			else if (secondNode !=null && !newEntity.name.equals(secondNode.originalText()))
     	    				newEntity.name = newEntity.name + " " + prep + " " + secondNode.originalText();
             		
@@ -299,11 +300,12 @@ public class SentencesAnalyzer {
     				}	
     			}
     			if (nnNode != null)
-    					newEntity.name = nnNode.originalText().toLowerCase() + "_" + newEntity.name;
+    					newEntity.name = nnNode.originalText().toLowerCase() + " " + newEntity.name;
     			else if (jjNode != null)
-    				newEntity.name = jjNode.originalText().toLowerCase() + "_" + newEntity.name;
+    				newEntity.name = jjNode.originalText().toLowerCase() + " " + newEntity.name;
         		newEntity.value = edge.getTarget().originalText();
         		String prevWord = "", prevLemma = "";
+        		System.out.println(newEntity.name);
         		for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
         	    	String word = token.get(TextAnnotation.class);
         	    	String lemma = token.get(LemmaAnnotation.class);
@@ -318,13 +320,13 @@ public class SentencesAnalyzer {
         	    	prevWord = word;
         	    	prevLemma = lemma;
         		}
-        		////////System.err.println("waka"+entities);
+        		//System.err.println("waka"+entities);
     			entities.add(newEntity.name);
     			sentenceEntities.add(newEntity);
     		}
 			if (edge.getTarget().toString().contains("NN")) {
     			relation = edge.getRelation().toString(); 
-    			if (relation.equals(PARSER_SUBJECT)) {
+    			if (relation.equals(PARSER_SUBJECT) || relation.equals("root")) {
     				if (owner1.isEmpty()) {
     					owner1 = edge.getTarget().lemma();
     					if (!entities.contains(owner1)) {
