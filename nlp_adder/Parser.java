@@ -180,7 +180,8 @@ public class Parser {
 		    		token3 = tokens.get(tokens.indexOf(token)+3);
 		    	
 		    	if (!entity && (pos.contains("JJ") || pos.equals("NN")) && !checkPossibilities(possibleEntities,token1,token2,token3) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD"))) {
-		    		ans = ans +getEntity(possibleEntities,sentence.toString(),true) +" ";
+		    		if (!token.originalText().equals(getEntity(possibleEntities,sentence.toString(),true)))
+		    			ans = ans + getEntity(possibleEntities,sentence.toString(),true) +" ";
 		    	}
 		    	if (pos.contains("CD") && !token.originalText().contains(".")) {
 		    		token1 = tokens.get(tokens.indexOf(token)+1);
@@ -194,8 +195,11 @@ public class Parser {
 		    		//////System.out.println("haha"+entity);
 		    		if (!entity) {
 		    			CoreLabel nextToken = tokens.get(tokens.indexOf(token)+1);
-		    			if(!nextToken.get(PartOfSpeechAnnotation.class).contains("JJ") && !nextToken.get(PartOfSpeechAnnotation.class).contains("NN"))
-		    				ans = ans + getEntity(possibleEntities,sentence.toString(),false)+" ";
+		    			if(!nextToken.get(PartOfSpeechAnnotation.class).contains("JJ") && !nextToken.get(PartOfSpeechAnnotation.class).contains("NN")) {
+		    				if (!token.originalText().equals(getEntity(possibleEntities,sentence.toString(),false)))
+				    			ans = ans + getEntity(possibleEntities,sentence.toString(),false) +" ";
+		    			}
+		    				
 		    		}
 		    		//////System.err.println("waka"+ans);
 		    	}

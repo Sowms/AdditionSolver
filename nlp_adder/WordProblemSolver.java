@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("In March it rained 0.81 inches . It rained 0.35 inches less in April than in March . How much did it rain in April ? ", pipeline);
+		solveWordProblems("In Mr. Olsen 's mathematics class , 0.7 the students received A 's and 0.2 received B 's . What fraction of the students received either A 's or B 's ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
