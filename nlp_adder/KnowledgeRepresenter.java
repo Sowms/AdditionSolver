@@ -151,6 +151,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("run");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");
+		ignoreWords.add("travel");
 		ignoreWords.add("walk");
 		ignoreWords.add("call");
 		ignoreWords.add("list");

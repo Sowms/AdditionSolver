@@ -222,12 +222,14 @@ public class Parser {
 		}
 		String ans1 = "", ans2 = "";
 		Iterator<String> it =  possibleEntities.iterator();
-		ans1 = it.next();
+		if (it.hasNext())
+			ans1 = it.next();
 		//////System.out.println("wwww"+ans1+possibleEntities + possibleEntities.size());
 		if (adjFlag)
 			return ans1;
 		if (possibleEntities.size() > 1) {
-			 ans2 = it.next();
+			if (it.hasNext())
+				ans2 = it.next();
 			 //////System.out.println("ww"+ans2);
 			 return ans2;
 		}
