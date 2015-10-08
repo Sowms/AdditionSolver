@@ -63,10 +63,10 @@ public class ConjunctionResolver {
 	    	else
 	    		verbPhrase = verbPhrase + token.originalText() + " ";
 	    	////System.out.println("vvvvv"+verbPhrase+pos);
-	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
+	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))))
 	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
-	    	if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))) || token.originalText().startsWith("ha"))
-	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
+	    //	if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))))
+	    		//return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	index++;
      	}
 		return verbPhrase.trim();
@@ -239,7 +239,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("At Lindsey 's Vacation Wear , 0.375 the garments are bikinis and 0.25 are trunks . What fraction of the garments are either bikinis or trunks ? ",pipeline));
+		System.out.println(parse("Carefully following a recipe , Kenny used exactly 0.16666666666666666 cup of oil and 1.1666666666666667 cups of water . How many cups of liquid did Kenny use in all ?",pipeline));
 	}
 	
 }

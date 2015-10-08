@@ -93,7 +93,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("add", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("distribute", CHANGE_OUT);
-		keywordMap.put("serve", CHANGE_OUT);
+		//keywordMap.put("serve", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("build", CHANGE_OUT);
@@ -148,12 +148,14 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("drink");
 		ignoreWords.add("snow");
 		ignoreWords.add("break");
+		ignoreWords.add("require");
 		ignoreWords.add("run");
 		ignoreWords.add("hike");
 		ignoreWords.add("read");
 		ignoreWords.add("travel");
 		ignoreWords.add("walk");
 		ignoreWords.add("call");
+		ignoreWords.add("serve");
 		ignoreWords.add("list");
 	}
 	
@@ -950,8 +952,10 @@ public class KnowledgeRepresenter {
 				}
 				
 			}
-			if (!ans.isEmpty())
+			System.out.println(ans);
+			if (!ans.isEmpty() && ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
+			System.out.println(ans);
 			if (!ans.isEmpty() && !question.contains(ans)) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
@@ -982,9 +986,9 @@ public class KnowledgeRepresenter {
 							ans = sets.get(t.value.name).cardinality + "+" + ans;
 					}
 				}
-				if (!ans.isEmpty())
+				if (!ans.isEmpty() && ans.endsWith("+"))
 					ans = ans.substring(0,ans.length()-1);
-				if (!ans.isEmpty() && question.contains(ans)) {
+				if (!ans.isEmpty() && !question.contains(ans)) {
 					ans = ans.substring(0,ans.length()-1);
 					if (questionEntity.isEmpty())
 						questionEntity = entities.iterator().next();
@@ -993,7 +997,7 @@ public class KnowledgeRepresenter {
 				}
 			}
 			ans = totalans;
-			if (!ans.isEmpty()) {
+			if (!ans.isEmpty() && !question.contains(ans)) {
 				ans = ans.substring(0,ans.length()-1);
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
@@ -1007,7 +1011,7 @@ public class KnowledgeRepresenter {
 					sum = sum + "+" + varMatcher.group();
 					System.out.println(sum);
 				}
-				System.out.println(sum);
+				System.out.println("s" + sum);
 				if (questionEntity.isEmpty() && !entities.isEmpty())
 					questionEntity = entities.iterator().next();
 				finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;

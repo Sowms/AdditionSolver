@@ -79,7 +79,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("distribute", CHANGE_OUT);
 		keywordMap.put("stack", CHANGE_OUT);
 		keywordMap.put("transfer", REDUCTION);
-		keywordMap.put("serve", CHANGE_OUT);
+		//keywordMap.put("serve", CHANGE_OUT);
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("add", CHANGE_OUT);
@@ -573,6 +573,8 @@ public class SentencesAnalyzer {
 			for (String comparator : comparators) {
 				if (sentence.toString().contains(comparator))
 					s.comparator = true;	
+				if (comparator.equals(" more ") && !sentence.toString().contains(" than "))
+					s.comparator = false;
 			}
 			s.difference = false;
 			for (String difference : differences) {
