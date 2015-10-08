@@ -989,7 +989,8 @@ public class KnowledgeRepresenter {
 				if (!ans.isEmpty() && ans.endsWith("+"))
 					ans = ans.substring(0,ans.length()-1);
 				if (!ans.isEmpty() && !question.contains(ans)) {
-					ans = ans.substring(0,ans.length()-1);
+					if (ans.endsWith("+"))
+						ans = ans.substring(0,ans.length()-1);
 					if (questionEntity.isEmpty())
 						questionEntity = entities.iterator().next();
 					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
