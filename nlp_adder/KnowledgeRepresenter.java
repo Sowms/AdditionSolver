@@ -155,6 +155,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("travel");
 		ignoreWords.add("walk");
 		ignoreWords.add("call");
+		ignoreWords.add("result");
 		ignoreWords.add("serve");
 		ignoreWords.add("list");
 	}
@@ -1005,7 +1006,7 @@ public class KnowledgeRepresenter {
 			}
 			else {
 				System.out.println(question);
-				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Pattern numPattern = Pattern.compile("\\s\\d*\\.?\\d+\\s");
 				Matcher varMatcher = numPattern.matcher(question);
 				String sum = "0";
 				while (varMatcher.find()) {
@@ -1173,7 +1174,7 @@ public class KnowledgeRepresenter {
 			System.out.println("aa");
 			if (ans.isEmpty()) {
 				System.out.println(question);
-				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Pattern numPattern = Pattern.compile("\\s\\d*\\.?\\d+\\s");
 				Matcher varMatcher = numPattern.matcher(question);
 				String sum = "0";
 				while (varMatcher.find()) {

@@ -63,9 +63,11 @@ public class ConjunctionResolver {
 	    	else
 	    		verbPhrase = verbPhrase + token.originalText() + " ";
 	    	////System.out.println("vvvvv"+verbPhrase+pos);
+	    	if (pos.contains("VB") && index == 1)
+	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))))
 	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
-	    //	if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))))
+	    	//if ((pos.contains("VB") && containsPrep(tokens.subList(index, tokens.size()-1))))
 	    		//return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	index++;
      	}
@@ -221,8 +223,8 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				System.out.println(P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
-				System.out.println( P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				System.out.println("a"+P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				System.out.println("a"+ P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				//if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					//ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				//else
@@ -239,7 +241,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Carefully following a recipe , Kenny used exactly 0.16666666666666666 cup of oil and 1.1666666666666667 cups of water . How many cups of liquid did Kenny use in all ?",pipeline));
+		System.out.println(parse("Elizabeth went to the salon and had 0.375 inch of hair cut off . The next day she went back and asked for another 0.5 inch to be cut off . How much hair did she have cut off in all ?",pipeline));
 	}
 	
 }
