@@ -145,6 +145,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
 		ignoreWords.add("rain");
+		ignoreWords.add("fill");
 		ignoreWords.add("drink");
 		ignoreWords.add("snow");
 		ignoreWords.add("break");
@@ -970,7 +971,6 @@ public class KnowledgeRepresenter {
 				}
 				
 			}
-			System.out.println(ans);
 			if (!ans.isEmpty() && ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
 			System.out.println(ans);
@@ -1016,8 +1016,8 @@ public class KnowledgeRepresenter {
 				}
 			}
 			ans = totalans;
+			ans = ans.substring(0,ans.length()-1);
 			if (!ans.isEmpty() && !question.contains(ans)) {
-				ans = ans.substring(0,ans.length()-1);
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
 			}
