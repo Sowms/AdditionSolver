@@ -532,8 +532,8 @@ public class Parser {
 			countNum++;
 		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
-			return entityResolution(input,pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",");
-	    return finalAns.replace(", .", ".").replace(". ,", ",").replace(".,", ",");
+			return entityResolution(input,pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");
+	    return finalAns.replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");
 	}
 	
 	public static void main(String[] args) {

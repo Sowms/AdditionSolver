@@ -145,7 +145,10 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
 		ignoreWords.add("rain");
+		ignoreWords.add("contain");
 		ignoreWords.add("fill");
+		ignoreWords.add("record");
+		ignoreWords.add("purchase");
 		ignoreWords.add("drink");
 		ignoreWords.add("snow");
 		ignoreWords.add("break");
@@ -889,7 +892,7 @@ public class KnowledgeRepresenter {
 				//if (story.get(questionOwner).containsKey("has") && !verb.equals("has") && !questionEntity.contains("dollars"))
 					//continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
-				isEvent = keywordMap.containsKey(verb);
+				isEvent = false;
 				if (keywordMap.containsKey(questionVerb) && !isEvent)
 					continue;
 				
@@ -1016,7 +1019,8 @@ public class KnowledgeRepresenter {
 				}
 			}
 			ans = totalans;
-			ans = ans.substring(0,ans.length()-1);
+			if (ans.endsWith("+"))
+				ans = ans.substring(0,ans.length()-1);
 			if (!ans.isEmpty() && !question.contains(ans)) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
