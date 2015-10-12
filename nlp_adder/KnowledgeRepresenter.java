@@ -929,8 +929,22 @@ public class KnowledgeRepresenter {
 			if (ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
 			System.out.println(ans);
-			
-			finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			if (!question.contains(" "+ans+" ")) {
+				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				return;
+			}
+			System.out.println(question);
+			Pattern numPattern = Pattern.compile("\\s\\d*\\.?\\d+\\s");
+			Matcher varMatcher = numPattern.matcher(question);
+			String sum = "0";
+			while (varMatcher.find()) {
+				sum = sum + "+" + varMatcher.group();
+				System.out.println(sum);
+			}
+			System.out.println("s" + sum);
+			if (questionEntity.isEmpty() && !entities.isEmpty())
+				questionEntity = entities.iterator().next();
+			finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
 			return;
 		}
 		if (isQuestionAggregator && questionOwner.isEmpty() && !questionVerb.isEmpty()) {

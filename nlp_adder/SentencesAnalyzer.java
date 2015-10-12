@@ -160,7 +160,7 @@ public class SentencesAnalyzer {
 						////System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
 						if (linkAddress.contains(word2)) {
-							//System.out.println(word1+word2);
+							System.out.println(word1+word2);
 							return true;
 						}
 					}
