@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("0.5 the students in the band are in the trumpet section . 0.125 the students in the band are in the trombone section . What fraction of the students in the band are in either the trumpet section or the trombone section ? ", pipeline);
+		solveWordProblems("Milford Lake was originally blue because it only had 809 algae plants . Now there are 3263 algae plants , and the lake has turned green . How many more algae plants are in Milford Lake now ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
