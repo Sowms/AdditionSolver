@@ -245,7 +245,7 @@ public class SentencesAnalyzer {
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
-			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE))) {
+			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE) || relation.equals(PARSER_SUBJECT))) {
     			if (!edge.getSource().lemma().matches("[a-zA-Z]+"))
     				continue;
     			newEntity = new Entity();
@@ -471,7 +471,7 @@ public class SentencesAnalyzer {
     		}
 		}
 		//System.out.println(newEntity.value);
-		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ")) {
+		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ")) {
 			System.out.println("waka"+owners);
 			isQuestion = true;
     		String questionEntity = "", questionOwner1 = "", questionOwner2 = "",prevWord = "", prevLemma = "";

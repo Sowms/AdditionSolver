@@ -215,7 +215,10 @@ public class KnowledgeRepresenter {
 			newState = newSituation.get(verbQual);
 		Set existingValue = new Set();
 		String lhs = "", rhs = value.cardinality;
+		System.out.println(lhs+"|"+rhs);
 		for (TimeStamp t : newState) {
+			if (lhs.isEmpty() || rhs.isEmpty())
+				break;
 			if (t.time.equals(time) && (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))) {
 				System.err.println(entity+t.entity);
 				existingValue = t.value;
