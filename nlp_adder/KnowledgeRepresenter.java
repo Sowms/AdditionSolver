@@ -105,6 +105,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("pick", CHANGE_IN);
 		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
+		keywordMap.put("receive", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
 		keywordMap.put("lose", REDUCTION);
 		keywordMap.put("use", REDUCTION);
@@ -149,12 +150,15 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("fill");
 		ignoreWords.add("record");
 		ignoreWords.add("purchase");
+		ignoreWords.add("move");
 		ignoreWords.add("drink");
 		ignoreWords.add("snow");
 		ignoreWords.add("break");
 		ignoreWords.add("require");
 		ignoreWords.add("run");
 		ignoreWords.add("hike");
+		ignoreWords.add("find");
+		ignoreWords.add("weigh");
 		ignoreWords.add("read");
 		ignoreWords.add("travel");
 		ignoreWords.add("walk");

@@ -89,6 +89,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("buy", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
+		keywordMap.put("receive", CHANGE_IN);
 		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
@@ -157,10 +158,10 @@ public class SentencesAnalyzer {
 					////System.out.println("in");
 					Elements links = section.select("a");
 					for (Element link : links) {
-						////System.out.println(link.attr("abs:href"));
+						//System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
-						if (linkAddress.contains(word2)) {
-							System.out.println(word1+word2);
+						if (linkAddress.contains("/"+word2)) {
+						//	System.out.println("aaaaaaaaaa"+word1+word2);
 							return true;
 						}
 					}
@@ -573,8 +574,8 @@ public class SentencesAnalyzer {
 			for (String comparator : comparators) {
 				if (sentence.toString().contains(comparator))
 					s.comparator = true;	
-				if (comparator.equals(" more ") && !sentence.toString().contains(" than "))
-					s.comparator = false;
+				//if (comparator.equals(" more ") && !sentence.toString().contains(" than "))
+					//s.comparator = false;
 			}
 			s.difference = false;
 			for (String difference : differences) {

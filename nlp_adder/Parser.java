@@ -253,10 +253,16 @@ public class Parser {
 	
 	public static String parse(String input, StanfordCoreNLP pipeline) {
 		entities = new LinkedHashSet<String>();
+		String question = input;
 		input = input.replace("-", "");
 		input = input.replace(", but", ".");
 		input = input.replace(" and then", " and");
 		ArrayList<String> numbers = new ArrayList<String>();
+		Pattern numPattern = Pattern.compile("\\d+(\\.\\d+)*");
+		Matcher matcher = numPattern.matcher(input); 
+		while (matcher.find()) {
+			numbers.add(matcher.group());
+		}
 		input = dollarPreprocess(input);
 		System.out.println(input);
 		input = entityResolution(input,pipeline);
@@ -327,13 +333,13 @@ public class Parser {
                 }
             }
         }
-	    for(CoreMap sentence: sentences) {
+	    /*for(CoreMap sentence: sentences) {
 	    	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
 	    		String pos = token.get(PartOfSpeechAnnotation.class);
 	    		if (pos.contains("CD"))
 		    		numbers.add(token.originalText());
 	    	}
-	    }
+	    }*/
 	    
         Iterator<Entry<String, String>> it = coref.entrySet().iterator();
         while (it.hasNext()) {
@@ -379,7 +385,7 @@ public class Parser {
 	    				//if (constituents[j+1].contains("how"))
 	    					//break;
 	    				Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|[^\\W\\d]+|\\d+");
-						Matcher matcher = wordPattern.matcher(constituents[j]); 
+						matcher = wordPattern.matcher(constituents[j]); 
 						if (matcher.find()) {
 							String candidate = matcher.group();
 							if (words.contains(candidate)) {
@@ -409,7 +415,7 @@ public class Parser {
 	    			int j = i;
 	    			for (; j<constituents.length; j++) {
 	    				Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|[^\\W\\d]+|\\d+");
-	    				Matcher matcher = wordPattern.matcher(constituents[j]);
+	    				matcher = wordPattern.matcher(constituents[j]);
 						if (parenthesisStack.isEmpty()){ 
 	    					break;
 	    				}
@@ -520,8 +526,7 @@ public class Parser {
 	    
 	   System.out.println(numbers);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
-	    Pattern numPattern = Pattern.compile("\\d+(\\.\\d+)*");
-		Matcher matcher = numPattern.matcher(finalAns); 
+	    matcher = numPattern.matcher(finalAns); 
 		if (!matcher.find())
 	    	return input;
 		if (!new ArrayList<String>(Arrays.asList(finalAns.split(" "))).containsAll(numbers))
@@ -532,7 +537,7 @@ public class Parser {
 			countNum++;
 		System.out.println("hi"+countNum+numbers.size());
 		if (countNum != numbers.size())
-			return entityResolution(input,pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");
+			return entityResolution(question,pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");
 	    return finalAns.replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");
 	}
 	
@@ -540,7 +545,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("This afternoon Craig left school , rode the bus 3.8333333333333335 miles , and then walked 0.16666666666666666 mile to get home . How much farther did Craig ride than walk ? ",pipeline));
+		System.out.println(parse("Karin 's science class weighed plastic rings for an experiment . They found that the orange ring weighed 0.08333333333333333 ounce , the purple ring weighed 0.3333333333333333 ounce , and the white ring weighed 0.4166666666666667 ounce . What was the total weight of the plastic rings ? ",pipeline));
 		System.out.println(entities);
 	}
 }
