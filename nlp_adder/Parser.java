@@ -179,7 +179,7 @@ public class Parser {
 		    	if (!(tokens.size() <= tokens.indexOf(token)+3))
 		    		token3 = tokens.get(tokens.indexOf(token)+3);
 		    	
-		    	if (!entity && (pos.contains("JJ") || pos.equals("NN")) && !checkPossibilities(possibleEntities,token1,token2,token3) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD"))) {
+		    	if (!entity && (pos.contains("JJ") /*|| pos.equals("NN")*/) && !checkPossibilities(possibleEntities,token1,token2,token3) && (tokens.get(tokens.indexOf(token)-1).get(PartOfSpeechAnnotation.class).contains("CD"))) {
 		    		if (!token.originalText().equals(getEntity(possibleEntities,sentence.toString(),true)))
 		    			ans = ans + getEntity(possibleEntities,sentence.toString(),true) +" ";
 		    	}

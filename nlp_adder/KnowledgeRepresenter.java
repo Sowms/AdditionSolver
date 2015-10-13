@@ -147,6 +147,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("dye");
 		ignoreWords.add("rain");
 		ignoreWords.add("contain");
+		ignoreWords.add("drive");
 		ignoreWords.add("fill");
 		ignoreWords.add("record");
 		ignoreWords.add("purchase");
@@ -931,8 +932,9 @@ public class KnowledgeRepresenter {
 						continue;
 					ans = sets.get(t.value.name).cardinality + "+" + ans;
 				}
-				ans = ans.substring(0,ans.length()-1);
-				if (!question.contains(ans)) {
+				if (ans.endsWith("+"))
+					ans = ans.substring(0,ans.length()-1);
+				if (!ans.isEmpty() && !question.contains(ans)) {
 					finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 					return;
 				}
@@ -940,12 +942,12 @@ public class KnowledgeRepresenter {
 			if (ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
 			System.out.println(ans);
-			if (!question.contains(" "+ans+" ")) {
+			if (!ans.isEmpty() && !question.contains(" "+ans+" ")) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
 			}
 			System.out.println(question);
-			Pattern numPattern = Pattern.compile("\\s\\d*\\.?\\d+\\s");
+			Pattern numPattern = Pattern.compile("\\d*\\.?\\d+\\s");
 			Matcher varMatcher = numPattern.matcher(question);
 			String sum = "0";
 			while (varMatcher.find()) {
@@ -980,7 +982,7 @@ public class KnowledgeRepresenter {
 			}
 			if (!ans.isEmpty() && ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
-			System.out.println(ans);
+			System.out.println("a"+ans);
 			if (!ans.isEmpty() && !question.contains(ans)) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
@@ -989,6 +991,7 @@ public class KnowledgeRepresenter {
 			String totalans = "";
 			while (it1.hasNext()) {
 				Situation currentSituation = it1.next().getValue();
+				ans = "";
 				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
 				while (it.hasNext()) {
 					Entry<String, State> pair = it.next();
@@ -1013,6 +1016,10 @@ public class KnowledgeRepresenter {
 				}
 				if (!ans.isEmpty() && ans.endsWith("+"))
 					ans = ans.substring(0,ans.length()-1);
+				System.out.println("a"+ans);
+				if (ans.contains("0+"))
+					ans = EquationSolver.getSolution(ans);
+				System.out.println("a"+ans);
 				if (!ans.isEmpty() && !question.contains(ans)) {
 					if (ans.endsWith("+"))
 						ans = ans.substring(0,ans.length()-1);
@@ -1023,9 +1030,10 @@ public class KnowledgeRepresenter {
 				}
 			}
 			ans = totalans;
+			System.out.println("a"+ans);
 			if (ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
-			if (!ans.isEmpty() && !question.contains(ans)) {
+			if (!ans.isEmpty() && !question.contains(ans) && !ans.contains("x")) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
 			}
