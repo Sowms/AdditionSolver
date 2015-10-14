@@ -162,7 +162,7 @@ public class SentencesAnalyzer {
 						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
 						if (question.contains(antonym)) {
 							System.out.println("aaaaaaaaaa"+word);
-							if (word.equals("have") || word.equals("has"))
+							if (word.equals("have") || word.equals("has") || word.equals("do") || word.equals("did") || word.equals("be"))
 								continue;
 							return true;
 						}

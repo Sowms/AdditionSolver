@@ -1055,7 +1055,7 @@ public class KnowledgeRepresenter {
 			}
 		}
 		if (isQuestionSet && !questionOwner.isEmpty()) {
-			Set complete = null, subset = null;
+			Set complete = new Set(), subset = new Set();
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
 			while (it.hasNext()) {
 				Entry<String, State> pair = it.next();
@@ -1065,9 +1065,9 @@ public class KnowledgeRepresenter {
 					continue;
 				if (verb.equals("has"))
 					complete = candidate.get(0).value; 
-				if (!verb.equals("has") && new SentencesAnalyzer().isAntonym(questionVerb, verb)) {
+				if (!verb.equals("has") && subset.isEmpty()) {
 					subset = candidate.get(0).value;
-					break;
+					//break;
 				}
 			}
 			if (complete.name.equals(subset.name)) {
@@ -1083,7 +1083,7 @@ public class KnowledgeRepresenter {
 							continue;
 						if (verb.equals("has") && !candidate.get(0).value.equals(complete))
 							complete = candidate.get(0).value; 
-						if (!verb.equals("has") && new SentencesAnalyzer().isAntonym(questionVerb, verb)) {
+						if (!verb.equals("has") ) {
 							subset = candidate.get(0).value;
 							break;
 						}
@@ -1091,6 +1091,9 @@ public class KnowledgeRepresenter {
 				}
 			}
 			System.out.println(complete.name+"|"+subset.name);
+			String ans = EquationSolver.getSolution(complete.cardinality + "-" + subset.cardinality);
+			finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
+			return;
 		}
 		if (isQuestionSet && questionOwner.isEmpty()) {
 			Set complete = null, subset = null;
