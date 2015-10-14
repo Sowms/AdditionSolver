@@ -125,7 +125,7 @@ public class KnowledgeRepresenter {
 		keywordMap.put("taller", INCREASE);
 		//keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
-		keywordMap.put("break", REDUCTION);
+		//keywordMap.put("break", REDUCTION);
 		keywordMap.put("finish", REDUCTION);
 		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity].[owner2]+[entity]");
@@ -158,9 +158,10 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("require");
 		ignoreWords.add("run");
 		ignoreWords.add("hike");
-		ignoreWords.add("find");
+		//ignoreWords.add("find");
 		ignoreWords.add("weigh");
 		ignoreWords.add("read");
+		ignoreWords.add("convert");
 		ignoreWords.add("travel");
 		ignoreWords.add("walk");
 		ignoreWords.add("call");

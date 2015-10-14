@@ -371,6 +371,11 @@ public class Parser {
 	    	for (int i=0; i<constituents.length; i++) {
 	    		String initialPart = "", finalPart = "", tempFinal = "", tempInitial = "", verb = "";
 	    		int pos = -1;
+	    		//System.out.println(ans+constituents[i]);
+	    		if (ans.endsWith(".\n") && constituents[i].contains(",")) {
+	    			prevj = i + 1;
+	    			continue;
+	    		}
 	    		//if (constituents[i].contains("(W"))
 	    			//quesFlag = true;
 	    		if (constituents[i].contains("VB")) {
@@ -379,8 +384,8 @@ public class Parser {
 	    			////System.out.println("v"+verb);
 	    			
 	    			for (int j=i-1; j>=prevj; j--) {
-	    			
-	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().toLowerCase().contains("'") && !constituents[j-1].contains("and")) 
+	    				
+	    				if ((constituents[j].contains("(NP") || constituents[j].contains("(W")) && !sentence.toString().split(verb)[0].toLowerCase().contains("how") && !sentence.toString().toLowerCase().contains("'") && !constituents[j-1].contains("and")) 
 	    					break;
 	    				//if (constituents[j+1].contains("how"))
 	    					//break;
@@ -524,8 +529,8 @@ public class Parser {
 	    	
 	    }
 	    
-	   System.out.println(numbers);	    
 	    String finalAns = entityResolution(ans,pipeline).replace(" , , ",", ").replaceAll("\\s+'s", "'s").trim();
+	    System.out.println(numbers+finalAns);	    
 	    matcher = numPattern.matcher(finalAns); 
 		if (!matcher.find())
 	    	return input;
@@ -545,7 +550,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Karin 's science class weighed plastic rings for an experiment . They found that the orange ring weighed 0.08333333333333333 ounce , the purple ring weighed 0.3333333333333333 ounce , and the white ring weighed 0.4166666666666667 ounce . What was the total weight of the plastic rings ? ",pipeline));
+		System.out.println(parse("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ?",pipeline));
 		System.out.println(entities);
 	}
 }

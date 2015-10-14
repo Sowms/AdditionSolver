@@ -19,6 +19,11 @@ public class ConjunctionResolver {
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
 		   	////System.out.println(pos+token);
+		   	if (pos.equals("VBG")) {
+		   		index++;
+		   		continue;
+		   	}
+		   		
 		   	if (pos.contains("VB") && tokens.indexOf(token)!=0 && !tokens.get(tokens.indexOf(token)-1).tag().contains("TO") && index < tokens.size() && !containsVerb(tokens.subList(index, tokens.size()-1)))
 		   		return true;
 		   	if (pos.contains("VB") && tokens.indexOf(token)==0) {
@@ -131,6 +136,7 @@ public class ConjunctionResolver {
 		System.out.println(input.split(" and ").length);
 		System.out.println("i"+input);
 		Annotation document = new Annotation(input);
+		
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 		for(CoreMap sentence: sentences) {
@@ -153,8 +159,13 @@ public class ConjunctionResolver {
 				splitString = " then ";
 			if (condition1 || condition2 || condition3 || condition4) {
 				String firstPart = sentence.toString().split(splitString)[0];
-				if (i == 1)
-					firstPart = firstPart + " " + sentence.toString().split(splitString)[1];
+				if (i == 1) { 
+					Annotation sen = new Annotation((sentence.toString().split(splitString)[1]));
+					pipeline.annotate(sen);
+					CoreMap tempToken = sen.get(SentencesAnnotation.class).get(0);
+					if(!containsVerb(tempToken.get(TokensAnnotation.class)))
+						firstPart = firstPart + " " + sentence.toString().split(splitString)[1];
+				}
 				String secondPart = sentence.toString().split(splitString)[i+1];
 				String VP1="", VP2="", PrP1="", PrP2="", L1="", L2="", P1="", P2="";
 				System.out.println(firstPart+"|"+secondPart);
@@ -197,24 +208,24 @@ public class ConjunctionResolver {
 				//System.out.println("aa"+PrP2);
 				//System.out.println("aa"+PrP1);
 				//System.out.println("aa"+verb2);
-				//System.out.println("aa"+P2);
+				System.out.println("aa"+P2+P1);
 				//System.out.println("aa"+VP2);
 				
 				
 				
 				if (verb2.isEmpty())
 					verb2 = verb1;
-				if (VP2.isEmpty())
-					VP2 = P2 + " " + verb2;
 				if (P2.trim().isEmpty()) {
 					P2 = P1; 
 				}
+				VP2 = P2 + " " + verb2;
+				
 				if (PrP1.isEmpty() && !PrP2.startsWith("for"))
 					PrP1 = PrP2;
 				if (VP1.contains("bought") && !VP2.contains("bought") && !VP2.contains("spent")) {
 					P2 = VP1 + " " + P2;
 				}
-				System.out.println(VP1+"|"+VP2);
+				System.out.println(VP1+"|"+VP2+"|"+firstPart);
 				L1 = firstPart.replace(VP1,"");
 				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
@@ -241,7 +252,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Karin 's science class weighed plastic rings for an experiment . They found that the orange ring weighed 0.08333333333333333 ounce , the purple ring weighed 0.3333333333333333 ounce , and the white ring weighed 0.4166666666666667 ounce . What was the total weight of the plastic rings ?",pipeline));
+		System.out.println(parse("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ?",pipeline));
 	}
 	
 }

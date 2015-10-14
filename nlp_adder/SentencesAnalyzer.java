@@ -102,7 +102,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("saw", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
-		keywordMap.put("break", REDUCTION);
+		//keywordMap.put("break", REDUCTION);
 		keywordMap.put("leak", REDUCTION);
 		keywordMap.put("more", INCREASE);
 		keywordMap.put("build", CHANGE_OUT);
@@ -137,20 +137,19 @@ public class SentencesAnalyzer {
 		comparators.add("taller");
 		comparators.add("bigger");
 	}
-	public boolean isAntonym (String word1, String word2) {
+	public boolean isAntonym (String word, String question) {
 		try {
 			if (entities.contains("dollars"))
 				return false;
-			if (word1.equals(word2))
+			if (word.equals("has"))
 				return false;
-			if (word1.equals("has") || word2.equals("has"))
-				return false;
-			Document doc = Jsoup.connect("http://www.thesaurus.com/browse/"+word1)
+			Document doc = Jsoup.connect("http://www.thesaurus.com/browse/"+word)
 					  .userAgent("Mozilla")
 					  .cookie("auth", "token")
 					  .timeout(3000)
 					  .post();
 			Elements sections = doc.select("section");
+			System.out.println("aaaaaaaaaa"+word);
 			for (Element section : sections) {
 				////System.out.println(section.attr("abs:class"));
 				String className = section.attr("abs:class");
@@ -158,10 +157,11 @@ public class SentencesAnalyzer {
 					////System.out.println("in");
 					Elements links = section.select("a");
 					for (Element link : links) {
-						//System.out.println(link.attr("abs:href"));
+						System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
-						if (linkAddress.contains("/"+word2)) {
-						//	System.out.println("aaaaaaaaaa"+word1+word2);
+						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
+						if (question.contains(antonym)) {
+							System.out.println("aaaaaaaaaa"+word);
 							return true;
 						}
 					}
@@ -174,9 +174,9 @@ public class SentencesAnalyzer {
 		}
 		return false;
 	}
-	public boolean isAntonym (String word) {
+	public boolean isAntonym (String question) {
 		for (String verb : verbs) {
-			if (isAntonym(verb,word)) {
+			if (isAntonym(verb,question)) {
 				//System.out.println("anti"+verb+"|"+word);
 				return true;
 			}
@@ -189,15 +189,18 @@ public class SentencesAnalyzer {
 	    pipeline.annotate(document);
 	    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 	    for (CoreMap sentence : sentences) {
-	    	String tense = "", keyword = "", verb = "";
+	    	String tense = "", keyword = "", verb = "", verbOrig = "";
 	    	List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 	    	for (CoreLabel token: tokens) {
 		    	String lemma = token.get(LemmaAnnotation.class);
 		    	String pos = token.get(PartOfSpeechAnnotation.class);
 		    	if (pos.contains(POS_VERB) || pos.contains(POS_ADVMOD) || pos.contains(POS_MOD)) {
 		    		if (pos.contains(POS_VERB)) {
-		    			System.out.println("haa"+pos+"|"+lemma);
 		    			verb = lemma;		  
+		    			verbOrig = token.originalText();
+		    			verbs.add(verbOrig);
+		    			verbs.add(verb);
+		    			System.out.println("haa"+pos+"|"+lemma+"|"+verbOrig);
 		    		}
 		    		////System.err.println("ervb"+verb+"|"+sentence.toString());
 		    		if ((pos.contains(POS_VBD) || pos.contains(POS_VBN)) && tense.isEmpty())
@@ -225,7 +228,7 @@ public class SentencesAnalyzer {
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    	//////System.out.println(dependencies);
 	    	ArrayList<SemanticGraphEdge> edges = (ArrayList<SemanticGraphEdge>) dependencies.edgeListSorted();
-	    	preprocessedSteps.addAll(processDependencies(sentence, edges, tense, keyword, verb));
+	    	preprocessedSteps.addAll(processDependencies(sentence, edges, tense, keyword, verb, verbOrig));
 	    }
 	    LinguisticInfo problemInfo = new LinguisticInfo();
 	    problemInfo.entities = entities;
@@ -234,7 +237,7 @@ public class SentencesAnalyzer {
 		return problemInfo;
 	}
 	private ArrayList<LinguisticStep> processDependencies(CoreMap sentence,
-			ArrayList<SemanticGraphEdge> edges, String tense, String keyword, String verb) {
+			ArrayList<SemanticGraphEdge> edges, String tense, String keyword, String verb, String verbOrig) {
 		ArrayList<LinguisticStep> steps = new ArrayList<LinguisticStep>();
     	ArrayList<Entity> sentenceEntities = new ArrayList<Entity>();
     	String owner1 = "", owner2 = "";
@@ -500,35 +503,35 @@ public class SentencesAnalyzer {
     	    	}
     	    	//System.out.println(pos+"|"+word);
     	    	if (entities.contains(word.toLowerCase()) && questionEntity.isEmpty()) { 
-    	    		if (entities.contains(prevWord + "_" + word))
-    	    			questionEntity = prevWord.toLowerCase() + "_" + word.toLowerCase();
+    	    		if (entities.contains(prevWord + " " + word))
+    	    			questionEntity = prevWord.toLowerCase() + " " + word.toLowerCase();
     	    		else
     	    			questionEntity = word.toLowerCase();
     	    	}
     	    	if (entities.contains(lemma.toLowerCase()) && questionEntity.isEmpty()) { 
-    	    		if (entities.contains(prevLemma + "_" + lemma))
-    	    			questionEntity = prevLemma + "_" + lemma;
-    	    		else if ((entities.contains(prevWord + "_" + word)))
-    	    			questionEntity = prevWord + "_" + word;
+    	    		if (entities.contains(prevLemma + " " + lemma))
+    	    			questionEntity = prevLemma + " " + lemma;
+    	    		else if ((entities.contains(prevWord + " " + word)))
+    	    			questionEntity = prevWord + " " + word;
     	    		else
     	    			questionEntity = lemma;
     	    	}
     	    	System.out.println(word+"|"+lemma+"|"+owners);
     	    	if (owners.contains(word) && questionOwner1.isEmpty()) { 
-    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word.toLowerCase()))
-    	    			questionOwner1 = prevWord.toLowerCase() + "_" + word.toLowerCase();
+    	    		if (owners.contains(prevWord.toLowerCase() + " " + word.toLowerCase()))
+    	    			questionOwner1 = prevWord.toLowerCase() + " " + word.toLowerCase();
     	    		else
     	    			questionOwner1 = word;
     	    	}
     	    	if (owners.contains(lemma) && questionOwner1.isEmpty()) { 
-    	    		if (owners.contains(prevLemma.toLowerCase() + "_" + lemma))
-    	    			questionOwner1 = prevLemma.toLowerCase() + "_" + lemma;
+    	    		if (owners.contains(prevLemma.toLowerCase() + " " + lemma))
+    	    			questionOwner1 = prevLemma.toLowerCase() + " " + lemma;
     	    		else
     	    			questionOwner1 = lemma;
     	    	}
     	    	if (owners.contains(word) && questionOwner2.isEmpty()) { 
-    	    		if (owners.contains(prevWord.toLowerCase() + "_" + word.toLowerCase()))
-    	    			questionOwner2 = prevWord.toLowerCase() + "_" + word.toLowerCase();
+    	    		if (owners.contains(prevWord.toLowerCase() + " " + word.toLowerCase()))
+    	    			questionOwner2 = prevWord.toLowerCase() + " " + word.toLowerCase();
     	    		else
     	    			questionOwner2 = word;
     	    		//System.out.println(questionOwner2);
@@ -536,8 +539,8 @@ public class SentencesAnalyzer {
     	    			questionOwner2 = "";
     	    	}
     	    	if (owners.contains(lemma) && questionOwner2.isEmpty()) { 
-    	    		if (owners.contains(prevLemma.toLowerCase() + "_" + lemma))
-    	    			questionOwner2 = prevLemma.toLowerCase() + "_" + lemma;
+    	    		if (owners.contains(prevLemma.toLowerCase() + " " + lemma))
+    	    			questionOwner2 = prevLemma.toLowerCase() + " " + lemma;
     	    		else
     	    			questionOwner2 = lemma;
     	    		//System.out.println(questionOwner2);
@@ -562,7 +565,6 @@ public class SentencesAnalyzer {
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";
 			s.verbQual = verb;
-			verbs.add(verb);
 			s.procedureName = keywordMap.get(keyword);
 			s.keyword = keyword;
 			s.aggregator = false;
@@ -582,7 +584,7 @@ public class SentencesAnalyzer {
 				if (sentence.toString().contains(difference))
 					s.difference = true;	
 			}
-			s.setCompletor = isAntonym(verb);
+			s.setCompletor = isAntonym(sentence.toString());
 			////System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb);
 			steps.add(s);
     	}

@@ -33,9 +33,9 @@ public class TextDatasetTester {
 	    int count = 0, total = 0;
 		try {
  			String sCurrentLine;
- 			br1 = new BufferedReader(new FileReader("q2.txt"));
- 			br2 = new BufferedReader(new FileReader("ans2.txt"));
- 			br = new BufferedWriter(new FileWriter("output5"));
+ 			br1 = new BufferedReader(new FileReader("q3.txt"));
+ 			br2 = new BufferedReader(new FileReader("ans3.txt"));
+ 			br = new BufferedWriter(new FileWriter("output6"));
  			while ((sCurrentLine = br1.readLine()) != null) {
  				String sysAns = "", ques = sCurrentLine, ans = br2.readLine();
 				try{
