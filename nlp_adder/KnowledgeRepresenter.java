@@ -765,6 +765,8 @@ public class KnowledgeRepresenter {
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
 		if (questionVerb.equals("spend"))
 			questionEntity = "dollars";
+		if ((questionVerb.equals("buy") || questionVerb.equals("purchase")) && entities.contains("dollars")) 
+			questionEntity = "dollars";
 		if (question.contains("longer") || question.contains("farther")) {
 			if (entities.contains("foot"))
 				questionEntity = "foot";
@@ -898,7 +900,7 @@ public class KnowledgeRepresenter {
 				//if (story.get(questionOwner).containsKey("has") && !verb.equals("has") && !questionEntity.contains("dollars"))
 					//continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
-				isEvent = false;
+				isEvent = keywordMap.containsKey(verb);
 				if (keywordMap.containsKey(questionVerb) && !isEvent)
 					continue;
 				
@@ -1122,7 +1124,7 @@ public class KnowledgeRepresenter {
 		}
 		if (questionOwner.isEmpty()) {
 			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
-			String entity = "", ans = "";
+			String entity = "", ans = "", totalAns = "";
 			while (it1.hasNext()) {
 				Entry<String,Situation> entry = it1.next();
 				String owner = entry.getKey();
@@ -1137,24 +1139,39 @@ public class KnowledgeRepresenter {
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
 						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
-						if (inQues)
+						if (inQues) {
+							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
 							continue;
+						}
 						if (t.entity.contains(entity) || entity.contains(t.entity)) {
 							if (!isEvent) {
 								if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
 									ans = sets.get(t.value.name).cardinality;
+									totalAns = ans + "+" + totalAns;
 									questionEntity = entity;
 								}
 							}
 							else {
 								ans = sets.get(t.value.name).cardinality;
+								totalAns = ans + "+" + totalAns;
 								questionEntity = entity;
 							}
 						}
 					}
+					System.out.println(ans+"aaaaa"+totalAns);
 					if (!ans.isEmpty()) {
 						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 						return;	
+					}
+					if (!totalAns.isEmpty())
+						ans = totalAns;
+					if (!ans.isEmpty() && ans.endsWith("+"))
+						ans = ans.substring(0,ans.length()-1);
+					boolean checkques = question.contains(EquationSolver.getSolution(ans).replace(".0", ""));
+					//System.out.println("aaaaa"+ans+"|"+checkques+"|"+EquationSolver.getSolution(ans));
+					if (!ans.isEmpty() && !checkques) {
+						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+						return;
 					}
 					//continue;
 				}
