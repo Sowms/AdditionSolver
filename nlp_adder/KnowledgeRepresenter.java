@@ -1139,7 +1139,11 @@ public class KnowledgeRepresenter {
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
 						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
-						if (inQues) {
+						if (inQues && !sets.get(t.value.name).cardinality.contains("+") && !sets.get(t.value.name).cardinality.contains("-")) {
+							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
+							continue;
+						}
+						if (inQues && sets.get(t.value.name).cardinality.startsWith("0+")) {
 							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
 							continue;
 						}
