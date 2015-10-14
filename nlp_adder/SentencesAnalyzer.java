@@ -149,7 +149,7 @@ public class SentencesAnalyzer {
 					  .timeout(3000)
 					  .post();
 			Elements sections = doc.select("section");
-			System.out.println("aaaaaaaaaa"+word);
+			//System.out.println("aaaaaaaaaa"+word);
 			for (Element section : sections) {
 				////System.out.println(section.attr("abs:class"));
 				String className = section.attr("abs:class");
@@ -157,11 +157,13 @@ public class SentencesAnalyzer {
 					////System.out.println("in");
 					Elements links = section.select("a");
 					for (Element link : links) {
-						System.out.println(link.attr("abs:href"));
+						//System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
 						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
 						if (question.contains(antonym)) {
 							System.out.println("aaaaaaaaaa"+word);
+							if (word.equals("have") || word.equals("has"))
+								continue;
 							return true;
 						}
 					}
