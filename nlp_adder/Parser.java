@@ -276,10 +276,12 @@ public class Parser {
 		while (matcher.find()) {
 			numbers.add(matcher.group());
 		}
+		input = entityResolution(input,pipeline);
+		input = ConjunctionResolver.parse(input, pipeline).replace(", .", ".").replace(". ,", ",").replace(".,", ",").replace(",.",".");;
+		//System.out.println(input);
 		input = dollarPreprocess(input);
 		//System.out.println(input);
-		input = entityResolution(input,pipeline);
-		input = ConjunctionResolver.parse(input, pipeline);
+		
 		//System.out.println(input);
 		//input = input.replaceAll("(\\s|\\))+","").trim();
 		input = input.replaceAll("(\\.|\\))+",".").trim();
@@ -384,7 +386,7 @@ public class Parser {
 	    	for (int i=0; i<constituents.length; i++) {
 	    		String initialPart = "", finalPart = "", tempFinal = "", tempInitial = "", verb = "";
 	    		int pos = -1;
-	    		System.out.println(ans+constituents[i]);
+	    		//System.out.println(ans+constituents[i]);
 	    		if (ans.endsWith(".\n") && constituents[i].contains(",")) {
 	    			prevj = i+1;
 	    			continue;
@@ -563,7 +565,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//System.out.println(parse("Mike found 6 seashells and 4 starfish . 4 of the seashells were broken . How many unbroken seashells did Mike find ?",pipeline));
+		System.out.println(parse("Sally paid $ 12.32 total for peaches , after a 3 dollar coupon , and $ 11.54 for cherries . In total , how much money did Sally spend ? ",pipeline));
 		//System.out.println(entities);
 	}
 }

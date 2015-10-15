@@ -120,7 +120,8 @@ public class ConjunctionResolver {
 		for (CoreLabel token : firstPartTokens) {
 			String pos = token.get(PartOfSpeechAnnotation.class);
 			//System.out.println(pos);
-			if (Character.isUpperCase(token.originalText().charAt(0)) && pos.equals("NNP"))
+			//isabbreviation
+			if (Character.isUpperCase(token.originalText().charAt(0)) && pos.equals("NNP") && !token.originalText().equals("CD"))
 				c++;
 		}
 		return (c > 1);
@@ -183,7 +184,7 @@ public class ConjunctionResolver {
 					else
 						firstPartTokens.add(token);
 				}
-				////System.out.println(firstPart+"|"+secondPart);
+				System.out.println(firstPart+"|"+manyOwners(firstPartTokens));
 				if (!containsVerb(firstPartTokens) || manyOwners(firstPartTokens)) {
 					ans = ans + sentence.toString()+" ";
 					continue;
@@ -234,8 +235,8 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				//System.out.println("a"+P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
-				//System.out.println("a"+ P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				System.out.println("a"+P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				System.out.println("a"+ P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				//if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					//ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				//else
@@ -247,12 +248,12 @@ public class ConjunctionResolver {
 				ans = ans + sentence.toString()+" ";
 		}
 		return ans.replaceAll("\\.+", "\\.");
-	}/*
+	}
 	public static void main(String[] args) {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//System.out.println(parse("Benny received 67 dollars for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 33 dollars over , how much did he spent on the baseball gear ?",pipeline));
-	}*/
+		System.out.println(parse("Keith spent $ 136.01 on speakers , $ 139.38 on a CD player , and $ 112.46 on new tires . He wanted 3 CD 's for $ 6.16 , but did n't buy them . In total , how much did he spend ? ",pipeline));
+	}
 	
 }

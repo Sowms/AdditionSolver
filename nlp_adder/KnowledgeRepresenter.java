@@ -142,6 +142,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("paint");
 		ignoreWords.add("go");
 		ignoreWords.add("jog");
+		ignoreWords.add("want");
 		ignoreWords.add("pay");
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
@@ -165,6 +166,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("travel");
 		ignoreWords.add("walk");
 		ignoreWords.add("call");
+		ignoreWords.add("total");
 		ignoreWords.add("result");
 		ignoreWords.add("serve");
 		ignoreWords.add("list");
@@ -298,6 +300,10 @@ public class KnowledgeRepresenter {
 				verbQual = "spend";
 				procedure = REDUCTION;
 			}
+		/*if (!verbQual.equals("has") && (procedure == null || procedure.isEmpty()) && ignoreWords.contains(verbQual) && newEntity.name.equals("dollars")) {
+			verbQual = "spend";
+			procedure = REDUCTION;
+		}*/
 		Set newSet = new Set();
 		if (newEntity.value.equals("some"))
 			newSet.cardinality = "x";

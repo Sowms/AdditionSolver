@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Benny received 79 dollars and 9 movie tickets for his birthday . He went to a sporting goods store and bought a baseball glove , baseball , and bat . He had 32 dollars over , how much did he spent on the baseball gear ? ", pipeline);
+		solveWordProblems("Keith spent $ 136.01 on speakers , $ 139.38 on a CD player , and $ 112.46 on new tires . He wanted 3 CD 's for $ 6.16 , but did n't buy them . In total , how much did he spend ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
