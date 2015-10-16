@@ -231,6 +231,8 @@ public class KnowledgeRepresenter {
 		for (TimeStamp t : newState) {
 			if (lhs.isEmpty() && rhs.contains("x"))
 				break;
+			if (value.cardinality.contains("."))
+				break;
 			if (t.time.equals(time) && (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))) {
 				System.err.println(entity+t.entity);
 				existingValue = t.value;

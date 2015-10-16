@@ -247,7 +247,7 @@ public class SentencesAnalyzer {
     	Entity newEntity = new Entity();
     	
     	
-    	System.out.println(edges);
+    	//System.out.println(edges);
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
