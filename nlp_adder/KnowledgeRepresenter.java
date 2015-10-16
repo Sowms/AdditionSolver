@@ -149,7 +149,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("rain");
 		ignoreWords.add("contain");
 		ignoreWords.add("drive");
-		ignoreWords.add("fill");
+		//ignoreWords.add("fill");
 		ignoreWords.add("record");
 		ignoreWords.add("purchase");
 		ignoreWords.add("move");

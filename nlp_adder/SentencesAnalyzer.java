@@ -160,9 +160,9 @@ public class SentencesAnalyzer {
 						////System.out.println(link.attr("abs:href"));
 						String linkAddress = link.attr("abs:href");
 						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
-						if (question.contains(antonym)) {
+						if (question.contains(" " + antonym)) {
 							//System.out.println("aaaaaaaaaa"+word);
-							if (word.equals("have") || word.equals("has") || word.equals("do") || word.equals("did") || word.equals("be"))
+							if (word.equals("have") || word.equals("has") || word.equals("is") || word.equals("be") || word.equals("do") || word.equals("did") || word.equals("be"))
 								continue;
 							return true;
 						}
@@ -247,7 +247,7 @@ public class SentencesAnalyzer {
     	Entity newEntity = new Entity();
     	
     	
-    	////////////System.out.println(edges);
+    	System.out.println(edges);
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
@@ -336,7 +336,7 @@ public class SentencesAnalyzer {
     		}
 			if (edge.getTarget().toString().contains("NN")) {
     			relation = edge.getRelation().toString(); 
-    			if (relation.equals(PARSER_SUBJECT) || relation.equals("root")) {
+    			if (relation.contains(PARSER_SUBJECT) || relation.equals("root")) {
     				if (owner1.isEmpty()) {
     					owner1 = edge.getTarget().lemma();
     					if (!entities.contains(owner1)) {
@@ -596,7 +596,7 @@ public class SentencesAnalyzer {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
 				tempEntity.name = e.name;
-				////System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
+				System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				if ((entities.contains(owner1) || entities.contains(owner2)) && !e.name.isEmpty() && (!entities.contains(e.name) || !owners.contains(e.name))) {
 					if (entities.contains(owner1) && !entities.contains(e.name)) {
 						String entity = owner1;
@@ -644,7 +644,7 @@ public class SentencesAnalyzer {
 				}
 				if (s.aggregator && !owner1.isEmpty() && !owner2.isEmpty())
 					s.procedureName = "altogetherEq";
-				//System.out.println("oo" + owner1 + owner2 + entities);
+				System.out.println("oo" + owner1 + owner2 + entities);
 				if (!(entities.contains(owner1) && owner2.isEmpty() && !owner1.isEmpty()))
 					steps.add(s);
 				else if (entities.contains(owner1) && sentence.toString().toLowerCase().contains("there"))
