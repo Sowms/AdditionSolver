@@ -231,7 +231,7 @@ public class KnowledgeRepresenter {
 		for (TimeStamp t : newState) {
 			if (lhs.isEmpty() && rhs.contains("x"))
 				break;
-			if (value.cardinality.contains("."))
+			if (value.cardinality.contains(".") && !isQuestionComparator)
 				break;
 			if (t.time.equals(time) && (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))) {
 				System.err.println(entity+t.entity);
@@ -727,6 +727,15 @@ public class KnowledgeRepresenter {
 		entities = extractedInformation.entities;
 		owners = extractedInformation.owners;
 		//////System.err.println(extractedInformation.sentences.size());
+		//set flags
+		for (LinguisticStep ls : extractedInformation.sentences) {
+			if (ls.isQuestion) {
+				//isQuestionAggregator = ls.aggregator;
+				isQuestionDifference = ls.difference;
+				isQuestionComparator = ls.comparator;
+				isQuestionSet = ls.setCompletor;
+			}
+		}
 		for (LinguisticStep ls : extractedInformation.sentences) {
 			Entity currentEntity = new Entity();
 			currentEntity.name = ls.entityName;
@@ -800,7 +809,8 @@ public class KnowledgeRepresenter {
 			questionVerb = "lose";
 		else if (isQuestionComparator) {
 			questionOwner1 = questionOwner;
-			if (questionOwner2.isEmpty()) {
+			if (questionOwner2.isEmpty() || !story.containsKey(questionOwner2)) {
+				questionOwner2 = "";
 				Iterator<Entry<String, Situation>> it = story.entrySet().iterator();
 				while (it.hasNext()) {
 					String potentialOwner = it.next().getKey();
@@ -808,7 +818,7 @@ public class KnowledgeRepresenter {
 						questionOwner2 = potentialOwner;
 				}
 			}
-			System.out.println("aa"+questionOwner2);
+			System.out.println("aa"+questionOwner2+questionOwner1);
 			if (questionOwner2.isEmpty()) {
 				questionOwner2 = questionOwner1;
 				isEvent = true;

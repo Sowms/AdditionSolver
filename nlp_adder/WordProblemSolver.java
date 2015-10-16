@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Paco 's Countertop Company purchased pieces of marble from a quarry . The weights of the pieces they purchased were 0.3333333333333333 ton , 0.3333333333333333 ton , and 0.08333333333333333 ton . How many tons of marble did Paco 's Countertop Company purchase in all ? ", pipeline);
+		solveWordProblems("At the beach , Janet and her sister both built sandcastles and then measured their heights . Janet 's sandcastle was 3.6666666666666665 feet tall and her sister 's was 2.3333333333333335 feet tall . How much taller was Janet 's sandcastle than her sister 's ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
