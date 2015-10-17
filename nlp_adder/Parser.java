@@ -429,6 +429,8 @@ public class Parser {
 						
 						////////System.out.println(initialPart);
 	    			}
+	    			if (sentence.toString().toLowerCase().startsWith("altogether") && !initialPart.contains("altogether"))
+	    				initialPart = "Altogether " + initialPart;
 	    			//System.out.println(initialPart);
 	    			ArrayList<String> parenthesisStack = new ArrayList<String>();
 	    			parenthesisStack.add("(");
@@ -507,7 +509,7 @@ public class Parser {
 	    					////System.out.println("hello");
 	    					tempInitial = (tempInitial.charAt(0) + "").toUpperCase() + tempInitial.substring(1).replace(",","");
 	    	    			ans = (ans + tempInitial).replaceAll("\\s+", " ").trim() + ".\n";
-	    	    			////System.out.println(ans);
+	    	    			//System.out.println(ans);
 	    	    			i = pos;
 	    	    			prevj = i;
 		    				continue;
@@ -565,7 +567,7 @@ public class Parser {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		System.out.println(parse("Sally paid $ 12.32 total for peaches , after a 3 dollar coupon , and $ 11.54 for cherries . In total , how much money did Sally spend ? ",pipeline));
+		System.out.println(parse("During a canned food drive , items were sorted into bins . The drive resulted in 0.125 bin of soup , 0.125 bin of vegetables , and 0.5 bin of pasta . Altogether , how many bins would the canned food take up ?",pipeline));
 		//System.out.println(entities);
 	}
 }
