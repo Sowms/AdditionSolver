@@ -299,12 +299,26 @@ public class SentencesAnalyzer {
     	    				}
     	    			}
     	    			//System.out.println(innNode);
-    	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()) && !innNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase()))
+    	    			if (innNode != null && !newEntity.name.equals(secondNode.originalText()) && !innNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase())) {
         					newEntity.name = newEntity.name + " " + prep + " " + innNode.originalText().toLowerCase() + " " + secondNode.originalText();
-    	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText())  && !ijjNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase()))
+        					if (prep.equals("of")) {
+        						entities.add(innNode.originalText().toLowerCase() + " " + secondNode.originalText());
+        						entities.add(secondNode.originalText());
+        					}
+    	    			}
+    	    			else if (ijjNode != null && !newEntity.name.equals(secondNode.originalText())  && !ijjNode.originalText().toLowerCase().equals(secondNode.originalText().toLowerCase())) {
     	    				newEntity.name = newEntity.name + " " + prep + " " + ijjNode.originalText().toLowerCase() + " " + secondNode.originalText();
-    	    			else if (secondNode !=null && !newEntity.name.equals(secondNode.originalText()))
+    	    				if (prep.equals("of")) {
+        						entities.add(ijjNode.originalText().toLowerCase() + " " + secondNode.originalText());
+        						entities.add(secondNode.originalText());
+        					}
+    	    			}
+    	    			else if (secondNode !=null && !newEntity.name.equals(secondNode.originalText())) {
     	    				newEntity.name = newEntity.name + " " + prep + " " + secondNode.originalText();
+    	    				if (prep.equals("of")) {
+        						entities.add(secondNode.originalText());
+        					}
+    	    			}
             		
     					
     				}	
@@ -514,18 +528,22 @@ public class SentencesAnalyzer {
     	    		continue;
     	    	}
     	    	////System.out.println(pos+"|"+word);
-    	    	if (entities.contains(word.toLowerCase()) && questionEntity.isEmpty()) { 
-    	    		if (entities.contains(prevWord + " " + word))
+    	    	if (entities.contains(word.toLowerCase())) { 
+    	    		if (entities.contains(prevWord + " " + word) && !questionEntity.isEmpty() && (prevWord+" "+word).contains(questionEntity))
+    	    			questionEntity = prevWord + " " + word;
+    	    		else if (entities.contains(prevWord + " " + word)  && questionEntity.isEmpty())
     	    			questionEntity = prevWord.toLowerCase() + " " + word.toLowerCase();
-    	    		else
+    	    		else if (questionEntity.isEmpty())
     	    			questionEntity = word.toLowerCase();
     	    	}
-    	    	if (entities.contains(lemma.toLowerCase()) && questionEntity.isEmpty()) { 
-    	    		if (entities.contains(prevLemma + " " + lemma))
+    	    	if (entities.contains(lemma.toLowerCase())) { 
+    	    		if (entities.contains(prevLemma + " " + lemma) &&  questionEntity.isEmpty())
     	    			questionEntity = prevLemma + " " + lemma;
-    	    		else if ((entities.contains(prevWord + " " + word)))
+    	    		else if (entities.contains(prevWord + " " + word) && !questionEntity.isEmpty() && (prevWord+" "+word).contains(questionEntity))
     	    			questionEntity = prevWord + " " + word;
-    	    		else
+    	    		else if (entities.contains(prevWord + " " + word) && !questionEntity.isEmpty())
+    	    			questionEntity = prevWord + " " + word;
+    	    		else if (questionEntity.isEmpty())
     	    			questionEntity = lemma;
     	    	}
     	    	////System.out.println(word+"|"+lemma+"|"+owners);
