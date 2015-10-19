@@ -19,7 +19,7 @@ public class OrderSteps {
 		    allTenses.add(tense);
 			if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
 				newInfo.sentences.add(0,step);
-			else if (reduceFlag && step.entityName.equals(reduceEntity)) {
+			else if (reduceFlag && step.entityName.equals(reduceEntity) && step.procedureName == null) {
 				newInfo.sentences.add(0,step);
 				reduceFlag = false;
 				continue;
@@ -31,6 +31,12 @@ public class OrderSteps {
 				reduceEntity = step.entityName;
 			}
 			count++;
+		}
+		if (newInfo.sentences.get(0).procedureName != null && newInfo.sentences.get(0).procedureName.equals("REDUCTION")) {
+			LinguisticStep temp = newInfo.sentences.get(0);
+			temp.procedureName = "";
+			temp.keyword = "";
+			newInfo.sentences.set(0, temp);
 		}
 		return newInfo;
 	}

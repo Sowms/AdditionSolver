@@ -444,16 +444,25 @@ public class SentencesAnalyzer {
 		////System.err.println(owner1+owner2+newEntity.value);
 		if (newEntity.value == null) {
 		for (String name : entities) {
-			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1))
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1)) {
+				if (someFlag) {
+					someFlag = false;
+					break;
+				}
 				someFlag = true;
+			}
 		}
 		if (verb.equals("buy") || verb.equals("purchase"))
 			if (entities.contains("dollar") || entities.contains("dollars"))
 				someFlag = true;
 		for (String name : Parser.entities) {
 			////System.out.println(name);
-			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1))
-				someFlag = true;
+			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1)) {
+				if (someFlag) {
+					someFlag = false;
+					break;
+				}
+			}
 		}}
 		////System.err.println(someFlag);
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
@@ -476,9 +485,10 @@ public class SentencesAnalyzer {
     		sentenceEntities.add(newEntity);
     		}
 		}
-		////System.out.println(newEntity.value);
+		System.out.println(sentence);
 		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ")) {
-			//System.out.println("waka"+owners);
+			System.out.println(sentence);
+			
 			isQuestion = true;
     		String questionEntity = "", questionOwner1 = "", questionOwner2 = "",prevWord = "", prevLemma = "";
     		
@@ -647,7 +657,7 @@ public class SentencesAnalyzer {
 				System.out.println("oo" + owner1 + owner2 + entities);
 				if (!(entities.contains(owner1) && owner2.isEmpty() && !owner1.isEmpty()))
 					steps.add(s);
-				else if (entities.contains(owner1) && sentence.toString().toLowerCase().contains("there"))
+				else if (entities.contains(owner1) && (sentence.toString().toLowerCase().contains("there") || sentence.toString().toLowerCase().contains("remain")))
 					steps.add(s);
 			}
 		}

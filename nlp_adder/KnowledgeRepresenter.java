@@ -809,6 +809,8 @@ public class KnowledgeRepresenter {
 			questionVerb = "lose";
 		else if (isQuestionComparator) {
 			questionOwner1 = questionOwner;
+			if (!story.containsKey(questionOwner1)) 
+				questionOwner1 = story.entrySet().iterator().next().getKey();
 			if (questionOwner2.isEmpty() || !story.containsKey(questionOwner2)) {
 				questionOwner2 = "";
 				Iterator<Entry<String, Situation>> it = story.entrySet().iterator();
@@ -867,7 +869,7 @@ public class KnowledgeRepresenter {
 			}
 			String ans = "";
 			System.out.println("hi"+v1+"|"+v2);
-			if (v1.contains("+") || v1.contains("-") || v2.contains("+") || v2.contains("-")) {
+			if (v1.contains("+") || v1.contains("-") || v2.contains("+") || v2.contains("-")|| v1.isEmpty() || v2.isEmpty()) {
 				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
 				Matcher varMatcher = numPattern.matcher(question);
 				v1 = ""; v2 = "";
@@ -1010,9 +1012,11 @@ public class KnowledgeRepresenter {
 			}
 			it1 = story.entrySet().iterator();
 			String totalans = "";
+			String setNamesTotal = new String();
 			while (it1.hasNext()) {
 				Situation currentSituation = it1.next().getValue();
 				ans = "";
+				String setNames = new String();
 				Iterator<Entry<String, State>> it = currentSituation.entrySet().iterator();
 				while (it.hasNext()) {
 					Entry<String, State> pair = it.next();
@@ -1022,17 +1026,26 @@ public class KnowledgeRepresenter {
 						continue;
 					isEvent = keywordMap.containsKey(verb);
 					for (TimeStamp t : currentState) {
-						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
+						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime) && !setNamesTotal.contains(t.value.name)) {
 							totalans = sets.get(t.value.name).cardinality + "+" + totalans;
+							setNamesTotal = setNamesTotal + t.value.name;
 							continue;
 						}
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
-						totalans = sets.get(t.value.name).cardinality + "+" + totalans;
-						if (questionEntity.isEmpty())
+						if (!setNamesTotal.contains(t.value.name)) {
+							totalans = sets.get(t.value.name).cardinality + "+" + totalans;
+							setNamesTotal = setNamesTotal + t.value.name;
+						}
+						if (questionEntity.isEmpty() && !setNames.contains(t.value.name)) {
 							ans = sets.get(t.value.name).cardinality + "+" + ans;
+							setNames = setNames + t.value.name;
+						}	
 						else if (questionEntity.contains(t.entity) || t.entity.contains(questionEntity))
-							ans = sets.get(t.value.name).cardinality + "+" + ans;
+							if (!setNames.contains(t.value.name)) {
+								ans = sets.get(t.value.name).cardinality + "+" + ans;
+								setNames = setNames + t.value.name;
+							}
 					}
 				}
 				if (!ans.isEmpty() && ans.endsWith("+"))
@@ -1051,9 +1064,11 @@ public class KnowledgeRepresenter {
 				}
 			}
 			ans = totalans;
-			System.out.println("a"+ans);
+			System.out.println("at"+ans);
 			if (ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
+			if (ans.startsWith("0+"))
+				ans = ans.replace("0+", "");
 			if (!ans.isEmpty() && !question.contains(ans) && !ans.contains("x")) {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
@@ -1147,6 +1162,7 @@ public class KnowledgeRepresenter {
 				Entry<String,Situation> entry = it1.next();
 				String owner = entry.getKey();
 				Situation currentSituation = entry.getValue();
+				ans = "";
 				if (currentSituation.containsKey(questionVerb)) {
 					questionOwner = owner;
 					for (TimeStamp t : currentSituation.get(questionVerb)) {
@@ -1157,6 +1173,7 @@ public class KnowledgeRepresenter {
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
 						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
+						System.out.println(inQues);
 						if (inQues && !sets.get(t.value.name).cardinality.contains("+") && !sets.get(t.value.name).cardinality.contains("-")) {
 							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
 							continue;
