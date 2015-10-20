@@ -251,7 +251,7 @@ public class SentencesAnalyzer {
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
-			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE) || relation.equals(PARSER_SUBJECT))) {
+			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE) || relation.equals(PARSER_SUBJECT) || relation.contains("obj"))) {
     			if (!edge.getSource().lemma().matches("[a-zA-Z]+"))
     				continue;
     			newEntity = new Entity();
@@ -455,7 +455,7 @@ public class SentencesAnalyzer {
 			if (owner1.isEmpty() || !entities.contains(owner1))
 				owner2 = "";
 		boolean someFlag = false;
-		//////System.err.println(owner1+owner2+newEntity.value);
+		System.err.println(owner1+"|"+owner2+"|"+newEntity.value);
 		if (newEntity.value == null) {
 		for (String name : entities) {
 			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1)) {
