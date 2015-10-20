@@ -162,7 +162,7 @@ public class SentencesAnalyzer {
 						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
 						if (question.contains(" " + antonym)) {
 							//System.out.println("aaaaaaaaaa"+word);
-							if (word.equals("have") || word.equals("has") || word.equals("is") || word.equals("be") || word.equals("do") || word.equals("did") || word.equals("be"))
+							if (word.equals("have") || word.equals("has") || word.equals("does") || word.equals("is") || word.equals("be") || word.equals("do") || word.equals("did") || word.equals("be"))
 								continue;
 							return true;
 						}
@@ -615,7 +615,7 @@ public class SentencesAnalyzer {
 					s.difference = true;	
 			}
 			s.setCompletor = isAntonym(sentence.toString());
-			//////System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb);
+			System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb+s.comparator);
 			steps.add(s);
     	}
 		else {

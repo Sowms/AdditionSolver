@@ -729,10 +729,12 @@ public class KnowledgeRepresenter {
 		//////System.err.println(extractedInformation.sentences.size());
 		//set flags
 		for (LinguisticStep ls : extractedInformation.sentences) {
+			System.out.println(isQuestionComparator+"kkk"+ls.comparator+ls.isQuestion);
 			if (ls.isQuestion) {
 				//isQuestionAggregator = ls.aggregator;
 				isQuestionDifference = ls.difference;
-				isQuestionComparator = ls.comparator;
+				if (!isQuestionComparator)
+					isQuestionComparator = ls.comparator;
 				isQuestionSet = ls.setCompletor;
 			}
 		}
@@ -757,7 +759,8 @@ public class KnowledgeRepresenter {
 					questionTime = timeStep;
 				isQuestionAggregator = ls.aggregator;
 				isQuestionDifference = ls.difference;
-				isQuestionComparator = ls.comparator;
+				if (!isQuestionComparator)
+					isQuestionComparator = ls.comparator;
 				isQuestionSet = ls.setCompletor;
 				questionVerb = ls.verbQual;
 				//System.out.println("krq" + ls.owner1 + "|" + ls.owner2 + "|" + 
@@ -779,17 +782,17 @@ public class KnowledgeRepresenter {
 	
 	
 	public static void solve() {
-		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
+		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator+"|"+isQuestionComparator);
 		if (questionVerb.equals("spend"))
 			questionEntity = "dollars";
 		if ((questionVerb.equals("buy") || questionVerb.equals("purchase")) && entities.contains("dollars")) 
 			questionEntity = "dollars";
-		if (question.contains("longer") || question.contains("farther")) {
-			if (entities.contains("foot"))
+		if (question.contains(" longer ") || question.contains(" farther ")) {
+			if (question.contains(" foot "))
 				questionEntity = "foot";
-			else if (entities.contains("inch"))
+			else if (question.contains(" inch "))
 				questionEntity = "inch";
-			else if (entities.contains("mile"))
+			else if (question.contains(" mile "))
 				questionEntity = "mile";
 		}
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
@@ -804,6 +807,7 @@ public class KnowledgeRepresenter {
 				}
 			}
 		}
+		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
 		boolean isEvent = keywordMap.containsKey(questionVerb);
 		if (isQuestionComparator && doesStory("lose"))
 			questionVerb = "lose";
@@ -873,12 +877,28 @@ public class KnowledgeRepresenter {
 				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
 				Matcher varMatcher = numPattern.matcher(question);
 				v1 = ""; v2 = "";
+				String val = "";
 				while (varMatcher.find()) {
-					if (v1.isEmpty())
-						v1 = varMatcher.group();
-					else
-						v2 = varMatcher.group();
+					val = varMatcher.group();
+					if (v1.isEmpty() && question.contains(" " + val + " " + questionEntity))
+						v1 = val;
+					else if (!v1.isEmpty() && question.contains(" " + val + " " + questionEntity))
+						v2 = val;
 				} 
+			}
+			System.out.println("hi"+v1+"|"+v2);
+			if (v1.isEmpty() || v2.isEmpty()) {
+				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Matcher varMatcher = numPattern.matcher(question);
+				v1 = ""; v2 = "";
+				String val = "";
+				while (varMatcher.find()) {
+					val = varMatcher.group();
+					if (v1.isEmpty())
+						v1 = val;
+					else 
+						v2 = val;
+				}
 			}
 			if (Double.parseDouble(v1) > Double.parseDouble(v2))
 				ans = v1 + "-" + v2;
