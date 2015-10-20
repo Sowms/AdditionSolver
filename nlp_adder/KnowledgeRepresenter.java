@@ -1093,7 +1093,26 @@ public class KnowledgeRepresenter {
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 				return;
 			}
-			else {
+			ans = "";
+			Iterator<Entry<String, Set>> it = sets.entrySet().iterator();
+			while (it.hasNext()) {
+				ans = ans + it.next().getValue().cardinality + "+";
+			}
+			if (!ans.isEmpty() && ans.endsWith("+"))
+				ans = ans.substring(0,ans.length()-1);
+			System.out.println("a"+ans);
+			if (ans.contains("0+"))
+				ans = EquationSolver.getSolution(ans);
+			System.out.println("a"+ans);
+			if (!ans.isEmpty() && !question.contains(ans)) {
+				if (ans.endsWith("+"))
+					ans = ans.substring(0,ans.length()-1);
+				if (questionEntity.isEmpty())
+					questionEntity = entities.iterator().next();
+				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				return;
+			}
+			if (ans.isEmpty()) {
 				System.out.println(question);
 				Pattern numPattern = Pattern.compile("\\s\\d*\\.?\\d+\\s");
 				Matcher varMatcher = numPattern.matcher(question);
@@ -1458,8 +1477,104 @@ public class KnowledgeRepresenter {
 				if (!questionVerb.equals("has"))
 					break;
 			}
-		} else {
+		} else if (!question.contains(ans)){
 			finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
+			return;
+		}
+		if (isQuestionComparator) {
+			questionOwner1 = questionOwner;
+			if (!story.containsKey(questionOwner1)) 
+				questionOwner1 = story.entrySet().iterator().next().getKey();
+			if (questionOwner2.isEmpty() || !story.containsKey(questionOwner2)) {
+				questionOwner2 = "";
+				Iterator<Entry<String, Situation>> it = story.entrySet().iterator();
+				while (it.hasNext()) {
+					String potentialOwner = it.next().getKey();
+					if (!potentialOwner.equals(questionOwner1))
+						questionOwner2 = potentialOwner;
+				}
+			}
+			System.out.println("aa"+questionOwner2+questionOwner1);
+			if (questionOwner2.isEmpty()) {
+				questionOwner2 = questionOwner1;
+				isEvent = true;
+			}
+			if (!story.get(questionOwner1).containsKey(questionVerb))
+				questionVerb = story.get(questionOwner1).entrySet().iterator().next().getKey();
+			State currentState = story.get(questionOwner1).get(questionVerb);
+			String v1 = "", v2 = "";
+			for (TimeStamp t : currentState) {
+				if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+					continue;
+				if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+					continue;
+				v1 = sets.get(t.value.name).cardinality;
+			}
+			if (!story.get(questionOwner2).containsKey(questionVerb))
+				questionVerb = story.get(questionOwner2).entrySet().iterator().next().getKey();
+			currentState = story.get(questionOwner2).get(questionVerb);
+			for (TimeStamp t : currentState) {
+				if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+					continue;
+				if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+					continue;
+				if (!sets.get(t.value.name).cardinality.equals(v1))
+					v2 = sets.get(t.value.name).cardinality;
+			}
+			if (v2.isEmpty()) {
+				Iterator<Entry<String, State>> it = story.get(questionOwner2).entrySet().iterator();
+				while (it.hasNext()) {
+					String verb = it.next().getKey();
+					if (!questionVerb.equals(verb)) {
+						questionVerb = verb;
+						break;
+					}
+				}
+				currentState = story.get(questionOwner2).get(questionVerb);
+				for (TimeStamp t : currentState) {
+					if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
+						continue;
+					if (sets.get(t.value.name).cardinality.contains("x") || sets.get(t.value.name).components.containsKey(Set.Empty))
+						continue;
+					if (!sets.get(t.value.name).cardinality.equals(v1))
+						v2 = sets.get(t.value.name).cardinality;
+				}
+				
+			}
+			ans = "";
+			System.out.println("hi"+v1+"|"+v2);
+			if (v1.contains("+") || v1.contains("-") || v2.contains("+") || v2.contains("-")|| v1.isEmpty() || v2.isEmpty()) {
+				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Matcher varMatcher = numPattern.matcher(question);
+				v1 = ""; v2 = "";
+				String val = "";
+				while (varMatcher.find()) {
+					val = varMatcher.group();
+					if (v1.isEmpty() && question.contains(" " + val + " " + questionEntity))
+						v1 = val;
+					else if (!v1.isEmpty() && question.contains(" " + val + " " + questionEntity))
+						v2 = val;
+				} 
+			}
+			System.out.println("hi"+v1+"|"+v2);
+			if (v1.isEmpty() || v2.isEmpty()) {
+				Pattern numPattern = Pattern.compile("\\d*\\.?\\d+");
+				Matcher varMatcher = numPattern.matcher(question);
+				v1 = ""; v2 = "";
+				String val = "";
+				while (varMatcher.find()) {
+					val = varMatcher.group();
+					if (v1.isEmpty())
+						v1 = val;
+					else 
+						v2 = val;
+				}
+			}
+			if (Double.parseDouble(v1) > Double.parseDouble(v2))
+				ans = v1 + "-" + v2;
+			else
+				ans = v2 + "-" + v1;
+			finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity + "than" + questionOwner2;
 			return;
 		}
 		isEvent = keywordMap.containsKey(questionVerb);
