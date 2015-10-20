@@ -144,6 +144,7 @@ public class KnowledgeRepresenter {
 		ignoreWords.add("jog");
 		ignoreWords.add("want");
 		ignoreWords.add("pay");
+		ignoreWords.add("land");
 		ignoreWords.add("tear");
 		ignoreWords.add("dye");
 		ignoreWords.add("rain");
@@ -1410,7 +1411,7 @@ public class KnowledgeRepresenter {
 				}		
 			}
 		}
-		if (question.contains(ans) && !questionOwner2.isEmpty()) {
+		if (question.contains(ans) && !questionOwner2.isEmpty() && story.containsKey(questionOwner2)) {
 			questionOwner = questionOwner2;
 			System.out.println(questionOwner2);
 			ansState = story.get(questionOwner).get(questionVerb);
