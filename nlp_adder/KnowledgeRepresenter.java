@@ -58,6 +58,7 @@ public class KnowledgeRepresenter {
 	static int unknownCounter = 0;
 
 	static int questionTime = -1;
+	static int attempts = 0;	
 	static String questionEntity = "";
 	static String questionOwner = "";
 	static String questionOwner1 = "";
@@ -796,6 +797,8 @@ public class KnowledgeRepresenter {
 			else if (question.contains(" mile "))
 				questionEntity = "mile";
 		}
+		if (questionOwner.isEmpty() && !entities.contains(questionOwner2) && !isQuestionComparator)
+			questionOwner = questionOwner1 = questionOwner2;
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
 			Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
 			while (it1.hasNext()) {
@@ -808,6 +811,7 @@ public class KnowledgeRepresenter {
 				}
 			}
 		}
+		String verbTemp = questionVerb;
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
 		boolean isEvent = keywordMap.containsKey(questionVerb);
 		if (isQuestionComparator && doesStory("lose"))
@@ -1242,7 +1246,7 @@ public class KnowledgeRepresenter {
 						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 						return;	
 					}
-					if (!totalAns.isEmpty())
+					if (!totalAns.isEmpty() && isQuestionAggregator)
 						ans = totalAns;
 					if (!ans.isEmpty() && ans.endsWith("+"))
 						ans = ans.substring(0,ans.length()-1);
@@ -1387,7 +1391,6 @@ public class KnowledgeRepresenter {
 				ans = ans.substring(0,ans.length()-1);
 		}
 		System.out.println("prefinal"+ans);
-		
 		if (question.contains(ans)) {
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
 			while (it.hasNext()) {
@@ -1411,10 +1414,17 @@ public class KnowledgeRepresenter {
 				}		
 			}
 		}
+		questionVerb = verbTemp;
 		if (question.contains(ans) && !questionOwner2.isEmpty() && story.containsKey(questionOwner2)) {
 			questionOwner = questionOwner2;
-			System.out.println(questionOwner2);
+			System.out.println(questionOwner2 + questionVerb);
 			ansState = story.get(questionOwner).get(questionVerb);
+			Iterator<Entry<String, State>> it2 = story.get(questionOwner).entrySet().iterator();
+			while (ansState == null && it2.hasNext()) {
+				Entry<String,State> pair = it2.next();
+				questionVerb = pair.getKey();
+				ansState = pair.getValue();
+			}
 			ans = ""; entity = "";
 			for (TimeStamp t : ansState) {
 				if (questionEntity.isEmpty())
@@ -1592,8 +1602,9 @@ public class KnowledgeRepresenter {
 			}		
 		}
 		if (ans.isEmpty() || ans.contains("x")) {
-			questionOwner = "";
-			solve();
+			if(!questionOwner.isEmpty() && attempts == 0) {
+			questionOwner = "";attempts= 1;
+			solve();}
 			return;
 		}
 		finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;

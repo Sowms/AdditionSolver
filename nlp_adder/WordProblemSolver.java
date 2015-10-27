@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Last year at Newberg 's airport , 14507 passengers landed on time . Unfortunately , 213 passengers landed late . In all , how many passengers landed in Newberg last year ? ", pipeline);
+		solveWordProblems("Mike found 6 seashells and 4 starfish , but 4 of the seashells were broken . How many unbroken seashells did Mike find ?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
