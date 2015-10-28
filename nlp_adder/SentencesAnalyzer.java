@@ -686,11 +686,14 @@ public class SentencesAnalyzer {
 				}
 				if (s.aggregator && !owner1.isEmpty() && !owner2.isEmpty())
 					s.procedureName = "altogetherEq";
-				//////System.out.println("oo" + owner1 + owner2 + entities);
+				//System.out.println("oo" + owner1 + owner2 + entities);
 				if (!(entities.contains(owner1) && owner2.isEmpty() && !owner1.isEmpty()))
 					steps.add(s);
-				else if (entities.contains(owner1) && (sentence.toString().toLowerCase().contains("there") || sentence.toString().toLowerCase().contains("remain") || sentence.toString().toLowerCase().contains(owner1)))
+				else if (entities.contains(owner1)) {
+					if ((sentence.toString().toLowerCase().contains("there") || sentence.toString().toLowerCase().contains("remain")))
+					s.owner1 = "";
 					steps.add(s);
+				}
 			}
 		}
 		return steps;

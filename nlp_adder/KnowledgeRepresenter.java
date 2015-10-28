@@ -231,7 +231,7 @@ public class KnowledgeRepresenter {
 		String lhs = "", rhs = value.cardinality;
 		System.out.println(lhs+"|"+rhs);
 		for (TimeStamp t : newState) {
-			if (lhs.isEmpty() && rhs.contains("x"))
+			if (lhs.isEmpty() && rhs.contains("x") || rhs.isEmpty() && lhs.contains("x"))
 				break;
 			if (value.cardinality.contains(".") && !isQuestionComparator)
 				break;
@@ -298,7 +298,7 @@ public class KnowledgeRepresenter {
 	}
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
 			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
-		System.out.println(keyword+verbQual);
+		System.out.println(keyword+verbQual+"|"+owner1+"|"+owner2);
 		if (verbQual.equals("buy") || verbQual.equals("purchase") || verbQual.equals("pay") || verbQual.isEmpty())
 			if (entities.contains("dollar") || entities.contains("dollars")) {
 				verbQual = "spend";
@@ -355,7 +355,7 @@ public class KnowledgeRepresenter {
 			if (owner1.isEmpty())
 				owner1 = UNKNOWN + "0"; 
 		}
-		else if (owner2.isEmpty()) {
+		if (owner2.isEmpty()) {
 			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
 				for (String owner: owners) {
 					//System.err.println(owner+"|"+owner1);
@@ -368,11 +368,15 @@ public class KnowledgeRepresenter {
 						}
 					}
 				}	
+				//System.err.println(owner2+"|"+owner1);
+				if (owner2.isEmpty())
+					owner2 = UNKNOWN + "0";
 			}
-			//System.err.println(owner2+"|"+owner1);
-			if (owner2.isEmpty())
+			if (owner2.isEmpty() && verbQual.equals("has") && owner1.isEmpty())
 				owner2 = UNKNOWN + "0";
 		}
+		System.out.println(keyword+verbQual+"|"+owner1+"|"+owner2);
+		
 		// There is no keyword here, an entity has been assigned a value
 		if (procedure != null && procedure.equals(COMPARE_PLUS) && owner2.isEmpty())
 			procedure = INCREASE;
@@ -731,7 +735,6 @@ public class KnowledgeRepresenter {
 		//////System.err.println(extractedInformation.sentences.size());
 		//set flags
 		for (LinguisticStep ls : extractedInformation.sentences) {
-			System.out.println(isQuestionComparator+"kkk"+ls.comparator+ls.isQuestion);
 			if (ls.isQuestion) {
 				//isQuestionAggregator = ls.aggregator;
 				isQuestionDifference = ls.difference;
@@ -1160,9 +1163,9 @@ public class KnowledgeRepresenter {
 						String verb = pair.getKey();
 						if (candidate.get(0).value.cardinality.contains("x"))
 							continue;
-						if (verb.equals("has") && !candidate.get(0).value.equals(complete))
+						if (verb.equals("has"))
 							complete = candidate.get(0).value; 
-						if (!verb.equals("has") ) {
+						if (!verb.equals("has") && !candidate.get(0).value.equals(complete)) {
 							subset = candidate.get(0).value;
 							break;
 						}

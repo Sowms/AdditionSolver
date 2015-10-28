@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Mike found 6 seashells and 4 starfish , but 4 of the seashells were broken . How many unbroken seashells did Mike find ?", pipeline);
+		solveWordProblems("Sara had 24 peaches and 37 pears at her fruit dish . She went to the orchard and picked peaches . There are now 61 peaches . how many did she pick ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
