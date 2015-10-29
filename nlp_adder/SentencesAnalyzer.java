@@ -452,6 +452,11 @@ public class SentencesAnalyzer {
 					}	
     			}
     		}
+			relation = edge.getRelation().toString();
+			if (relation.equals("tmod") && newEntity.value != null) {
+				newEntity.name = newEntity.name + " " + edge.getTarget().originalText();
+				entities.add(newEntity.name);
+			}
     		
     	}
 		//////System.out.println("ssss"+owner1+"|"+owner2+"|"+newEntity.value);
@@ -604,7 +609,10 @@ public class SentencesAnalyzer {
 			s.isQuestion = isQuestion;
 			s.tense = tense;
 			////////////////System.out.println(s.tense+"|"+verb);
-			s.entityName = questionEntity;
+			if (sentence.toString().contains(" today ") && entities.contains(questionEntity + " today"))
+				s.entityName = questionEntity + " today";
+			else
+				s.entityName = questionEntity;
 			//s.entityValue = newEntity.value;
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";

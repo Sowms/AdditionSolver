@@ -18,7 +18,7 @@ public class ConjunctionResolver {
 		 int index=1;
 		 for (CoreLabel token: tokens) {
 		   	String pos = token.get(PartOfSpeechAnnotation.class);
-		   	////////System.out.println(pos+token);
+		   	//////////System.out.println(pos+token);
 		   	if (pos.equals("VBG")) {
 		   		index++;
 		   		continue;
@@ -67,7 +67,7 @@ public class ConjunctionResolver {
 	    		verbPhrase = verbPhrase + token.originalText();
 	    	else
 	    		verbPhrase = verbPhrase + token.originalText() + " ";
-	    	////////System.out.println("vvvvv"+verbPhrase+pos);
+	    	//////////System.out.println("vvvvv"+verbPhrase+pos);
 	    	if (pos.contains("VB") && index == 1)
 	    		return verbPhrase.replace(" '","'").replace(" ,",",").trim();
 	    	if ((pos.contains("VB") && !containsVerb(tokens.subList(index, tokens.size()-1))))
@@ -84,7 +84,7 @@ public class ConjunctionResolver {
 	    //boolean begin = false;
 	    for (CoreLabel token: tokens) {
 			String pos = token.get(PartOfSpeechAnnotation.class);
-			////////System.out.println(token.originalText()+pos);
+			//////////System.out.println(token.originalText()+pos);
 			if (pos.contains("VB"))
 	    		crossVerb = true;
 			if (containsVerb(tokens) && !crossVerb)
@@ -98,7 +98,7 @@ public class ConjunctionResolver {
 			}
 			if (crossPrep && (pos.contains("IN") && !token.originalText().equals("by") || pos.contains("TO"))) {
 				prepPhrase = "";
-				//////System.out.println("\twaka" + prepPhrase);
+				////////System.out.println("\twaka" + prepPhrase);
 				prepPhrase = prepPhrase + token.originalText() + " ";
 	    		continue;
 			}
@@ -111,7 +111,7 @@ public class ConjunctionResolver {
      	}
 	    prepPhrase = prepPhrase.replace(" .",".");
 	    prepPhrase = prepPhrase.replace(" ,",",");
-	    //////System.out.println("waka" + prepPhrase);
+	    ////////System.out.println("waka" + prepPhrase);
 		
 	    return prepPhrase.replace(" '","'").trim();
 	}
@@ -119,7 +119,7 @@ public class ConjunctionResolver {
 		int c = 0;
 		for (CoreLabel token : firstPartTokens) {
 			String pos = token.get(PartOfSpeechAnnotation.class);
-			////System.out.println(pos);
+			//////System.out.println(pos);
 			//isabbreviation
 			if (Character.isUpperCase(token.originalText().charAt(0)) && pos.equals("NNP") && !token.originalText().equals("CD"))
 				c++;
@@ -134,8 +134,8 @@ public class ConjunctionResolver {
 		input = input.replace("$ ", "$").replace(" '","'").trim();;
 		input = input.replaceAll("\\s+", " ").trim();
 		input = input.trim();
-		////System.out.println(input.split(" and ").length);
-		////System.out.println("i"+input);
+		//////System.out.println(input.split(" and ").length);
+		//////System.out.println("i"+input);
 		Annotation document = new Annotation(input);
 		
 	    pipeline.annotate(document);
@@ -145,7 +145,7 @@ public class ConjunctionResolver {
 			boolean condition2 = sentence.toString().contains(" but ");
 			boolean condition3 = sentence.toString().contains(" if ");
 			boolean condition4 = sentence.toString().contains(" then ");
-			//////System.out.println(condition1);
+			////////System.out.println(condition1);
 			String splitString = "";
 			int i = 0;
 			if (condition1 && sentence.toString().split(" and ").length > 2)
@@ -169,7 +169,7 @@ public class ConjunctionResolver {
 				}
 				String secondPart = sentence.toString().split(splitString)[i+1];
 				String VP1="", VP2="", PrP1="", PrP2="", L1="", L2="", P1="", P2="";
-				////System.out.println(firstPart+"|"+secondPart);
+				//////System.out.println(firstPart+"|"+secondPart);
 				List<CoreLabel> firstPartTokens = new ArrayList<CoreLabel>();
 				List<CoreLabel> secondPartTokens = new ArrayList<CoreLabel>();
 				boolean endFirst = false;
@@ -184,13 +184,13 @@ public class ConjunctionResolver {
 					else
 						firstPartTokens.add(token);
 				}
-				//System.out.println(firstPart+"|"+manyOwners(firstPartTokens));
+				////System.out.println(firstPart+"|"+manyOwners(firstPartTokens));
 				if (!containsVerb(firstPartTokens) || manyOwners(firstPartTokens)) {
 					ans = ans + sentence.toString()+" ";
 					continue;
 				}
 				VP1 = getVerbPhrase(firstPartTokens);
-				////////System.out.println("vp1"+VP1);
+				//////////System.out.println("vp1"+VP1);
 				String[] words = VP1.split(" ");
 				String verb1 = words[words.length-1], verb2 = "";
 				P1 = VP1.substring(0, VP1.length()-verb1.length()).trim();
@@ -206,11 +206,11 @@ public class ConjunctionResolver {
 				if (containsPrep(secondPartTokens)) {
 					PrP2 = getPrepPhrase(secondPart,secondPartTokens);
 				}
-				//////System.out.println("aa"+PrP2);
-				//////System.out.println("aa"+PrP1);
-				//////System.out.println("aa"+verb2);
-				////System.out.println("aa"+P2+P1);
-				//////System.out.println("aa"+VP2);
+				////////System.out.println("aa"+PrP2);
+				////////System.out.println("aa"+PrP1);
+				////////System.out.println("aa"+verb2);
+				//////System.out.println("aa"+P2+P1);
+				////////System.out.println("aa"+VP2);
 				
 				
 				
@@ -226,7 +226,9 @@ public class ConjunctionResolver {
 				if (VP1.contains("bought") && !VP2.contains("bought") && !VP2.contains("spent")) {
 					P2 = VP1 + " " + P2;
 				}
-				////System.out.println(VP1+"|"+VP2+"|"+firstPart);
+				//System.out.println(PrP2+"|"+PrP1);
+				
+				//////System.out.println(VP1+"|"+VP2+"|"+firstPart);
 				L1 = firstPart.replace(VP1,"");
 				L1 = L1.trim();
 				L1 = L1.replace(PrP1,"");
@@ -235,8 +237,17 @@ public class ConjunctionResolver {
 				L2 = L2.trim();
 				L2 = L2.replace(PrP2,"");
 				L2 = L2.trim();
-				//System.out.println("a"+P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
-				//System.out.println("a"+ P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
+				if (PrP2.endsWith("today") && !PrP1.endsWith("today"))
+					PrP1 = PrP1 + " today";
+				if (PrP2.endsWith("today.") && !PrP1.endsWith("today."))
+					PrP1 = PrP1 + " today.";
+				if (PrP2.endsWith("yesterday") && !PrP1.endsWith("yesterday"))
+					PrP1 = PrP1 + " yesterday";
+				if (PrP2.endsWith("yesterday.") && !PrP1.endsWith("yesterday."))
+					PrP1 = PrP1 + " yesterday.";
+				
+				////System.out.println("a"+P1 + "|" + verb1 + "|" + L1 + "|" + PrP1);
+				////System.out.println("a"+ P2 + "|" + verb2 + "|"+ L2 + "|" + PrP2);
 				//if ((L1+PrP1).trim().endsWith(",") || (L1+PrP1).endsWith("."))
 					//ans = ans + (P1 + " " + verb1 + " " + (L1 + " " +PrP1).substring(0, (L1+" "+PrP1).length())) + "  " +(P2 + " " + verb2 + " "+ L2 + " "+ PrP2) + " ";
 				//else
@@ -253,7 +264,7 @@ public class ConjunctionResolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		//System.out.println(parse("Keith spent $ 136.01 on speakers , $ 139.38 on a CD player , and $ 112.46 on new tires . He wanted 3 CD 's for $ 6.16 , but did n't buy them . In total , how much did he spend ? ",pipeline));
+		//System.out.println(parse("A restaurant served 7 slices of pie during lunch and 5 during dinner today . It served 8 of them yesterday . How many slices of pie were served today ? ",pipeline));
 	}
 	
 }

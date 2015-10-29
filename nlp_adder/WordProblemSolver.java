@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Sara had 24 peaches and 37 pears at her fruit dish . She went to the orchard and picked peaches . There are now 61 peaches . how many did she pick ? ", pipeline);
+		solveWordProblems("Jessica spent $ 10.22 on a cat toy , and a cage cost her $ 11.73 . What was the total cost of Jessica 's purchases ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

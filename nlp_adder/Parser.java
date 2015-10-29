@@ -56,8 +56,10 @@ public class Parser {
 		if (input.contains("$")) {
 			input = input.replace("$ ", "$");
 			String ans = "";
+			String[] words = input.split(" ");
 			//boolean dollarFlag = false;
-			for (String word : input.split(" ")) {
+			for (int i = 0; i < words.length; i++) {
+				String word = words[i];
 				if (!word.contains("$"))
 					ans = ans + word + " ";
 				else {
@@ -72,6 +74,8 @@ public class Parser {
 						String remaining = word.replace("$", "");
 						remaining = remaining.replace(candidate,"");
 						ans = ans + candidate + " dollars " + remaining;
+						if ((i+1) != words.length -1 && words[i+1].startsWith("total"))
+							ans = ans + " in ";
 					}
 				}
 			}
