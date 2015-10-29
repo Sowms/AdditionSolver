@@ -246,7 +246,7 @@ public class KnowledgeRepresenter {
 			if (value.cardinality.contains(".") && !isQuestionComparator)
 				break;
 			if (t.time.equals(time) && (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))) {
-				System.err.println(entity+t.entity);
+				//System.err.println(entity+t.entity);
 				existingValue = t.value;
 				lhs = existingValue.cardinality;
 				if (!lhs.contains("+") && !rhs.contains("+") && !lhs.contains("-") && !rhs.contains("-")) {
@@ -363,7 +363,7 @@ public class KnowledgeRepresenter {
 				}
 			}
 			if (owner1.isEmpty())
-				owner1 = UNKNOWN + "0"; 
+				owner1 = UNKNOWN; 
 		}
 		if (owner2.isEmpty()) {
 			if (procedure != null && (procedure.contains("change") || procedure.contains("compare") || procedure.contains("Eq"))) {
@@ -380,10 +380,10 @@ public class KnowledgeRepresenter {
 				}	
 				//System.err.println(owner2+"|"+owner1);
 				if (owner2.isEmpty())
-					owner2 = UNKNOWN + "0";
+					owner2 = UNKNOWN;
 			}
 			if (owner2.isEmpty() && verbQual.equals("has") && owner1.isEmpty())
-				owner2 = UNKNOWN + "0";
+				owner2 = UNKNOWN;
 		}
 		System.out.println(keyword+verbQual+"|"+owner1+"|"+owner2);
 		
@@ -403,6 +403,8 @@ public class KnowledgeRepresenter {
 			
 		
 		System.out.println("e"+owner1 + "|" + owner2 + "|" + keyword + "|" + procedure + "|" + tense + "|" + newEntity.value +"|"+entities +"|"+verbQual);
+		if ((procedure != null && procedure.equals(COMPARE_PLUS)) && (owner2.isEmpty() || owner2.contains(UNKNOWN)) && story.size() == 1)
+			owner2 = owner1; 
 		if (newEntity.name == null)
 			newEntity.name = entities.iterator().next();
 		String owner = "";
@@ -1240,7 +1242,7 @@ public class KnowledgeRepresenter {
 			}
 		}
 		if (isQuestionSet && !questionOwner.isEmpty()) {
-			Set complete = new Set(), subset = new Set();
+			Set complete = null, subset = null;
 			Iterator<Entry<String, State>> it = story.get(questionOwner).entrySet().iterator();
 			while (it.hasNext()) {
 				Entry<String, State> pair = it.next();
@@ -1248,14 +1250,18 @@ public class KnowledgeRepresenter {
 				String verb = pair.getKey();
 				if (candidate.get(0).value.cardinality.contains("x"))
 					continue;
-				if (verb.equals("has"))
+				if (candidate.get(0).value.name.contains(Set.Empty.name))
+					continue;
+				//System.err.print(candidate.get(0).value.name);
+				if (verb.equals("has") && complete == null)
 					complete = candidate.get(0).value; 
-				if (!verb.equals("has") && subset.isEmpty()) {
+				if (!verb.equals("has") && subset == null) {
 					subset = candidate.get(0).value;
 					//break;
 				}
 			}
-			if (complete.name.equals(subset.name)) {
+			//System.out.println(complete.name+"|"+subset.name);
+			if (complete == null || subset == null || complete.name.equals(subset.name)) {
 				Iterator<Entry<String, Situation>> it1 = story.entrySet().iterator();
 				while (it1.hasNext()) {
 					Situation currentSituation = it1.next().getValue();
@@ -1266,19 +1272,27 @@ public class KnowledgeRepresenter {
 						String verb = pair.getKey();
 						if (candidate.get(0).value.cardinality.contains("x"))
 							continue;
+						if (candidate.get(0).value.name.contains(Set.Empty.name))
+							continue;
 						if (verb.equals("has"))
 							complete = candidate.get(0).value; 
-						if (!verb.equals("has") && !candidate.get(0).value.equals(complete)) {
+						System.out.println(complete);
+						if (!verb.equals("has")) {
 							subset = candidate.get(0).value;
 							break;
 						}
+						
 					}
 				}
 			}
-			System.out.println(complete.name+"|"+subset.name);
+			System.out.println(complete+"|"+subset+"aa");
+			if (complete != null && subset != null) {
 			String ans = EquationSolver.getSolution(complete.cardinality + "-" + subset.cardinality);
-			finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
-			return;
+			if (!question.contains(ans)) {
+				finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
+				return;
+			}}
+			questionOwner = "";
 		}
 		if (isQuestionSet && questionOwner.isEmpty()) {
 			Set complete = null, subset = null;
@@ -1293,10 +1307,26 @@ public class KnowledgeRepresenter {
 					//System.out.println(verb+"|"+candidate.get(0).value.name);
 					if (candidate.get(0).value.cardinality.contains("x"))
 						continue;
-					if (verb.equals("has"))
+					if (verb.equals("has") && !candidate.get(0).value.name.contains(Set.Empty.name))
 						complete = candidate.get(0).value; 
-					if (new SentencesAnalyzer().isAntonym(verb,question)) {
+					if (complete != null && !candidate.get(0).value.name.equals(complete.name)) {
 						subset = candidate.get(0).value;
+					}
+				}
+			}
+			System.out.println("aa"+complete+"|"+subset);
+			if (complete == null || subset == null) { 
+				Iterator<Entry<String, Set>> it = sets.entrySet().iterator();
+				while (it.hasNext()) {
+					Set candidate = it.next().getValue();
+					if (candidate.cardinality.contains("x"))
+						continue;
+					if (!candidate.name.contains(Set.Empty.name) && complete == null)
+						complete = candidate;
+					if (!candidate.name.contains(Set.Empty.name) && complete != null && subset == null && !candidate.name.equals(complete.name)) {
+						subset = candidate;
+						System.out.println(subset.name);
+						break;
 					}
 				}
 			}

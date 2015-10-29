@@ -20,6 +20,7 @@ public class TextDatasetTester {
 		if(matcher.find()) {
 			double num1 = Math.round(Double.parseDouble(matcher.group())*100)/100.0;
 			double num2 = Math.round(Double.parseDouble(ans)*100)/100.0;
+			System.out.println(num1+"|"+num2);
 			return (num1 == num2);
 		}
 		return false;
@@ -33,9 +34,9 @@ public class TextDatasetTester {
 	    int count = 0, total = 0;
 		try {
  			String sCurrentLine;
- 			br1 = new BufferedReader(new FileReader("q3.txt"));
- 			br2 = new BufferedReader(new FileReader("ans3.txt"));
- 			br = new BufferedWriter(new FileWriter("output6"));
+ 			br1 = new BufferedReader(new FileReader("q2.txt"));
+ 			br2 = new BufferedReader(new FileReader("ans2.txt"));
+ 			br = new BufferedWriter(new FileWriter("output5"));
  			while ((sCurrentLine = br1.readLine()) != null) {
  				String sysAns = "", ques = sCurrentLine, ans = br2.readLine();
 				try{
