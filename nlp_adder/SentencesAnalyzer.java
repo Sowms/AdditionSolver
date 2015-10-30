@@ -126,7 +126,7 @@ public class SentencesAnalyzer {
 		aggregators.add("sum");
 		
 		differences.add(" left ");
-		differences.add(" remain ");
+		differences.add(" remain");
 		differences.add(" over ");
 		differences.add(" difference ");
 		
@@ -256,13 +256,13 @@ public class SentencesAnalyzer {
 		for (SemanticGraphEdge edge : edges) {
     		String pos = edge.getTarget().tag();
     		String relation = edge.getRelation().toString();
-			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE) || relation.equals(PARSER_SUBJECT) || relation.contains("obj"))) {
+			if (pos.equals(POS_NUMBER) && (relation.contains(PARSER_NUMBER) || relation.equals(PARSER_ADVERBCLAUSE) || relation.contains(PARSER_SUBJECT) || relation.contains("obj"))) {
     			if (!edge.getSource().lemma().matches("[a-zA-Z]+"))
     				continue;
     			newEntity = new Entity();
     			newEntity.name = edge.getSource().originalText();
     			entities.add(edge.getSource().lemma());
-    			//////////////////System.out.println("waka"+entities);
+    			//System.err.println("waka"+newEntity.name+edge);
     			IndexedWord intermediateNode = edge.getSource();
     			IndexedWord nnNode = null, jjNode = null, secondNode = null;
     			for (SemanticGraphEdge innerEdge : edges) {
@@ -335,7 +335,12 @@ public class SentencesAnalyzer {
         		newEntity.value = edge.getTarget().originalText();
         		String prevWord = "", prevLemma = "";
         		//////////System.out.println(newEntity.name);
+        		boolean flagSeen = false;
         		for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+        			if (token.originalText().equals(edge.getTarget().originalText()))
+        				flagSeen = true;
+        			if (!flagSeen)
+        				continue;
         	    	String word = token.get(TextAnnotation.class);
         	    	String lemma = token.get(LemmaAnnotation.class);
         	    	if (entities.contains(word.toLowerCase())) { 
@@ -349,7 +354,7 @@ public class SentencesAnalyzer {
         	    	prevWord = word;
         	    	prevLemma = lemma;
         		}
-        		////////////System.err.println("waka"+entities);
+        		//System.err.println("waka"+newEntity.name+edges);
     			entities.add(newEntity.name);
     			sentenceEntities.add(newEntity);
     		}
@@ -512,8 +517,7 @@ public class SentencesAnalyzer {
     		sentenceEntities.add(newEntity);
     		}
 		}
-		////System.out.println(someFlag);
-		if (newEntity.value == null || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ")) {
+		if (newEntity.value == null || newEntity.value.equals("some") || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ") || sentence.toString().contains("?")) {
 			////////System.out.println(sentence);
 			
 			isQuestion = true;
@@ -614,14 +618,17 @@ public class SentencesAnalyzer {
 				s.entityName = questionEntity + " today";
 			else
 				s.entityName = questionEntity;
-			//s.entityValue = newEntity.value;
+			if (newEntity.value != null && !newEntity.value.equals("some"))
+				s.entityValue = newEntity.value;
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";
 			s.verbQual = verb;
+			s.entityValue = newEntity.value;
 			s.procedureName = keywordMap.get(keyword);
 			s.keyword = keyword;
 			s.aggregator = false;
 			for (String aggregator : aggregators) {
+				//System.err.println(sentence.toString().contains(aggregator)+aggregator+sentence);
 				if (sentence.toString().contains(aggregator))
 					s.aggregator = true;	
 			}
@@ -647,7 +654,7 @@ public class SentencesAnalyzer {
 			//System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb+s.comparator);
 			steps.add(s);
     	}
-		else {
+		if (newEntity.value != null && !sentence.toString().toLowerCase().contains("what ") && !sentence.toString().toLowerCase().contains("how ")) {
 			//////////System.err.println("b"+entities+owner1+owner2);
 			for (Entity e : sentenceEntities) {
 				Entity tempEntity = new Entity();
@@ -683,7 +690,7 @@ public class SentencesAnalyzer {
 				if (!entities.contains(owner1) && !owner1.trim().isEmpty())
 					owners.add(owner1);
 				entities.add(tempEntity.name);
-				s.isQuestion = isQuestion;
+				s.isQuestion = false;
 				s.tense = tense;
 				if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 					verb = "has";

@@ -820,6 +820,8 @@ public class KnowledgeRepresenter {
 			else if (question.contains(" mile "))
 				questionEntity = "mile";
 		}
+		if (questionVerb.equals("weigh"))
+			questionEntity = "pound";
 		if (questionOwner.isEmpty() && !entities.contains(questionOwner2) && !isQuestionComparator)
 			questionOwner = questionOwner1 = questionOwner2;
 		if (!story.containsKey(questionOwner) && !questionOwner.isEmpty()) {
@@ -1160,6 +1162,11 @@ public class KnowledgeRepresenter {
 						}
 						
 						if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime) && !setNamesTotal.contains(t.value.name)) {
+							if (sets.get(t.value.name).cardinality.contains("x"))
+								continue;
+							if (sets.get(t.value.name).name.contains(Set.Empty.name))
+								continue;
+							
 							totalans = sets.get(t.value.name).cardinality + "+" + totalans;
 							setNamesTotal = setNamesTotal + t.value.name;
 							continue;
@@ -1209,7 +1216,9 @@ public class KnowledgeRepresenter {
 			ans = "";
 			Iterator<Entry<String, Set>> it = sets.entrySet().iterator();
 			while (it.hasNext()) {
-				ans = ans + it.next().getValue().cardinality + "+";
+				String value = it.next().getValue().cardinality;
+				if (!value.contains("x"))
+					ans = ans + value + "+";
 			}
 			if (!ans.isEmpty() && ans.endsWith("+"))
 				ans = ans.substring(0,ans.length()-1);
@@ -1276,7 +1285,7 @@ public class KnowledgeRepresenter {
 							continue;
 						if (verb.equals("has"))
 							complete = candidate.get(0).value; 
-						System.out.println(complete);
+						//System.out.println(complete);
 						if (!verb.equals("has")) {
 							subset = candidate.get(0).value;
 							break;
@@ -1286,7 +1295,7 @@ public class KnowledgeRepresenter {
 				}
 			}
 			System.out.println(complete+"|"+subset+"aa");
-			if (complete != null && subset != null) {
+			if (complete != null && subset != null && !complete.name.equals(subset.name)) {
 			String ans = EquationSolver.getSolution(complete.cardinality + "-" + subset.cardinality);
 			if (!question.contains(ans)) {
 				finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
@@ -1315,11 +1324,14 @@ public class KnowledgeRepresenter {
 				}
 			}
 			System.out.println("aa"+complete+"|"+subset);
-			if (complete == null || subset == null) { 
+			if (complete == null || subset == null || complete.name.equals(subset.name)) { 
 				Iterator<Entry<String, Set>> it = sets.entrySet().iterator();
+				complete = null; subset = null;
 				while (it.hasNext()) {
 					Set candidate = it.next().getValue();
 					if (candidate.cardinality.contains("x"))
+						continue;
+					if (candidate.name.contains("-"))
 						continue;
 					if (!candidate.name.contains(Set.Empty.name) && complete == null)
 						complete = candidate;
@@ -1536,10 +1548,12 @@ public class KnowledgeRepresenter {
 				String[] names = entity.toLowerCase().split(" ");
 				checkEntity = true;
 				for (String name : names) {
+					System.out.println(name+"|"+tName);
 					if (!tName.contains(name))
 						checkEntity = false;
 				}
 			}
+			System.out.println(checkEntity);
 			if (checkEntity) {
 				if (!isEvent) {
 					if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
