@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("A bee colony produced 0.36 pounds of honey , but bears ate 0.05 pounds of it . How much honey remains ? ", pipeline);
+		solveWordProblems("In Shannon 's apartment complex , 0.16666666666666666 the apartments are one-bedroom apartments and 0.3333333333333333 are two-bedroom apartments . What fraction of the apartments are either 1 - or two-bedroom apartments ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

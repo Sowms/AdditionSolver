@@ -975,7 +975,8 @@ public class KnowledgeRepresenter {
 					for (TimeStamp t : newState) {
 						if (!questionEntity.isEmpty() && !(questionEntity.contains(t.entity) || t.entity.contains(questionEntity)) && entities.contains(questionEntity) && !t.entity.contains(questionEntity))
 							continue;
-						if (!sets.get(t.value.name).cardinality.contains("x")) {
+						
+						if (!sets.get(t.value.name).cardinality.contains("x") && !t.value.name.contains(Set.Empty.name)) {
 							if (counter == 0) {
 								big = sets.get(t.value.name).cardinality;
 								counter++;
@@ -986,6 +987,30 @@ public class KnowledgeRepresenter {
 					}
 				 }
 			}	
+			if (big.equals("0") || small.equals("0")) {
+				big = "0"; small = "0";
+				counter = 0;
+				it = story.entrySet().iterator();
+				while (it.hasNext()) {
+				     Entry<String, Situation> pairs = it.next();
+				     Situation currentSituation = pairs.getValue();
+				     Iterator<Entry<String, State>> it1 = currentSituation.entrySet().iterator();
+					 while (it1.hasNext()) {
+						Entry<String, State> newPairs = it1.next();
+						State newState = newPairs.getValue();
+						for (TimeStamp t : newState) {
+							if (!sets.get(t.value.name).cardinality.contains("x") && !t.value.name.contains(Set.Empty.name)) {
+								if (counter == 0) {
+									big = sets.get(t.value.name).cardinality;
+									counter++;
+								} else if (!sets.get(t.value.name).cardinality.contains("x")){
+									small = sets.get(t.value.name).cardinality;
+								}
+							}
+						}
+					 }
+				}
+			}
 			String ans = big + "-" + small;
 			if (ans.contains(X_VALUE)) {
 				////////////System.out.println("Cannot be solved!");
@@ -1127,8 +1152,10 @@ public class KnowledgeRepresenter {
 				ans = ans.substring(0,ans.length()-1);
 			System.out.println("a"+ans);
 			if (!ans.isEmpty() && !question.contains(ans)) {
-				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
-				return;
+				if (ans.contains("+") && !question.contains(EquationSolver.getSolution(ans).replace(".0", ""))) {
+					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					return;
+				}
 			}
 			it1 = story.entrySet().iterator();
 			String totalans = "";

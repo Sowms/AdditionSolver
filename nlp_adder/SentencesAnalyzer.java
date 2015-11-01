@@ -127,6 +127,7 @@ public class SentencesAnalyzer {
 		
 		differences.add(" left ");
 		differences.add(" remain");
+		differences.add(" rest ");
 		differences.add(" over ");
 		differences.add(" difference ");
 		
@@ -648,7 +649,7 @@ public class SentencesAnalyzer {
 			//System.out.println(preprocessedSteps.size());
 			for (LinguisticStep ls : preprocessedSteps) {
 				//System.err.println(ls.aggregator);
-				if (ls.aggregator)
+				if (ls.aggregator || ls.difference)
 					s.setCompletor = true;
 			}
 			//System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb+s.comparator);
@@ -705,6 +706,11 @@ public class SentencesAnalyzer {
 				for (String aggregator : aggregators) {
 					if (sentence.toString().contains(aggregator))
 						s.aggregator = true;	
+				}
+				s.difference = false;
+				for (String aggregator : differences) {
+					if (sentence.toString().contains(aggregator))
+						s.difference = true;	
 				}
 				if (s.aggregator && !owner1.isEmpty() && !owner2.isEmpty())
 					s.procedureName = "altogetherEq";
