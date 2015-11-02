@@ -16,10 +16,9 @@ public class OrderSteps {
 		int count = 0;
 		for (LinguisticStep step : info.sentences) {
 		    String tense = step.tense;
-		    allTenses.add(tense);
-			if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
+		    if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
 				newInfo.sentences.add(0,step);
-			else if (tense.equals("past") && allTenses.contains("present") && step.isQuestion) {
+			else if (tense.equals("past") && allTenses.contains("present") && !allTenses.contains("past") && step.isQuestion) {
 				LinguisticStep temp = new LinguisticStep();
 				temp.entityName = step.entityName;
 				temp.owner1 = step.owner1;
@@ -43,6 +42,7 @@ public class OrderSteps {
 				reduceFlag = true;
 				reduceEntity = step.entityName;
 			}
+			allTenses.add(tense);
 			count++;
 			System.err.println(step.isQuestion+"|"+step.tense);
 		}

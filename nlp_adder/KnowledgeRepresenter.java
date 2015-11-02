@@ -490,8 +490,12 @@ public class KnowledgeRepresenter {
 							oldValue1 = currentTimeStamp.value;
 						}
 					}
-					updateTimestamp (owner1, newSet, tense, "lose", entity);
-					timeStep++;
+					if (oldValue1 != null) {
+						updateTimestamp (owner1, newSet, tense, "lose", entity);
+						timeStep++;
+						break;
+					}
+				
 				}
 			} else {
 				Set correctValue = resolveNullEntity(newEntity.name, owner1, verb);
@@ -520,7 +524,7 @@ public class KnowledgeRepresenter {
 				oldValue2 = correctValue;
 			}
 		}
-		System.err.println("aa"+oldValue1.name+"|"+oldValue2.name);		
+		System.err.println("aa"+oldValue1.name+"|"+oldValue2.name+"|"+owner1);		
 		//System.err.println("aa"+timeStep);
 		String[] steps = procedureMap.get(procedure).split("\\.");
 		//System.out.println(procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1 + "|" + owner2 + "|" + oldValue2);
