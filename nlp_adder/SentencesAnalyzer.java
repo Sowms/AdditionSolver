@@ -84,6 +84,7 @@ public class SentencesAnalyzer {
 		keywordMap.put("sell", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("add", CHANGE_OUT);
+		keywordMap.put("pour", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("less than", COMPARE_MINUS);
 		keywordMap.put("get", CHANGE_IN);

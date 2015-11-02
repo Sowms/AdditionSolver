@@ -97,6 +97,7 @@ public class KnowledgeRepresenter {
 		//keywordMap.put("serve", CHANGE_OUT);
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("load", CHANGE_OUT);
+		keywordMap.put("pour", CHANGE_OUT);
 		keywordMap.put("build", CHANGE_OUT);
 		
 		keywordMap.put("more than", COMPARE_PLUS);
@@ -479,11 +480,12 @@ public class KnowledgeRepresenter {
 				while (it.hasNext()) {
 					Entry<String, Situation> pair = it.next();
 					owner1 = pair.getKey();
-					if (!pair.getValue().containsKey("has"))
+					if (!pair.getValue().containsKey("has") || owner1.equals(UNKNOWN))
 						continue;
 					State verbStory = pair.getValue().get("has");
 					//modularize
 					for (TimeStamp currentTimeStamp : verbStory) {
+						System.out.println(currentTimeStamp.entity + "|" + entity);
 						if (currentTimeStamp.entity.contains(entity)) {
 							oldValue1 = currentTimeStamp.value;
 						}
