@@ -650,7 +650,7 @@ public class SentencesAnalyzer {
 			//System.out.println(preprocessedSteps.size());
 			for (LinguisticStep ls : preprocessedSteps) {
 				//System.err.println(ls.aggregator);
-				if (ls.aggregator || ls.difference)
+				if (ls.aggregator)
 					s.setCompletor = true;
 			}
 			//System.out.println("q" + owner1 + "|" + owner2 + s.setCompletor+isAntonym(verb)+"|"+verb+s.comparator);

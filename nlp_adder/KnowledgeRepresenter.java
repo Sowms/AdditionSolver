@@ -470,7 +470,7 @@ public class KnowledgeRepresenter {
 			State verbStory = story.get(owner1).get(retrieve);
 			//modularize
 			for (TimeStamp currentTimeStamp : verbStory) {
-				if (currentTimeStamp.entity.contains(entity)) {
+				if (currentTimeStamp.entity.contains(entity) || entity.contains(currentTimeStamp.entity)) {
 					oldValue1 = currentTimeStamp.value;
 				}
 			}
@@ -520,7 +520,7 @@ public class KnowledgeRepresenter {
 				oldValue2 = correctValue;
 			}
 		}
-		//System.err.println("aa"+oldValue1.name+"|"+oldValue2.name);		
+		System.err.println("aa"+oldValue1.name+"|"+oldValue2.name);		
 		//System.err.println("aa"+timeStep);
 		String[] steps = procedureMap.get(procedure).split("\\.");
 		//System.out.println(procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1 + "|" + owner2 + "|" + oldValue2);
@@ -1077,6 +1077,9 @@ public class KnowledgeRepresenter {
 			if (ans.isEmpty()) {
 				questionVerb = "has";
 				State currentState = story.get(questionOwner).get(questionVerb);
+				if (currentState == null)
+					questionVerb = story.get(questionOwner).entrySet().iterator().next().getKey();
+				currentState = story.get(questionOwner).get(questionVerb);
 				for (TimeStamp t : currentState) {
 					if (!isEvent && !t.time.equals(TIMESTAMP_PREFIX+questionTime))
 						continue;
@@ -1437,7 +1440,7 @@ public class KnowledgeRepresenter {
 						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 						return;	
 					}
-					if (!totalAns.isEmpty() && isQuestionAggregator)
+					if (!totalAns.isEmpty() && ans.isEmpty())
 						ans = totalAns;
 					if (!ans.isEmpty() && ans.endsWith("+"))
 						ans = ans.substring(0,ans.length()-1);

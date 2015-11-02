@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Blake filled a bucket with 0.8 gallon of water . Later , he poured out 0.2 gallon of the water . How much water is in the bucket ? ", pipeline);
+		solveWordProblems("A ship full of grain crashes into a coral reef . By the time the ship is fixed , 49952 tons of grain have spilled into the water . Only 918 tons of grain remain onboard . How many tons of grain did the ship originally contain ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
