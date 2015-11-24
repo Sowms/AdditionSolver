@@ -255,11 +255,17 @@ public class KnowledgeRepresenter {
 						break;
 					if (ignoreWords.contains(verbQual))
 						break;
+					if (lhs.equals("x")) {
+						t.value.cardinality = value.cardinality;
+						sets.put(t.value.name,value);
+						return;
+					}
 					System.out.println(entity+t.entity+verbQual);
 					timeStep++;
 					State tempState = new State();
 					TimeStamp t1 = new TimeStamp();
 					t1.time = TIMESTAMP_PREFIX + timeStep;
+					
 					if (Double.parseDouble(rhs) > Double.parseDouble(lhs)) {
 						t1.value = Set.difference(value, t.value);
 						sets.put(t1.value.name, t1.value);
@@ -1161,7 +1167,7 @@ public class KnowledgeRepresenter {
 				ans = ans.substring(0,ans.length()-1);
 			System.out.println("a"+ans);
 			if (!ans.isEmpty() && !question.contains(ans)) {
-				if (ans.contains("+") && !question.contains(EquationSolver.getSolution(ans).replace(".0", ""))) {
+				if (ans.contains("+") && !(question.contains(EquationSolver.getSolution(ans).replace(".0", "")+" "+questionEntity))) {
 					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
 					return;
 				}
@@ -1391,9 +1397,12 @@ public class KnowledgeRepresenter {
 				Entry<String,Situation> entry = it1.next();
 				String owner = entry.getKey();
 				Situation currentSituation = entry.getValue();
-				ans = "";
+				ans = "";totalAns = "";
+				isEvent = keywordMap.containsKey(questionVerb);
+				System.out.println(owner+"a");
 				if (currentSituation.containsKey(questionVerb)) {
 					questionOwner = owner;
+					System.out.println("b"+owner);
 					for (TimeStamp t : currentSituation.get(questionVerb)) {
 						if (questionEntity.isEmpty())
 							entity = t.entity;
@@ -1402,13 +1411,15 @@ public class KnowledgeRepresenter {
 						if (sets.get(t.value.name).cardinality.contains("x") || t.value.name.contains(Set.Empty.name+"-"))
 							continue;
 						boolean inQues = question.contains((EquationSolver.getSolution(sets.get(t.value.name).cardinality)).replace(".0", ""));
-						System.out.println(inQues);
+						System.out.println(inQues+"|"+sets.get(t.value.name).cardinality);
 						if (inQues && !sets.get(t.value.name).cardinality.contains("+") && !sets.get(t.value.name).cardinality.contains("-")) {
-							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
+							if (isEvent || !isEvent && t.time.equals(TIMESTAMP_PREFIX+questionTime))
+								totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
 							continue;
 						}
 						if (inQues && sets.get(t.value.name).cardinality.startsWith("0+")) {
-							totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
+							if (isEvent || !isEvent && t.time.equals(TIMESTAMP_PREFIX+questionTime))
+								totalAns = sets.get(t.value.name).cardinality + "+" + totalAns;
 							continue;
 						}
 						boolean checkEntity = false;
@@ -1423,7 +1434,7 @@ public class KnowledgeRepresenter {
 									checkEntity = false;
 							}
 						}
-						System.out.println(t.entity+entity+checkEntity);
+						System.out.println("w"+t.entity+entity+checkEntity);
 						if (checkEntity) {
 							if (!isEvent) {
 								if (t.time.equals(TIMESTAMP_PREFIX+questionTime)) {
@@ -1444,7 +1455,7 @@ public class KnowledgeRepresenter {
 						finalAns = questionOwner + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity;
 						return;	
 					}
-					if (!totalAns.isEmpty() && ans.isEmpty())
+					if (!totalAns.isEmpty() && ans.isEmpty() && isQuestionAggregator)
 						ans = totalAns;
 					if (!ans.isEmpty() && ans.endsWith("+"))
 						ans = ans.substring(0,ans.length()-1);
@@ -1456,7 +1467,9 @@ public class KnowledgeRepresenter {
 					}
 					//continue;
 				}
+				System.out.println("aabb");
 			}
+			System.out.println("aa");
 			it1 = story.entrySet().iterator();
 			entity = ""; ans = "";
 			while (it1.hasNext()) {

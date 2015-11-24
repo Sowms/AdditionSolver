@@ -125,6 +125,7 @@ public class SentencesAnalyzer {
 		aggregators.add("combine");
 		aggregators.add("combined");
 		aggregators.add("sum");
+		aggregators.add(" far ");
 		
 		differences.add(" left ");
 		differences.add(" remain");
@@ -519,7 +520,7 @@ public class SentencesAnalyzer {
     		sentenceEntities.add(newEntity);
     		}
 		}
-		if (newEntity.value == null || newEntity.value.equals("some") || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ") || sentence.toString().contains("?")) {
+		if (newEntity.value == null || newEntity.value.equals("some") && !keywordMap.containsKey(verb) || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ") || sentence.toString().contains("?")) {
 			////////System.out.println(sentence);
 			
 			isQuestion = true;
