@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Last year , 90171 people were born in a country , and 16320 people immigrated to it . How many new people began living in the country last year ? ", pipeline);
+		solveWordProblems("Joan found 70 seashells on the beach . she gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam ? ", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
@@ -21,6 +21,7 @@ public class WordProblemSolver {
 	    KnowledgeRepresenter.clear();
 	    KnowledgeRepresenter.represent(extractedInformation, simplifiedProblem);
 	    KnowledgeRepresenter.solve();
+	    System.out.println(KnowledgeRepresenter.explanation);
 	    System.out.println(KnowledgeRepresenter.finalAns.replace(".0 ", " "));
 	    return KnowledgeRepresenter.finalAns.replace(".0 ", "");
 	}

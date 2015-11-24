@@ -83,6 +83,7 @@ public class KnowledgeRepresenter {
 	static ArrayList<String> allEquations = new ArrayList<String>();
 	static ArrayList<String> ignoreWords = new ArrayList<String>();
 	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();
+	static String explanation;
 	
 	
 
@@ -191,6 +192,7 @@ public class KnowledgeRepresenter {
 		questionOwner1 = "";
 		questionOwner2 = "";
 		finalAns = "";
+		explanation  = "";
 
 		story = new HashMap<String,Situation>();
 		variables = new HashMap<String,String>();
@@ -241,6 +243,7 @@ public class KnowledgeRepresenter {
 		Set existingValue = new Set();
 		String lhs = "", rhs = value.cardinality;
 		System.out.println(lhs+"|"+rhs);
+		boolean changeFlag = false;
 		for (TimeStamp t : newState) {
 			if (lhs.isEmpty() && rhs.contains("x") || rhs.isEmpty() && lhs.contains("x"))
 				break;
@@ -287,6 +290,9 @@ public class KnowledgeRepresenter {
 				Set unknown;
 				if (lhs.contains("x") || rhs.contains("x")) {
 					String ans = EquationSolver.getSolution(lhs + "=" + rhs);
+					explanation = explanation + "Hence, " + owner + " " + verbQual + " " + lhs + " " +entity + ".\n";
+					explanation = explanation + "Now, " + owner + " " + verbQual + " " + rhs + " " + entity + ".\n";
+					explanation = explanation + "Therefore, " + lhs + " = " + rhs; 
 					Set replace = null;
 					if (lhs.contains("x")) 
 						replace = existingValue;
@@ -299,9 +305,14 @@ public class KnowledgeRepresenter {
 					replace.components.put(unknown.name, unknown);
 					sets.put(unknown.name, unknown);
 					replace.computeCardinality();
+					changeFlag = true;
 				}
 			}
 		}
+		if (!value.cardinality.contains("x") && !changeFlag)
+			explanation = explanation + owner + " " + verbQual + " " + value.cardinality + " " + entity + ".\n";
+		else if (value.cardinality.equals("x"))
+			explanation = explanation + owner + " " + verbQual + " x " + entity + ".\n";
 		TimeStamp t = new TimeStamp();
 		t.time = time;
 		t.value = value;
@@ -310,8 +321,11 @@ public class KnowledgeRepresenter {
 		newState.add(t);
 		newSituation.put(verbQual,newState);
 		story.put(owner, newSituation);
-		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has") && !ignoreWords.contains(verbQual)) 
+		String temp = explanation;
+		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has") && !ignoreWords.contains(verbQual)) { 
 			updateTimestamp(owner,value,tense,"has",entity);
+			explanation = temp;
+		}
 	}
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
 			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
@@ -966,7 +980,10 @@ public class KnowledgeRepresenter {
 				ans = ans.substring(0,ans.length()-1);
 				if (!question.contains(ans)) {
 					if (ans.contains("+") && !question.contains(EquationSolver.getSolution(ans).replace(".0", ""))) {
+						explanation = explanation + "Altogether " + ans + " " + questionEntity + ".\n";
 						finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+						explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0", "") + ".";
+						System.out.println(explanation);
 						return;
 					}
 				}
@@ -1168,7 +1185,10 @@ public class KnowledgeRepresenter {
 			System.out.println("a"+ans);
 			if (!ans.isEmpty() && !question.contains(ans)) {
 				if (ans.contains("+") && !(question.contains(EquationSolver.getSolution(ans).replace(".0", "")+" "+questionEntity))) {
+					explanation = explanation + "Altogether " + ans + " " + questionEntity + ".\n";
 					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0","")+ ".";;
+					System.out.println(explanation);
 					return;
 				}
 			}
@@ -1241,7 +1261,10 @@ public class KnowledgeRepresenter {
 						ans = ans.substring(0,ans.length()-1);
 					if (questionEntity.isEmpty())
 						questionEntity = entities.iterator().next();
+					explanation = explanation + "Altogether " + ans + " " + questionEntity + ".\n";
 					finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+					explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0","")+ ".";
+					System.out.println(explanation);
 					return;
 				}
 			}
@@ -1252,7 +1275,10 @@ public class KnowledgeRepresenter {
 			if (ans.startsWith("0+"))
 				ans = ans.replace("0+", "");
 			if (!ans.isEmpty() && !question.contains(ans) && !ans.contains("x")) {
+				explanation = explanation + "Altogether " + ans + " " + questionEntity + "\n";
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0","");;
+				System.out.println(explanation);
 				return;
 			}
 			ans = "";
@@ -1273,7 +1299,10 @@ public class KnowledgeRepresenter {
 					ans = ans.substring(0,ans.length()-1);
 				if (questionEntity.isEmpty())
 					questionEntity = entities.iterator().next();
+				explanation = explanation + "Altogether " + ans + " " + questionEntity + ".\n";
 				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0","")+ ".";
+				System.out.println(explanation);
 				return;
 			}
 			if (ans.isEmpty()) {
@@ -1288,7 +1317,10 @@ public class KnowledgeRepresenter {
 				System.out.println("s" + sum);
 				if (questionEntity.isEmpty() && !entities.isEmpty())
 					questionEntity = entities.iterator().next();
-				finalAns = "Altogether " + EquationSolver.getSolution(sum) + " " + questionEntity;
+				explanation = explanation + "Altogether " + ans + " " + questionEntity + "\n";
+				finalAns = "Altogether " + EquationSolver.getSolution(ans) + " " + questionEntity;
+				explanation = explanation + "Hence, a" + finalAns.substring(1,finalAns.length()).replace(".0","");;
+				System.out.println(explanation);
 				return;
 			}
 		}
