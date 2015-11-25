@@ -271,13 +271,20 @@ public class KnowledgeRepresenter {
 					
 					if (Double.parseDouble(rhs) > Double.parseDouble(lhs)) {
 						t1.value = Set.difference(value, t.value);
+						explanation = explanation + "Now, " + owner + " " + verbQual + " " + rhs + " " + entity + ".\n";
+						explanation = explanation + "Hence, " + owner + " got " + t1.value.cardinality + " " +entity + ".";
+						changeFlag = true;
 						sets.put(t1.value.name, t1.value);
 						t1.entity = entity;
 						tempState.add(t1);
 						newSituation.put("get", tempState);
+						
 					}
 					if (Double.parseDouble(rhs) < Double.parseDouble(lhs)) {
 						t1.value = Set.difference(t.value, value);
+						explanation = explanation + "Now, " + owner + " " + verbQual + " " + rhs + " " + entity + ".\n";
+						explanation = explanation + "Hence, " + owner + " lost " + t1.value.cardinality + " " +entity + ".\n";
+						changeFlag = true;
 						sets.put(t1.value.name, t1.value);
 						t1.entity = entity;
 						tempState.add(t1);
@@ -322,6 +329,9 @@ public class KnowledgeRepresenter {
 		newSituation.put(verbQual,newState);
 		story.put(owner, newSituation);
 		String temp = explanation;
+		if (verbQual.endsWith("s") && !verbQual.equals("has"))
+			verbQual = verbQual.substring(0,verbQual.length()-1);
+		System.out.println(verbQual+"aa");//return;
 		if (!keywordMap.containsKey(verbQual) && !verbQual.equals("has") && !ignoreWords.contains(verbQual)) { 
 			updateTimestamp(owner,value,tense,"has",entity);
 			explanation = temp;
@@ -355,9 +365,10 @@ public class KnowledgeRepresenter {
 			verbQual = keyword;
 		}
 		if ((verbQual.equals("buy") || verbQual.equals("pay")) && newEntity.name != null && newEntity.name.contains("dollar")) {
-			verbQual = "spend";
-			keyword = verbQual;
+			keyword = "spend";
 			procedure = keywordMap.get(keyword);
+			verbQual = "spends";
+			
 			//System.out.println("check"+verbQual+procedure);
 		}
 		
@@ -448,7 +459,7 @@ public class KnowledgeRepresenter {
 			String verb = verbQual;
 			if (verbQual.equals("has") && !currentSituation.isEmpty()) {
 					verb = currentSituation.entrySet().iterator().next().getKey();
-					if (keywordMap.containsKey(verb)) 
+					if (keywordMap.containsKey(verb) || keywordMap.containsKey(verb.substring(0, verb.length()-1))) 
 						verb = "has";
 			}
 			if (newEntity.value.isEmpty()) {
@@ -457,7 +468,10 @@ public class KnowledgeRepresenter {
 				varCount++;
 			}
 			//System.out.println(verbQual+"||"+verb);
-			updateTimestamp (owner, newSet, tense, verb, entity);
+			if (!verb.equals("has") && !verb.endsWith("s"))
+				updateTimestamp (owner, newSet, tense, verb + "s", entity);
+			else
+				updateTimestamp (owner, newSet, tense, verb, entity);
 			displayStory();
 		}
 		if (entities.contains(owner1))
@@ -547,7 +561,7 @@ public class KnowledgeRepresenter {
 		System.err.println("aa"+oldValue1.name+"|"+oldValue2.name+"|"+owner1);		
 		//System.err.println("aa"+timeStep);
 		String[] steps = procedureMap.get(procedure).split("\\.");
-		//System.out.println(procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1 + "|" + owner2 + "|" + oldValue2);
+		System.out.println("AA"+procedure + "|" + procedureMap.get(procedure) + "|" + steps.length + owner1 + "|" + oldValue1.cardinality + "|" + owner2 + "|" + oldValue2.cardinality);
 		if (steps.length > NO_OWNERS_SUPPORTED) {
 			//System.out.println("Invalid procedure description");
 			System.exit(0);
@@ -596,7 +610,8 @@ public class KnowledgeRepresenter {
 				changeSet = split.equals("\\+") ? Set.union(A, B) : Set.difference(A, B);
 				changeSet.components.putAll(A.components);
 				changeSet.components.putAll(B.components);
-				updateTimestamp(owner, changeSet, tense, verb, entity);
+				updateTimestamp (owner, changeSet, tense, verb, entity);
+				
 			}
 			else {
 				allEquations.add(step);
@@ -701,7 +716,8 @@ public class KnowledgeRepresenter {
 				Entry<String, State> e1 = it1.next();
 				State newState = new State();
 				String verb = e1.getKey();
-				if (keywordMap.containsKey(verb)) {
+				if (keywordMap.containsKey(verb) || keywordMap.containsKey(verb.replace("s", ""))) {
+					System.out.println("VV"+verb);
 					newState.addAll(e1.getValue());
 					newSituation.put(verb, newState);
 					continue;
@@ -960,6 +976,7 @@ public class KnowledgeRepresenter {
 				ans = v1 + "-" + v2;
 			else
 				ans = v2 + "-" + v1;
+			explanation = explanation + questionOwner1 + " " + questionVerb + " " + ans + " " + questionEntity + "than" + questionOwner2;
 			finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity + "than" + questionOwner2;
 			return;
 		}
@@ -1418,6 +1435,7 @@ public class KnowledgeRepresenter {
 			}
 			System.out.println(complete+"|"+subset);
 			String ans = EquationSolver.getSolution(complete.cardinality + "-" + subset.cardinality);
+			explanation = explanation + story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + complete.cardinality + "-" + subset.cardinality + " " + questionEntity;
 			finalAns = story.entrySet().iterator().next().getKey() + " " + questionVerb + " " + ans + " " + questionEntity;
 			return;
 		}

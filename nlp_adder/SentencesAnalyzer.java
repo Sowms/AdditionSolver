@@ -185,7 +185,7 @@ public class SentencesAnalyzer {
 	}
 	public boolean isAntonym (String question) {
 		for (String verb : verbs) {
-			////System.err.println(verb);
+			//////System.err.println(verb);
 			if (isAntonym(verb,question)) {
 				////////////System.out.println("anti"+verb+"|"+word);
 				return true;
@@ -212,7 +212,7 @@ public class SentencesAnalyzer {
 		    			verbs.add(verb);
 		    			//////////System.out.println("haa"+pos+"|"+lemma+"|"+verbOrig);
 		    		}
-		    		//////////////System.err.println("ervb"+verb+"|"+sentence.toString());
+		    		////////////////System.err.println("ervb"+verb+"|"+sentence.toString());
 		    		if ((pos.contains(POS_VBD) || pos.contains(POS_VBN)) && tense.isEmpty())
 			    		tense = PAST;
 		    		else if (tense.isEmpty() && pos.contains(POS_VERB))
@@ -234,7 +234,7 @@ public class SentencesAnalyzer {
 		    	}
 			}
 	    	////////////System.out.println(verb);
-	    	//////////////////////////System.err.println(sentence.toString()+tense);
+	    	////////////////////////////System.err.println(sentence.toString()+tense);
 	    	SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    	////////////////System.out.println(dependencies);
 	    	ArrayList<SemanticGraphEdge> edges = (ArrayList<SemanticGraphEdge>) dependencies.edgeListSorted();
@@ -265,7 +265,7 @@ public class SentencesAnalyzer {
     			newEntity = new Entity();
     			newEntity.name = edge.getSource().originalText();
     			entities.add(edge.getSource().lemma());
-    			//System.err.println("waka"+newEntity.name+edge);
+    			////System.err.println("waka"+newEntity.name+edge);
     			IndexedWord intermediateNode = edge.getSource();
     			IndexedWord nnNode = null, jjNode = null, secondNode = null;
     			for (SemanticGraphEdge innerEdge : edges) {
@@ -357,7 +357,7 @@ public class SentencesAnalyzer {
         	    	prevWord = word;
         	    	prevLemma = lemma;
         		}
-        		//System.err.println("waka"+newEntity.name+edges);
+        		////System.err.println("waka"+newEntity.name+edges);
     			entities.add(newEntity.name);
     			sentenceEntities.add(newEntity);
     		}
@@ -444,7 +444,7 @@ public class SentencesAnalyzer {
 										if (innerRelation.contains(PARSER_NN))
 											nnNode = innerEdge.getTarget();
 										else
-											jjNode = innerEdge.getTarget();
+											jjNode = innerEdge.getTarget(); 
 									}
 								}
 							}
@@ -473,7 +473,7 @@ public class SentencesAnalyzer {
 			if (owner1.isEmpty() || !entities.contains(owner1))
 				owner2 = "";
 		boolean someFlag = false;
-		////System.err.println(owner1+"|"+owner2+"|"+newEntity.value);
+		//////System.err.println(owner1+"|"+owner2+"|"+newEntity.value);
 		if (newEntity.value == null) {
 		for (String name : entities) {
 			if (sentence.toString().contains(name) && !sentence.toString().toLowerCase().contains("how") && !sentence.toString().contains(" a "+name) && !owner1.contains(name) && !name.contains(owner1)) {
@@ -499,7 +499,7 @@ public class SentencesAnalyzer {
 				break;
 			}
 		}}
-		////////////System.err.println(someFlag);
+		//////////////System.err.println(someFlag);
 		if (sentence.toString().contains(" some ") || sentence.toString().contains(" several ") || sentence.toString().contains(" rest ") || sentence.toString().contains(" few ") || someFlag) {
 		    if (newEntity.value == null) {
 		    	ArrayList<CoreLabel> tokens = (ArrayList<CoreLabel>) sentence.get(TokensAnnotation.class);
@@ -626,12 +626,15 @@ public class SentencesAnalyzer {
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";
 			s.verbQual = verb;
+			if (!s.verbQual.equals("has"))
+				s.verbQual = s.verbQual + "s";
+			//System.err.println(s.verbQual);
 			s.entityValue = newEntity.value;
 			s.procedureName = keywordMap.get(keyword);
 			s.keyword = keyword;
 			s.aggregator = false;
 			for (String aggregator : aggregators) {
-				//System.err.println(sentence.toString().contains(aggregator)+aggregator+sentence);
+				////System.err.println(sentence.toString().contains(aggregator)+aggregator+sentence);
 				if (sentence.toString().contains(aggregator))
 					s.aggregator = true;	
 			}
@@ -650,7 +653,7 @@ public class SentencesAnalyzer {
 			s.setCompletor = isAntonym(sentence.toString());
 			//System.out.println(preprocessedSteps.size());
 			for (LinguisticStep ls : preprocessedSteps) {
-				//System.err.println(ls.aggregator);
+				////System.err.println(ls.aggregator);
 				if (ls.aggregator)
 					s.setCompletor = true;
 			}
@@ -658,7 +661,7 @@ public class SentencesAnalyzer {
 			steps.add(s);
     	}
 		if (newEntity.value != null && !sentence.toString().toLowerCase().contains("what ") && !sentence.toString().toLowerCase().contains("how ")) {
-			//////////System.err.println("b"+entities+owner1+owner2);
+			////////////System.err.println("b"+entities+owner1+owner2);
 			for (Entity e : sentenceEntities) {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
@@ -685,7 +688,7 @@ public class SentencesAnalyzer {
 							owner2 = owner;
 					}
 				}
-				////////////System.err.println(owner1 + "|" + owner2);
+				//////////////System.err.println(owner1 + "|" + owner2);
 				s.owner2 = owner2;
 				//////////////System.out.println(owners);
 				if (!entities.contains(owner2) && !owner2.trim().isEmpty())
@@ -717,6 +720,10 @@ public class SentencesAnalyzer {
 				if (s.aggregator && !owner1.isEmpty() && !owner2.isEmpty())
 					s.procedureName = "altogetherEq";
 				//System.out.println("oo" + owner1 + owner2 + entities+sentence.toString()+s.aggregator);
+				if (!s.verbQual.equals("has"))
+					s.verbQual = s.verbQual + "s";
+				//System.err.println(s.verbQual);
+				
 				if (!(entities.contains(owner1) && owner2.isEmpty() && !owner1.isEmpty()))
 					steps.add(s);
 				else if (entities.contains(owner1)) {
