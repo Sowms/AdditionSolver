@@ -105,6 +105,7 @@ public class ExtractAttributes {
         String problem = "Joan has 3 apples. She gave 2 of them to Sam. How many apples does she have now?";
         String simplifiedProblem = Parser.parse(problem, pipeline);
         double avgLength = ((double) (problem.split(" ").length))/(problem.split("\\.").length);
+        double numLength = 0, normaliser = 0;
         LinguisticInfo extractedInformation = (new SentencesAnalyzer()).extract(simplifiedProblem, pipeline);
         extractedInformation = OrderSteps.order(extractedInformation);
         System.out.println(extractedInformation.entities);
@@ -132,8 +133,11 @@ public class ExtractAttributes {
             SPhraseSpec p = nlgFactory.createClause();
             p.setSubject(sentence.owner1);
             p.setVerb(sentence.verbQual);
-            if (!(sentence.entityValue == null && sentence.isQuestion))
+            if (!(sentence.entityValue == null && sentence.isQuestion)) {
             	p.setObject(sentence.entityValue + " " + sentence.entityName);
+            	numLength = numLength + sentence.entityValue.length();
+            	normaliser++;
+            }
             else
             	p.setObject(sentence.entityName);
             if (!sentence.owner2.isEmpty()) {
@@ -165,7 +169,9 @@ public class ExtractAttributes {
             System.out.println(output2);
      
         }
-        System.out.println("avgLength = " + avgLength); 
+        numLength = numLength/normaliser;
+        System.out.println("avgLength = " + avgLength);
+        System.out.println("avgDigitLength = " + numLength);
         System.out.println(schemas);
     	/*String schemaGrammar = "";
     	try {
