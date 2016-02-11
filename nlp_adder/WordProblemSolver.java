@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Joan found 70 seashells on the beach . she gave Sam some of her seashells . She has 27 seashell . How many seashells did she give to Sam ? ", pipeline);
+		solveWordProblems("In a town, there are 9238 men, 8928 women, and 8989 children. Find the total population of the town.", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

@@ -215,6 +215,7 @@ public class KnowledgeRepresenter {
 
 	private static void updateTimestamp (String owner, Set value, 
 			String tense, String verbQual, String entity) {
+		owner = owner.toLowerCase();
 		System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual+"|"+entity);
 		String changeTime = "";
 		if (tense.equals(PAST) && storyTense.contains(PRESENT))

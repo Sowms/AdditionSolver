@@ -5,21 +5,30 @@ import java.util.ArrayList;
 public class OrderSteps {
 
 	private static ArrayList<String> allTenses = new ArrayList<>();
+	private static ArrayList<String> allVerbs = new ArrayList<>();
 	public static LinguisticInfo order(LinguisticInfo info) {
 		LinguisticInfo newInfo = new LinguisticInfo();
 		newInfo.entities = info.entities;
 		newInfo.owners = info.owners;
 		newInfo.sentences = new ArrayList<>();
 		allTenses = new ArrayList<>();
+		allVerbs = new ArrayList<>();
 		boolean reduceFlag = false;
+		
 		String reduceEntity = ""; 
 		int count = 0;
 		for (LinguisticStep step : info.sentences) {
 		    String tense = step.tense;
-		    System.err.println(step.owner1+step.verbQual);
+		    
+		    System.err.println(step.verbQual);
 		    if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
 				newInfo.sentences.add(0,step);
-			else if (tense.equals("past") && allTenses.contains("present") && !allTenses.contains("past") && step.isQuestion) {
+		    boolean checkVerb = false;
+		    if (!step.verbQual.equals("has") && !allVerbs.contains(step.verbQual))
+		    	checkVerb = true;
+		    else if (step.verbQual.equals("has"))
+		    	checkVerb = true;
+			if (tense.equals("past") && checkVerb && allTenses.contains("present") && !allTenses.contains("past") && step.isQuestion) {
 				LinguisticStep temp = new LinguisticStep();
 				temp.entityName = step.entityName;
 				temp.owner1 = step.owner1;
@@ -44,6 +53,7 @@ public class OrderSteps {
 				reduceEntity = step.entityName;
 			}
 			allTenses.add(tense);
+			allVerbs.add(step.verbQual);
 			count++;
 			
 		}

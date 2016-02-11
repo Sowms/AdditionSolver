@@ -387,11 +387,11 @@ public class SentencesAnalyzer {
     						//////////////System.out.println(nnNode);
     						if (nnNode != null) {
     	    					owners.add(owner1);
-    							owner1 = nnNode.originalText().toLowerCase() + " " + owner1;
+    							owner1 = nnNode.originalText() + " " + owner1;
     						}
     						else if (jjNode != null) {
     							owners.add(owner1);
-    							owner1 = jjNode.originalText().toLowerCase() + " " + owner1;
+    							owner1 = jjNode.originalText() + " " + owner1;
     						}
     						//////////////System.out.println(owner1);
     					//}
@@ -419,11 +419,11 @@ public class SentencesAnalyzer {
     						//////////////System.out.println(nnNode);
     						if (nnNode != null) {
     	    					owners.add(owner2);
-    							owner2 = nnNode.originalText().toLowerCase() + "_" + owner2;
+    							owner2 = nnNode.originalText() + " " + owner2;
     						}
     						else if (jjNode != null) {
     							owners.add(owner2);
-    							owner2 = jjNode.originalText().toLowerCase() + "_" + owner2;
+    							owner2 = jjNode.originalText() + " " + owner2;
     						}
     						////////////System.out.println("aa"+owner2);
     					}	
@@ -452,11 +452,11 @@ public class SentencesAnalyzer {
 						//////////////System.out.println(nnNode);
 						if (nnNode != null) {
 	    					owners.add(owner2);
-							owner2 = nnNode.originalText().toLowerCase() + "_" + owner2;
+							owner2 = nnNode.originalText() + " " + owner2;
 						}
 						else if (jjNode != null) {
 							owners.add(owner2);
-							owner2 = jjNode.originalText().toLowerCase() + "_" + owner2;
+							owner2 = jjNode.originalText() + " " + owner2;
 						}//////////////System.out.println(owner1);
 					}	
     			}
@@ -666,7 +666,7 @@ public class SentencesAnalyzer {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
 				tempEntity.name = e.name;
-				////////System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
+				System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				if ((entities.contains(owner1) || entities.contains(owner2)) && !e.name.isEmpty() && (!entities.contains(e.name) || !owners.contains(e.name))) {
 					if (entities.contains(owner1) && !entities.contains(e.name)) {
 						String entity = owner1;

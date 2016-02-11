@@ -13,6 +13,8 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 public class TextDatasetTester {
 	public static boolean checkAns(String sysAns, String ans) {
+		if (sysAns == null || ans == null)
+			return false;
 		if (sysAns.contains(ans))
 			return true;
 		Pattern wordPattern = Pattern.compile("\\d+\\.\\d+|\\d+");
@@ -34,9 +36,9 @@ public class TextDatasetTester {
 	    int count = 0, total = 0;
 		try {
  			String sCurrentLine;
- 			br1 = new BufferedReader(new FileReader("q2.txt"));
- 			br2 = new BufferedReader(new FileReader("ans2.txt"));
- 			br = new BufferedWriter(new FileWriter("output5"));
+ 			br1 = new BufferedReader(new FileReader("qcbse.txt"));
+ 			br2 = new BufferedReader(new FileReader("acbse.txt"));
+ 			br = new BufferedWriter(new FileWriter("cbse"));
  			while ((sCurrentLine = br1.readLine()) != null) {
  				String sysAns = "", ques = sCurrentLine, ans = br2.readLine();
 				try{
