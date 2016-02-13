@@ -494,6 +494,8 @@ public class KnowledgeRepresenter {
 		timeStrings.add("today");
 		timeStrings.add("yesterday");
 		timeStrings.add("tomorrow");
+		owner1 = owner1.toLowerCase();
+		owner2 = owner2.toLowerCase();
 		for (String timeString : timeStrings) {
 			if (entity.contains(timeString))
 				entity = entity.replace(timeString, "");
@@ -505,6 +507,7 @@ public class KnowledgeRepresenter {
 			State verbStory = story.get(owner1).get(retrieve);
 			//modularize
 			for (TimeStamp currentTimeStamp : verbStory) {
+				System.out.println("cc"+currentTimeStamp.entity+"|"+entity);
 				if (currentTimeStamp.entity.contains(entity) || entity.contains(currentTimeStamp.entity)) {
 					oldValue1 = currentTimeStamp.value;
 				}

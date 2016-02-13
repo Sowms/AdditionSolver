@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("In a town, there are 9238 men, 8928 women, and 8989 children. Find the total population of the town.", pipeline);
+		solveWordProblems("Katherine had 9 chocolates. Katherine took 7 chocolates from Mary. How many chocolates belong to Katherine?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {
