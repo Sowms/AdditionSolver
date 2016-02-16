@@ -16,6 +16,8 @@ import simplenlg.realiser.english.Realiser;
 
 public class ProblemGenerator {
 	static HashMap<String,String> procedureMap = new HashMap<String,String>();
+	static HashMap<String,String> owner2Map = new HashMap<String,String>();
+	static HashMap<String,String> objectMap = new HashMap<String,String>();
     static HashMap<String,String> keywordMap = new HashMap<String,String>();
     private static final String CHANGE_OUT = "changeOut";
     private static final String CHANGE_IN = "changeIn";
@@ -25,7 +27,15 @@ public class ProblemGenerator {
     private static final String REDUCTION = "reduction";
     private static final String ALTOGETHER_EQ = "altogetherEq";
     private static final String COMPARE_PLUS_EQ = "comparePlusEq";
+    private static final String PLACE = "place";
+    private static final String PERSON = "person";
+    private static final String FOREST = "forest";
+    private static final String CONTAINER = "container";
     private static final String COMPARE_MINUS_EQ = "compareMinusEq";
+	private static final String LIQUID = "liquid";
+	private static final String FOOD = "food";
+	private static final String MONEY = "money";
+	private static final String PLANT = "plant";
     
     public static void loadProcedureLookup() {
 		keywordMap.put("put", CHANGE_OUT);
@@ -37,13 +47,11 @@ public class ProblemGenerator {
 		keywordMap.put("give", CHANGE_OUT);
 		keywordMap.put("load", CHANGE_OUT);
 		keywordMap.put("pour", CHANGE_OUT);
-		keywordMap.put("build", CHANGE_OUT);
 		keywordMap.put("more than", COMPARE_PLUS);
 		keywordMap.put("less than", COMPARE_MINUS);
 		keywordMap.put("get", CHANGE_IN);
 		keywordMap.put("buy", CHANGE_IN);
 		keywordMap.put("pick", CHANGE_IN);
-		keywordMap.put("cut", CHANGE_IN);
 		keywordMap.put("take", CHANGE_IN);
 		keywordMap.put("receive", CHANGE_IN);
 		keywordMap.put("borrow", CHANGE_IN);
@@ -57,16 +65,38 @@ public class ProblemGenerator {
 		keywordMap.put("remove", REDUCTION);
 		keywordMap.put("spend", REDUCTION);
 		keywordMap.put("eat", REDUCTION);
-		keywordMap.put("more", INCREASE);
-		keywordMap.put("immigrate", INCREASE);
 		keywordMap.put("increase", INCREASE);
 		keywordMap.put("carry", INCREASE);
 		keywordMap.put("saw", REDUCTION);
-		keywordMap.put("taller", INCREASE);
+		//keywordMap.put("taller", INCREASE);
 		//keywordMap.put("find", INCREASE);
 		keywordMap.put("decrease", REDUCTION);
 		//keywordMap.put("break", REDUCTION);
 		keywordMap.put("finish", REDUCTION);
+		
+		owner2Map.put("put", PLACE);
+		owner2Map.put("place", PLACE);
+		owner2Map.put("plant", FOREST);
+		owner2Map.put("stack", PLACE);
+		owner2Map.put("add", PLACE);
+		owner2Map.put("sell", PERSON);
+		owner2Map.put("give", PERSON);
+		owner2Map.put("load", PLACE);
+		owner2Map.put("pour", PLACE);
+		owner2Map.put("more than", PERSON);
+		owner2Map.put("less than", PERSON);
+		owner2Map.put("get", PERSON);
+		owner2Map.put("buy", PERSON);
+		owner2Map.put("pick", PLACE);
+		owner2Map.put("take", PERSON);
+		owner2Map.put("receive", PERSON);
+		owner2Map.put("borrow", PERSON);
+		
+		objectMap.put("spill", LIQUID);
+		objectMap.put("pour", LIQUID);
+		objectMap.put("eat", FOOD);
+		objectMap.put("plant", PLANT);
+		objectMap.put("spend", MONEY);
 		
 		procedureMap.put(CHANGE_OUT, "[owner1]-[entity].[owner2]+[entity]");
 		procedureMap.put(CHANGE_IN, "[owner1]+[entity].[owner2]-[entity]");
@@ -84,23 +114,49 @@ public class ProblemGenerator {
     	return persons[randIndex];
     }
     public static String getPlace() {
-    	String[] persons = {"basket", "bowl", "room", "cup"};
+    	String[] persons = {"a basket", "a bowl", "a plate", "a cup"};
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return persons[randIndex];
     }
+    public static String getLiquid() {
+    	String[] liquids = {"oil", "water", "milk", "honey"};
+    	int randIndex = (int) Math.floor(Math.random()*3);
+    	return liquids[randIndex];
+    }
+    public static String getPlants() {
+    	String[] plants = {"tree", "bush", "rose", "flower"};
+    	int randIndex = (int) Math.floor(Math.random()*3);
+    	return plants[randIndex];
+    }
+    public static String getForest() {
+    	String[] greens = {"a forest", "a park", "a garden", "the backyard"};
+    	int randIndex = (int) Math.floor(Math.random()*3);
+    	return greens[randIndex];
+    }
     public static String getEntity() {
-    	String[] entities = {"orange", "chocolate", "banana"};
+    	String[] entities = {"orange", "chocolate", "banana", "apple"};
+    	int randIndex = (int) Math.floor(Math.random()*3);
+    	return entities[randIndex];
+    }
+    public static String getMoney() {
+    	String[] entities = {"dollar", "euro", "rupee", "yen"};
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return entities[randIndex];
     }
 	public static String keywordSame(String problem, Attributes attributes) {
 		loadProcedureLookup();
 		String newProblem = "";
-		String owner1, owner2, keyword, entity;
+		String owner1, owner2 = "", keyword, entity;
 		int value1 = 0, value2 = 0 ;
 		owner1 = getPerson();
-		owner2 = getPerson();
-
+		keyword = attributes.keywords.get(0);
+		
+		switch (owner2Map.get(keyword)) {
+			case PLACE : owner2 = getPlace(); break;
+			case PERSON : owner2 = getPerson(); break;
+			case FOREST : owner2 = getForest(); break;
+		}
+		
 		String procedure = procedureMap.get(attributes.schemas.get(0));
 		if (attributes.numLength <= 1.0) {
 			value1 = (int)Math.floor(Math.random()*8) + 2;
@@ -127,7 +183,14 @@ public class ProblemGenerator {
 		
 		entity = getEntity();
 		
-		keyword = attributes.keywords.get(0);
+		if (objectMap.containsKey(keyword)) {
+			switch (objectMap.get(keyword)) {
+				case MONEY : entity = getMoney(); break;
+				case LIQUID : entity = getLiquid(); break;
+				case PLANT : entity = getPlants(); break;
+			}
+		}
+		
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
         NLGFactory nlgFactory = new NLGFactory(lexicon);
         Realiser realiser = new Realiser(lexicon);
@@ -149,10 +212,14 @@ public class ProblemGenerator {
 		object.addPreModifier(value2+"");
 		p.setObject(object);
 		PPPhraseSpec complement = null;
-		if (attributes.schemas.get(0).equals("CHANGE_OUT"))
-			complement = nlgFactory.createPrepositionPhrase("to");
-		else
+		/*if (attributes.schemas.get(0).equals("CHANGE_IN"))
 			complement = nlgFactory.createPrepositionPhrase("from");
+		else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
+			complement = nlgFactory.createPrepositionPhrase("in");
+		else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
+			complement = nlgFactory.createPrepositionPhrase("to");
+		else*/
+			complement = nlgFactory.createPrepositionPhrase("in");
 		complement.setComplement(owner2);
 		p.setComplement(complement);
 		newProblem = newProblem + " " + realiser.realiseSentence(p);
@@ -173,7 +240,7 @@ public class ProblemGenerator {
 	}
 	
 	public static void main(String[] args) {
-		String problem = "Joan has 3 apples. He took 2 apples from Mary. How many apples does he have now?";
+		String problem = "There are 7 crayons in the drawer and 6 crayons on the desk . Sam placed 4 crayons and 8 scissors on the desk . How many crayons are now there in total ? ";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);
