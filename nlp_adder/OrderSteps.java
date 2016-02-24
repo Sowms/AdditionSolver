@@ -19,8 +19,6 @@ public class OrderSteps {
 		int count = 0;
 		for (LinguisticStep step : info.sentences) {
 		    String tense = step.tense;
-		    
-		    System.err.println(step.verbQual);
 		    if (tense.equals("past") && allTenses.contains("present") && (step.procedureName == null || step.procedureName.isEmpty()) && !step.isQuestion)
 				newInfo.sentences.add(0,step);
 		    boolean checkVerb = false;
@@ -29,6 +27,8 @@ public class OrderSteps {
 		    else if (step.verbQual.equals("has"))
 		    	checkVerb = true;
 			if (tense.equals("past") && checkVerb && allTenses.contains("present") && !allTenses.contains("past") && step.isQuestion) {
+				System.err.println(step.entityName);
+			    
 				LinguisticStep temp = new LinguisticStep();
 				temp.entityName = step.entityName;
 				temp.owner1 = step.owner1;

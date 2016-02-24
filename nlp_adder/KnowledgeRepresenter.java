@@ -218,8 +218,8 @@ public class KnowledgeRepresenter {
 		owner = owner.toLowerCase();
 		System.out.println(owner + "|update|" +  "|" +timeStep +"|"+ verbQual+"|"+entity);
 		String changeTime = "";
-		if (tense.equals(PAST) && storyTense.contains(PRESENT))
-			changeTime  = "0";
+		if (tense.equals(PAST) && storyTense.contains(PRESENT) && (Collections.frequency(storyTense, PRESENT) == 1)) 
+				changeTime  = "0";
 		else
 			changeTime = timeStep + "";
 		storyTense.add(tense);
@@ -443,11 +443,11 @@ public class KnowledgeRepresenter {
 		String owner = "";
 		if (procedure == null)
 			procedure = "";
-		if (!procedure.isEmpty()) {
+		if (!procedure.isEmpty() || keywordMap.containsKey(keyword)) {
 			timeStep++;
-			inertia(owner1,owner2,newEntity.name);
+			//inertia(owner1,owner2,newEntity.name);
 		}
-		if (!procedure.contains("Eq") && (keyword.equals(verbQual) || keyword.isEmpty())) {	
+		if (!procedure.contains("Eq") && (keyword.equals(verbQual) || keyword.equals(verbQual.substring(0, verbQual.length()-1)) || keyword.isEmpty())) {	
 			if (entities.contains(owner1))
 				owner = owner2;
 			else
@@ -834,9 +834,9 @@ public class KnowledgeRepresenter {
 					isQuestionComparator = ls.comparator;
 				isQuestionSet = ls.setCompletor;
 				questionVerb = ls.verbQual;
-				//System.out.println("krq" + ls.owner1 + "|" + ls.owner2 + "|" + 
-				  // currentEntity.name + "|" + currentEntity.value + "|" + 
-				  //  ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual+ ls.aggregator);
+				System.out.println("krq" + ls.owner1 + "|" + ls.owner2 + "|" + 
+				   currentEntity.name + "|" + currentEntity.value + "|" + 
+				    ls.keyword + "|" + ls.procedureName + "|" + ls.tense +"|"+ls.verbQual+ ls.aggregator);
 				if (ls.entityValue == null)
 					continue;
 			}

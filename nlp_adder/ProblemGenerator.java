@@ -114,7 +114,7 @@ public class ProblemGenerator {
     	return persons[randIndex];
     }
     public static String getPlace() {
-    	String[] persons = {"a basket", "a bowl", "a plate", "a cup"};
+    	String[] persons = {"a basket", "a bowl", "a cupboard", "a cup"};
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return persons[randIndex];
     }
@@ -212,13 +212,13 @@ public class ProblemGenerator {
 		object.addPreModifier(value2+"");
 		p.setObject(object);
 		PPPhraseSpec complement = null;
-		/*if (attributes.schemas.get(0).equals("CHANGE_IN"))
+		if (attributes.schemas.get(0).equals("CHANGE_IN"))
 			complement = nlgFactory.createPrepositionPhrase("from");
 		else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
 			complement = nlgFactory.createPrepositionPhrase("in");
 		else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
 			complement = nlgFactory.createPrepositionPhrase("to");
-		else*/
+		else
 			complement = nlgFactory.createPrepositionPhrase("in");
 		complement.setComplement(owner2);
 		p.setComplement(complement);
@@ -229,9 +229,9 @@ public class ProblemGenerator {
     	subject.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
     	p.setSubject(subject);
     	p.setFeature(Feature.TENSE, Tense.PRESENT);
-    	VPPhraseSpec verb = nlgFactory.createVerbPhrase("belong");
+    	VPPhraseSpec verb = nlgFactory.createVerbPhrase("are");
     	p.setVerb(verb);
-    	complement = nlgFactory.createPrepositionPhrase("to");
+    	complement = nlgFactory.createPrepositionPhrase("with");
     	complement.setComplement(owner1);
     	p.setComplement(complement);
     	newProblem = newProblem + " " + realiser.realiseSentence(p);       
