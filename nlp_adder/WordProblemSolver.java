@@ -10,7 +10,7 @@ public class WordProblemSolver {
 		Properties props = new Properties();
 	    props.put("annotators", "tokenize, ssplit, pos, lemma, ner,parse,dcoref");
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-		solveWordProblems("Joan had some apples. Joan gave 5 apples to Mary. Now, Joan has 2 apples. How many apples did Joan have?", pipeline);
+		solveWordProblems("Joan had 6 apples. Joan gave some apples to Mary. Now, Joan has 2 apples. How many apples did Joan give?", pipeline);
 	}
 
 	public static String solveWordProblems(String problem, StanfordCoreNLP pipeline) {

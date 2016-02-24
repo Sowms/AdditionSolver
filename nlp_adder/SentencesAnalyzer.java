@@ -469,7 +469,7 @@ public class SentencesAnalyzer {
 			}
     		
     	}
-		//////////System.out.println("ssss"+owner1+"|"+owner2+"|"+newEntity.value);
+		System.out.println("ssss"+owner1+"|"+owner2+"|"+newEntity.value);
 		if (keyword.isEmpty() || !keyword.isEmpty() && !keywordMap.get(keyword).contains("change") && !keywordMap.get(keyword).contains("compare") && !keywordMap.get(keyword).contains("Eq"))
 			if (owner1.isEmpty() || !entities.contains(owner1))
 				owner2 = "";
@@ -521,8 +521,7 @@ public class SentencesAnalyzer {
     		sentenceEntities.add(newEntity);
     		}
 		}
-		//System.out.println(entities+"|"+owners);
-		if (newEntity.value == null || newEntity.value.equals("some") && !keywordMap.containsKey(verb) || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ") || sentence.toString().contains("?")) {
+		if (newEntity.value == null || newEntity.value.equals("some") || sentence.toString().toLowerCase().contains("how ") || sentence.toString().toLowerCase().contains("what ") || sentence.toString().contains("?")) {
 			//////////System.out.println(sentence);
 			
 			isQuestion = true;
@@ -625,8 +624,11 @@ public class SentencesAnalyzer {
 				s.entityName = questionEntity;
 			if (newEntity.name != null && !newEntity.name.equals(questionEntity) && newEntity.value.equals("some"))
 				s.entityName = newEntity.name;  
-			if (newEntity.value != null && !newEntity.value.equals("some"))
+			if (newEntity.value != null && !newEntity.value.equals("some")) {
+				s.owner1 = owner1;
+				s.owner2 = owner2;
 				s.entityValue = newEntity.value;
+			}
 			if (verb.equals("be") || verb.equals("have") || verb.equals("do"))
 				verb = "has";
 			s.verbQual = verb;
@@ -663,7 +665,8 @@ public class SentencesAnalyzer {
 			}
 			if (newEntity.value != null && newEntity.value.equals("some"))
 				s.isQuestion = false;
-			//System.out.println("q" + s.owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + s.entityName + "|" + s.entityValue);
+			System.out.println(newEntity.value);
+			System.out.println("q" + s.owner1 + "|" + s.owner2 + "|" + keyword + "|" + tense + "|" + s.entityName + "|" + s.entityValue);
 			steps.add(s);
     	}
 		if (newEntity.value != null && !newEntity.value.equals("some") && !sentence.toString().toLowerCase().contains("what ") && !sentence.toString().toLowerCase().contains("how ")) {
@@ -672,7 +675,6 @@ public class SentencesAnalyzer {
 				Entity tempEntity = new Entity();
 				tempEntity.value = e.value;
 				tempEntity.name = e.name;
-				//System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				if ((entities.contains(owner1) || entities.contains(owner2)) && !e.name.isEmpty() && (!entities.contains(e.name) || !owners.contains(e.name))) {
 					if (entities.contains(owner1) && !entities.contains(e.name)) {
 						String entity = owner1;
@@ -684,7 +686,7 @@ public class SentencesAnalyzer {
 						tempEntity.name = entity;
 					}
 				}
-				
+				System.out.println(owner1 + "|" + owner2 + "|" + keyword + "|" + tense + "|" + tempEntity.name + "|" + tempEntity.value);
 				LinguisticStep s = new LinguisticStep();
 				s.owner1 = owner1;
 				if (entities.contains(owner2)) {
