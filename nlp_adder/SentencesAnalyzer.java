@@ -459,7 +459,7 @@ public class SentencesAnalyzer {
 							owners.add(owner2);
 							owner2 = jjNode.originalText() + " " + owner2;
 						}
-						owners.add(owner1);
+						owners.add(owner2);
 					}	
     			}
     		}
@@ -586,7 +586,7 @@ public class SentencesAnalyzer {
     	    			questionOwner2 = prevWord.toLowerCase() + " " + word.toLowerCase();
     	    		else
     	    			questionOwner2 = word;
-    	    		//////////////System.out.println(questionOwner2);
+    	    		System.out.println(questionOwner2);
     	    		if (questionOwner2.equals(questionOwner1))
     	    			questionOwner2 = "";
     	    	}
@@ -595,7 +595,7 @@ public class SentencesAnalyzer {
     	    			questionOwner2 = prevLemma.toLowerCase() + " " + lemma;
     	    		else
     	    			questionOwner2 = lemma;
-    	    		//////////////System.out.println(questionOwner2);
+    	    		System.out.println(questionOwner2);
     	    		if (questionOwner2.equals(questionOwner1))
     	    			questionOwner2 = "";
     	    	}
@@ -603,7 +603,7 @@ public class SentencesAnalyzer {
     	    	prevLemma = lemma;
     		}
     		//////////////////////////System.out.println("a"+questionEntity);
-    		//////////////System.out.println("q"+"|"+sentence.toString()+"|"+questionOwner1+"|"+questionOwner2+"|"+questionEntity+"|"+entities);
+    		System.out.println("qo"+"|"+questionOwner1+questionOwner2+entities+owners);
     		//if (questionOwner.equals(DUMMY))
     			//questionOwner = "";
     		//System.out.println(entities.isEmpty() + questionOwner1);

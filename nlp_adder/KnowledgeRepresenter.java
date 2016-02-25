@@ -1088,7 +1088,7 @@ public class KnowledgeRepresenter {
 					//continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
 				isEvent = keywordMap.containsKey(verb);
-				if (keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1) && !isEvent)
+				if (keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1)) && !isEvent)
 					continue;
 				
 				for (TimeStamp t : candidate) {
@@ -1454,7 +1454,7 @@ public class KnowledgeRepresenter {
 				String owner = entry.getKey();
 				Situation currentSituation = entry.getValue();
 				ans = "";totalAns = "";
-				isEvent = keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1);
+				isEvent = keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1));
 				System.out.println(owner+"a");
 				if (currentSituation.containsKey(questionVerb)) {
 					questionOwner = owner;
