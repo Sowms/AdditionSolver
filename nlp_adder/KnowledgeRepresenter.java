@@ -854,7 +854,8 @@ public class KnowledgeRepresenter {
 	
 	public static void solve() {
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator+"|"+isQuestionComparator);
-		if (questionVerb.equals("spend"))
+                
+                if (questionVerb.equals("spend"))
 			questionEntity = "dollars";
 		if ((questionVerb.equals("buy") || questionVerb.equals("purchase")) && entities.contains("dollars")) 
 			questionEntity = "dollars";
@@ -883,8 +884,9 @@ public class KnowledgeRepresenter {
 			}
 		}
 		String verbTemp = questionVerb;
+                
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator);
-		boolean isEvent = keywordMap.containsKey(questionVerb);
+		boolean isEvent = keywordMap.containsKey(questionVerb.substring(0, questionVerb.length()-1));
 		if (isQuestionComparator && doesStory("lose"))
 			questionVerb = "lose";
 		else if (isQuestionComparator) {
@@ -1086,7 +1088,7 @@ public class KnowledgeRepresenter {
 					//continue;
 				//System.out.println(verb+"|"+candidate.get(0).value.name);
 				isEvent = keywordMap.containsKey(verb);
-				if (keywordMap.containsKey(questionVerb) && !isEvent)
+				if (keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1) && !isEvent)
 					continue;
 				
 				for (TimeStamp t : candidate) {
@@ -1452,7 +1454,7 @@ public class KnowledgeRepresenter {
 				String owner = entry.getKey();
 				Situation currentSituation = entry.getValue();
 				ans = "";totalAns = "";
-				isEvent = keywordMap.containsKey(questionVerb);
+				isEvent = keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1);
 				System.out.println(owner+"a");
 				if (currentSituation.containsKey(questionVerb)) {
 					questionOwner = owner;
@@ -1631,7 +1633,7 @@ public class KnowledgeRepresenter {
 		System.out.println(questionVerb+"AA");
 		ansState = story.get(questionOwner).get(questionVerb);
 		String ans = "", entity = "";
-		isEvent = keywordMap.containsKey(questionVerb);
+		isEvent = keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1));
 		for (TimeStamp t : ansState) {
 			if (questionEntity.isEmpty())
 				entity = t.entity;
@@ -1963,7 +1965,7 @@ public class KnowledgeRepresenter {
 			finalAns = questionOwner1 + " " + questionVerb + " " + EquationSolver.getSolution(ans) + " " + questionEntity + "than" + questionOwner2;
 			return;
 		}
-		isEvent = keywordMap.containsKey(questionVerb);
+		isEvent = keywordMap.containsKey(questionVerb.substring(0,questionVerb.length()-1));
 		ans = "";
 		ansState = story.get(questionOwner).get(questionVerb);
 		for (TimeStamp t : ansState) {

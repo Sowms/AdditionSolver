@@ -1,5 +1,6 @@
 package nlp_adder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import simplenlg.features.Feature;
@@ -19,7 +20,6 @@ public class ProblemGenerator {
 	static HashMap<String,String> owner2Map = new HashMap<String,String>();
 	static HashMap<String,String> objectMap = new HashMap<String,String>();
     static HashMap<String,String> keywordMap = new HashMap<String,String>();
-    
     private static final String CHANGE_OUT = "changeOut";
     private static final String CHANGE_IN = "changeIn";
     private static final String COMPARE_PLUS = "comparePlus";
@@ -115,7 +115,7 @@ public class ProblemGenerator {
     	return persons[randIndex];
     }
     public static String getPlace() {
-    	String[] persons = {"a basket", "a bowl", "a cupboard", "a cup"};
+    	String[] persons = {"a basket", "a bowl", "a plate", "a cup"};
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return persons[randIndex];
     }
@@ -152,14 +152,16 @@ public class ProblemGenerator {
 		owner1 = getPerson();
 		keyword = attributes.keywords.get(0);
 		
-		switch (owner2Map.get(keyword)) {
+                String procedure = procedureMap.get(attributes.schemas.get(0));
+                boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
+                if (owner2Flag) {
+                    switch (owner2Map.get(keyword)) {
 			case PLACE : owner2 = getPlace(); break;
 			case PERSON : owner2 = getPerson(); break;
 			case FOREST : owner2 = getForest(); break;
-		}
-		
-		String procedure = procedureMap.get(attributes.schemas.get(0));
-		if (attributes.numLength <= 1.0) {
+                    }
+                }
+                if (attributes.numLength <= 1.0) {
 			value1 = (int)Math.floor(Math.random()*8) + 2;
 			value2 = (int)Math.floor(Math.random()*8) + 2;
 		} else if (attributes.numLength <= 2.0) {
@@ -209,23 +211,25 @@ public class ProblemGenerator {
         p.setVerb(keyword);
         p.setFeature(Feature.TENSE, Tense.PAST);
         object = nlgFactory.createNounPhrase(entity);
-		object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
-		object.addPreModifier(value2+"");
-		p.setObject(object);
-		PPPhraseSpec complement = null;
-		if (attributes.schemas.get(0).equals("CHANGE_IN"))
-			complement = nlgFactory.createPrepositionPhrase("from");
-		else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
-			complement = nlgFactory.createPrepositionPhrase("in");
-		else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
-			complement = nlgFactory.createPrepositionPhrase("to");
-		else
-			complement = nlgFactory.createPrepositionPhrase("in");
-		complement.setComplement(owner2);
-		p.setComplement(complement);
-		newProblem = newProblem + " " + realiser.realiseSentence(p);
-		p = nlgFactory.createClause();
-		p.setFeature(Feature.INTERROGATIVE_TYPE,InterrogativeType.HOW_MANY);
+	object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
+	object.addPreModifier(value2+"");
+	p.setObject(object);
+        PPPhraseSpec complement = null;
+        if (owner2Flag) {
+            if (attributes.schemas.get(0).equals("CHANGE_IN"))
+		complement = nlgFactory.createPrepositionPhrase("from");
+            else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
+		complement = nlgFactory.createPrepositionPhrase("in");
+            else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
+		complement = nlgFactory.createPrepositionPhrase("to");
+            else
+		complement = nlgFactory.createPrepositionPhrase("in");
+            complement.setComplement(owner2);
+            p.setComplement(complement);
+        }
+	newProblem = newProblem + " " + realiser.realiseSentence(p);
+	p = nlgFactory.createClause();
+	p.setFeature(Feature.INTERROGATIVE_TYPE,InterrogativeType.HOW_MANY);
         NPPhraseSpec subject = nlgFactory.createNounPhrase(entity);
     	subject.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
     	p.setSubject(subject);
@@ -239,103 +243,9 @@ public class ProblemGenerator {
         //System.out.println(output2);
 		return newProblem;
 	}
-	public static String generateStory(String problem, Attributes attributes) {
-		loadProcedureLookup();
-		String newProblem = "";
-		String owner1, owner2 = "", keyword, entity;
-		int value1 = 0, value2 = 0 ;
-		owner1 = getPerson();
-		keyword = attributes.keywords.get(0);
-		
-		switch (owner2Map.get(keyword)) {
-			case PLACE : owner2 = getPlace(); break;
-			case PERSON : owner2 = getPerson(); break;
-			case FOREST : owner2 = getForest(); break;
-		}
-		
-		String procedure = procedureMap.get(attributes.schemas.get(0));
-		if (attributes.numLength <= 1.0) {
-			value1 = (int)Math.floor(Math.random()*8) + 2;
-			value2 = (int)Math.floor(Math.random()*8) + 2;
-		} else if (attributes.numLength <= 2.0) {
-			value1 = (int)Math.floor(Math.random()*98) + 2;
-			value2 = (int)Math.floor(Math.random()*98) + 2;
-		}
-		if (procedure.split("\\.")[0].contains("-")) {
-			while (value1 <= value2) {
-				if (attributes.numLength <= 1.0) {
-					value1 = (int)Math.floor(Math.random()*8) + 2;
-					value2 = (int)Math.floor(Math.random()*8) + 2;
-				} else if (attributes.numLength <= 2.0) {
-					value1 = (int)Math.floor(Math.random()*98) + 2;
-					value2 = (int)Math.floor(Math.random()*98) + 2;
-				}
-			}
-		}
-		while (owner1.equals(owner2)) {
-			owner1 = getPerson();
-			owner2 = getPerson();
-		}
-		
-		entity = getEntity();
-		
-		if (objectMap.containsKey(keyword)) {
-			switch (objectMap.get(keyword)) {
-				case MONEY : entity = getMoney(); break;
-				case LIQUID : entity = getLiquid(); break;
-				case PLANT : entity = getPlants(); break;
-			}
-		}
-		
-		Lexicon lexicon = Lexicon.getDefaultLexicon();
-        NLGFactory nlgFactory = new NLGFactory(lexicon);
-        Realiser realiser = new Realiser(lexicon);
-        SPhraseSpec p = nlgFactory.createClause();
-        p.setSubject(owner1);
-        p.setFeature(Feature.TENSE, Tense.PAST);
-        p.setVerb("has");
-        NPPhraseSpec object = nlgFactory.createNounPhrase(entity);
-		object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
-		object.addPreModifier(value1+"");
-		p.setObject(object);
-		newProblem = newProblem + realiser.realiseSentence(p);
-		p = nlgFactory.createClause();
-        p.setSubject(owner1);
-        p.setVerb(keyword);
-        p.setFeature(Feature.TENSE, Tense.PAST);
-        object = nlgFactory.createNounPhrase(entity);
-		object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
-		object.addPreModifier(value2+"");
-		p.setObject(object);
-		PPPhraseSpec complement = null;
-		if (attributes.schemas.get(0).equals("CHANGE_IN"))
-			complement = nlgFactory.createPrepositionPhrase("from");
-		else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
-			complement = nlgFactory.createPrepositionPhrase("in");
-		else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
-			complement = nlgFactory.createPrepositionPhrase("to");
-		else
-			complement = nlgFactory.createPrepositionPhrase("in");
-		complement.setComplement(owner2);
-		p.setComplement(complement);
-		newProblem = newProblem + " " + realiser.realiseSentence(p);
-		p = nlgFactory.createClause();
-		p.setFeature(Feature.INTERROGATIVE_TYPE,InterrogativeType.HOW_MANY);
-        NPPhraseSpec subject = nlgFactory.createNounPhrase(entity);
-    	subject.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
-    	p.setSubject(subject);
-    	p.setFeature(Feature.TENSE, Tense.PRESENT);
-    	VPPhraseSpec verb = nlgFactory.createVerbPhrase("are");
-    	p.setVerb(verb);
-    	complement = nlgFactory.createPrepositionPhrase("with");
-    	complement.setComplement(owner1);
-    	p.setComplement(complement);
-    	newProblem = newProblem + " " + realiser.realiseSentence(p);       
-        //System.out.println(output2);
-		return newProblem;
-	}
+	
 	public static void main(String[] args) {
-		String problem = "There are 7 crayons in the drawer and 6 crayons on the desk . Sam placed 4 crayons and 8 scissors on the desk . How many crayons are now there in total ? ";
+		String problem = "John had 7 apples. He ate 1 apple. How many apples does he have now?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);

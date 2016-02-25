@@ -167,10 +167,11 @@ public class SentencesAnalyzer {
 						String linkAddress = link.attr("abs:href");
 						String antonym = linkAddress.split("/")[linkAddress.split("/").length -1];
 						//////System.out.println(antonym+"|"+word);
-						if (question.contains(" " + antonym)) {
-							////////////System.out.println("aaaaaaaaaa"+word);
-							if (word.equals("have") || word.equals("has") || word.equals("does") || word.equals("is") || word.equals("be") || word.equals("do") || word.equals("did") || word.equals("be"))
+						if (question.contains(" " + antonym) && !antonym.isEmpty()) {
+							if (word.equals("have") || word.equals("has") || word.equals("does") || word.equals("is") || word.equals("be") || word.equals("do") || word.equals("did") || word.equals("had"))
 								continue;
+                                                        System.out.println("aaaaaaaaaa"+word+antonym);
+							
 							return true;
 						}
 					}
