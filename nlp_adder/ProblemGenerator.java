@@ -144,6 +144,45 @@ public class ProblemGenerator {
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return entities[randIndex];
     }
+    public static String genFromStory(LinguisticInfo info, String story) {
+    	String newProblem = "";
+    	HashMap<String,String> sets = new HashMap<String,String>();
+    	String[] lines = story.split("\\r?\\n");
+    	System.out.println(lines[0]);
+    	int counter = lines.length - 1;
+    	Lexicon lexicon = Lexicon.getDefaultLexicon();
+		NLGFactory nlgFactory = new NLGFactory(lexicon);
+        Realiser realiser = new Realiser(lexicon);
+        while (!lines[counter].contains("-----")) {
+        	System.out.println("aa"+lines[counter]);
+        	if (lines[counter].isEmpty()) {
+        		counter--;
+        		continue;
+        	}
+    		sets.put(lines[counter].split(" ")[0], lines[counter].split(" ")[1]);
+    		counter--;
+    	}
+    	for (int i = 0; i < counter; i++) {
+    		if (lines[i].contains("--") || lines[i].matches("t\\d+") || lines[i].isEmpty())
+    			continue;
+    		System.out.println(lines[i]);
+    		SPhraseSpec p = nlgFactory.createClause();
+    		String[] words = lines[i].split(" ");
+        	p.setSubject(words[0]);
+        	p.setVerb(words[1]);
+        	String value = sets.get(words[2]);
+        	if (value.contains("+") || value.contains("-"))
+        		value = EquationSolver.getSolution(value).replace(".0","");
+        	String entity = lines[i].replace(words[0] + " " + words[1] + " " + words[2] + " ", "");
+        	NPPhraseSpec object = nlgFactory.createNounPhrase(entity);
+            object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
+            object.addPreModifier(value+"");
+            p.setObject(object);
+            newProblem = newProblem + realiser.realiseSentence(p) + " ";
+            
+    	}
+    	return newProblem;
+    }
 	public static String keywordSame(String problem, Attributes attributes) {
 		loadProcedureLookup();
 		String newProblem = "";
@@ -152,6 +191,9 @@ public class ProblemGenerator {
 		owner1 = getPerson();
 		keyword = attributes.keywords.get(0);
 		String procedure = procedureMap.get(attributes.schemas.get(0));
+		KnowledgeRepresenter.clear();
+		KnowledgeRepresenter.represent(attributes.extractedInformation, problem);
+		System.out.println(genFromStory(attributes.extractedInformation, KnowledgeRepresenter.displayStory()));
         boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
         if (owner2Flag) {
         	switch (owner2Map.get(keyword)) {
@@ -241,7 +283,7 @@ public class ProblemGenerator {
 	}
 	
 	public static void main(String[] args) {
-		String problem = "John had 7 apples. He ate 1 apple. How many apples does he have now?";
+		String problem = "John had 7 apples. He ate 2 apples. How many apples does he have now?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);

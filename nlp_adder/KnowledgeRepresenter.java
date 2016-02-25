@@ -194,6 +194,7 @@ public class KnowledgeRepresenter {
 		questionOwner2 = "";
 		finalAns = "";
 		explanation  = "";
+		fullStory = "";
 
 		story = new HashMap<String,Situation>();
 		variables = new HashMap<String,String>();
@@ -770,7 +771,7 @@ public class KnowledgeRepresenter {
 	}
 	
 	
-	private static String displayStory() {
+	static String displayStory() {
 		String completeStory = "";
 		System.out.println("----------------------------------------------------");
 		Iterator<Entry<String,Situation>> storyIterator = story.entrySet().iterator();
