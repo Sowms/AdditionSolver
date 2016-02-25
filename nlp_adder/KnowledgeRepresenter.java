@@ -81,6 +81,7 @@ public class KnowledgeRepresenter {
 	static ArrayList<String> storyTense = new ArrayList<String>();
 	static HashMap<String,String> keywordMap = new HashMap<String,String>();
 	static ArrayList<String> allEquations = new ArrayList<String>();
+	static String fullStory = "";
 	static ArrayList<String> ignoreWords = new ArrayList<String>();
 	private static LinkedHashSet<String> owners = new LinkedHashSet<String>();
 	static String explanation;
@@ -445,7 +446,7 @@ public class KnowledgeRepresenter {
 			procedure = "";
 		if (!procedure.isEmpty() || keywordMap.containsKey(keyword)) {
 			timeStep++;
-			//inertia(owner1,owner2,newEntity.name);
+			inertia(owner1,owner2,newEntity.name);
 		}
 		if (!procedure.contains("Eq") && (keyword.equals(verbQual) || keyword.equals(verbQual.substring(0, verbQual.length()-1)) || keyword.isEmpty())) {	
 			if (entities.contains(owner1))
@@ -720,6 +721,9 @@ public class KnowledgeRepresenter {
 				Entry<String, State> e1 = it1.next();
 				State newState = new State();
 				String verb = e1.getKey();
+				System.out.println("hhhh"+verb);
+				if (verb.endsWith("s") && !verb.equals("has"))
+					verb = verb.substring(0,verb.length()-1);
 				if (keywordMap.containsKey(verb) || keywordMap.containsKey(verb.replace("s", ""))) {
 					System.out.println("VV"+verb);
 					newState.addAll(e1.getValue());
@@ -729,7 +733,7 @@ public class KnowledgeRepresenter {
 				for (TimeStamp t : e1.getValue()) {
 					if (t.time.equals(currentTime)) {
 						boolean shouldAdd = true;
-						if (owner.equals(owner1) || owner.equals(owner2))
+						if (owner.equals(owner1.toLowerCase()) || owner.equals(owner2.toLowerCase()))
 							if (t.entity.toLowerCase().contains(entity.toLowerCase()) || entity.toLowerCase().contains(t.entity.toLowerCase()))
 								shouldAdd = false;
 						if (shouldAdd) {

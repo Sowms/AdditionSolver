@@ -40,6 +40,7 @@ class Attributes {
     boolean isDecimal;
     ArrayList<String> schemas;
     ArrayList<String> keywords;
+    LinguisticInfo extractedInformation;
 }
 public class ExtractAttributes {
     static ArrayList<String> schemas = new ArrayList<String>();
@@ -57,11 +58,9 @@ public class ExtractAttributes {
         double numLength = 0, normaliser = 0;
         double isQuestionCounter = 0;
         boolean isDecimal = false;
-        LinguisticInfo extractedInformation = (new SentencesAnalyzer()).extract(simplifiedProblem, pipeline);
-        extractedInformation = OrderSteps.order(extractedInformation);
-        System.out.println(extractedInformation.entities);
-        System.out.println(extractedInformation.owners);
-        for (LinguisticStep sentence : extractedInformation.sentences) {
+        attributes.extractedInformation = (new SentencesAnalyzer()).extract(simplifiedProblem, pipeline);
+        attributes.extractedInformation = OrderSteps.order(attributes.extractedInformation);
+        for (LinguisticStep sentence : attributes.extractedInformation.sentences) {
             /*System.out.print(sentence.aggregator+"|");
             System.out.print(sentence.comparator+"|");
             System.out.print(sentence.difference+"|");

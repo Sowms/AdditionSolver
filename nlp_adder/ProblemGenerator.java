@@ -151,41 +151,38 @@ public class ProblemGenerator {
 		int value1 = 0, value2 = 0 ;
 		owner1 = getPerson();
 		keyword = attributes.keywords.get(0);
-		
-                String procedure = procedureMap.get(attributes.schemas.get(0));
-                boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
-                if (owner2Flag) {
-                    switch (owner2Map.get(keyword)) {
-			case PLACE : owner2 = getPlace(); break;
-			case PERSON : owner2 = getPerson(); break;
-			case FOREST : owner2 = getForest(); break;
-                    }
-                }
-                if (attributes.numLength <= 1.0) {
-			value1 = (int)Math.floor(Math.random()*8) + 2;
-			value2 = (int)Math.floor(Math.random()*8) + 2;
-		} else if (attributes.numLength <= 2.0) {
-			value1 = (int)Math.floor(Math.random()*98) + 2;
-			value2 = (int)Math.floor(Math.random()*98) + 2;
-		}
-		if (procedure.split("\\.")[0].contains("-")) {
-			while (value1 <= value2) {
-				if (attributes.numLength <= 1.0) {
-					value1 = (int)Math.floor(Math.random()*8) + 2;
-					value2 = (int)Math.floor(Math.random()*8) + 2;
-				} else if (attributes.numLength <= 2.0) {
-					value1 = (int)Math.floor(Math.random()*98) + 2;
-					value2 = (int)Math.floor(Math.random()*98) + 2;
-				}
-			}
-		}
-		while (owner1.equals(owner2)) {
-			owner1 = getPerson();
-			owner2 = getPerson();
-		}
-		
+		String procedure = procedureMap.get(attributes.schemas.get(0));
+        boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
+        if (owner2Flag) {
+        	switch (owner2Map.get(keyword)) {
+                  	case PLACE : owner2 = getPlace(); break;
+                   	case PERSON : owner2 = getPerson(); break;
+                   	case FOREST : owner2 = getForest(); break;
+            }
+        }
+        if (attributes.numLength <= 1.0) {
+           	value1 = (int)Math.floor(Math.random()*8) + 2;
+           	value2 = (int)Math.floor(Math.random()*8) + 2;
+        } else if (attributes.numLength <= 2.0) {
+           	value1 = (int)Math.floor(Math.random()*98) + 2;
+           	value2 = (int)Math.floor(Math.random()*98) + 2;
+        }
+        if (procedure.split("\\.")[0].contains("-")) {
+              	while (value1 <= value2) {
+               		if (attributes.numLength <= 1.0) {
+               			value1 = (int)Math.floor(Math.random()*8) + 2;
+               			value2 = (int)Math.floor(Math.random()*8) + 2;
+               		} else if (attributes.numLength <= 2.0) {
+               			value1 = (int)Math.floor(Math.random()*98) + 2;
+               			value2 = (int)Math.floor(Math.random()*98) + 2;
+               		}
+               	}
+        }
+        while (owner1.equals(owner2)) {
+           	owner1 = getPerson();
+           	owner2 = getPerson();
+        }
 		entity = getEntity();
-		
 		if (objectMap.containsKey(keyword)) {
 			switch (objectMap.get(keyword)) {
 				case MONEY : entity = getMoney(); break;
@@ -193,9 +190,8 @@ public class ProblemGenerator {
 				case PLANT : entity = getPlants(); break;
 			}
 		}
-		
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
-        NLGFactory nlgFactory = new NLGFactory(lexicon);
+		NLGFactory nlgFactory = new NLGFactory(lexicon);
         Realiser realiser = new Realiser(lexicon);
         SPhraseSpec p = nlgFactory.createClause();
         p.setSubject(owner1);
@@ -211,25 +207,25 @@ public class ProblemGenerator {
         p.setVerb(keyword);
         p.setFeature(Feature.TENSE, Tense.PAST);
         object = nlgFactory.createNounPhrase(entity);
-	object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
-	object.addPreModifier(value2+"");
-	p.setObject(object);
+        object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
+        object.addPreModifier(value2+"");
+        p.setObject(object);
         PPPhraseSpec complement = null;
         if (owner2Flag) {
             if (attributes.schemas.get(0).equals("CHANGE_IN"))
-		complement = nlgFactory.createPrepositionPhrase("from");
+            	complement = nlgFactory.createPrepositionPhrase("from");
             else if (attributes.schemas.get(0).equals("CHANGE_OUT") && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
-		complement = nlgFactory.createPrepositionPhrase("in");
+            	complement = nlgFactory.createPrepositionPhrase("in");
             else if (attributes.schemas.get(0).equals("CHANGE_OUT") )
-		complement = nlgFactory.createPrepositionPhrase("to");
+            	complement = nlgFactory.createPrepositionPhrase("to");
             else
-		complement = nlgFactory.createPrepositionPhrase("in");
+            	complement = nlgFactory.createPrepositionPhrase("in");
             complement.setComplement(owner2);
             p.setComplement(complement);
         }
-	newProblem = newProblem + " " + realiser.realiseSentence(p);
-	p = nlgFactory.createClause();
-	p.setFeature(Feature.INTERROGATIVE_TYPE,InterrogativeType.HOW_MANY);
+        newProblem = newProblem + " " + realiser.realiseSentence(p);
+        p = nlgFactory.createClause();
+        p.setFeature(Feature.INTERROGATIVE_TYPE,InterrogativeType.HOW_MANY);
         NPPhraseSpec subject = nlgFactory.createNounPhrase(entity);
     	subject.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
     	p.setSubject(subject);
