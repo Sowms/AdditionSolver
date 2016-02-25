@@ -73,15 +73,17 @@ public class Set {
 				System.out.println(operandStack);
 				Set ans = new Set();
 				char operator = compute.charAt(i);
-				System.out.println(operand1.name+"|"+operand2.name);
+				System.out.println(operand1.name+"|"+operand2.name+operand2.cardinality);
 				if (operator == '-')
 					ans = difference(operand1,operand2);
 				else
 					ans = union(operand1,operand2);
+				System.out.println(ans.cardinality);
 				operandStack.add(0,ans);
 			}
 		}
 		System.out.println(operandStack.size());
-		cardinality = operandStack.get(0).cardinality;
+		if (!isOperand(compute.charAt(0)))
+			cardinality = operandStack.get(0).cardinality;
 	}
 }

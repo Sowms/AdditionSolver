@@ -313,6 +313,7 @@ public class KnowledgeRepresenter {
 					unknown.cardinality = ans;
 					replace.components.put(unknown.name, unknown);
 					sets.put(unknown.name, unknown);
+					recomputeSets();
 					replace.computeCardinality();
 					changeFlag = true;
 				}
@@ -339,6 +340,21 @@ public class KnowledgeRepresenter {
 			explanation = temp;
 		}
 	}
+	private static void recomputeSets() {
+		for (Entry<String,Set> set : sets.entrySet()) {
+			if (!set.getKey().equals(Set.Empty.name)) {
+				HashMap<String,Set> newComponents = new HashMap<String, Set>();
+				Set current = set.getValue();
+				for (Entry<String,Set> component : current.components.entrySet()) {
+					newComponents.put(component.getKey(), sets.get(component.getKey()));
+				}
+				current.components = newComponents;
+				current.computeCardinality();
+				sets.put(current.name, current);
+			}
+		}
+	}
+
 	private static void reflectChanges(String owner1, String owner2, Entity newEntity,
 			   String keyword, String procedure, String tense, String nounQual, String verbQual) {
 		System.out.println(keyword+verbQual+"|"+owner1+"|"+owner2);
@@ -754,7 +770,8 @@ public class KnowledgeRepresenter {
 	}
 	
 	
-	private static void displayStory() {
+	private static String displayStory() {
+		String completeStory = "";
 		System.out.println("----------------------------------------------------");
 		Iterator<Entry<String,Situation>> storyIterator = story.entrySet().iterator();
 		ArrayList<String> dispStory = new ArrayList<String>();
@@ -785,17 +802,19 @@ public class KnowledgeRepresenter {
 			for (int counter = 0; counter <= timeStep; counter++) {
 				for (String ans : dispStory) {
 					if (dispStory.indexOf(ans) == counter && !ans.isEmpty()) {
-						System.out.println(TIMESTAMP_PREFIX + counter);
-						System.out.println(ans);
-						System.out.println("-----------------------------------");
+						completeStory = completeStory + TIMESTAMP_PREFIX + counter + "\n";  
+						completeStory = completeStory + ans + "\n";  
+						completeStory = completeStory + "-----------------------------------\n";
 					}
 				}
 			}
 		}
 		for (Entry<String,Set> set : sets.entrySet()) {
 			if (!set.getKey().equals(Set.Empty.name))
-				System.out.println(set.getKey() + " " + set.getValue().cardinality);
+				completeStory = completeStory + set.getKey() + " " + set.getValue().cardinality+"\n";
 		}
+		System.out.println(completeStory);
+		return completeStory;
 	}	
 	public static void represent(LinguisticInfo extractedInformation, String q) {
 		loadProcedureLookup();
@@ -858,7 +877,7 @@ public class KnowledgeRepresenter {
 	
 	public static void solve() {
 		System.out.println(questionVerb+"|"+questionEntity+"|"+questionOwner+"|"+isQuestionSet+"|"+questionTime+"|"+isQuestionAggregator+"|"+isQuestionComparator);
-                
+        fullStory = displayStory();        
                 if (questionVerb.equals("spend"))
 			questionEntity = "dollars";
 		if ((questionVerb.equals("buy") || questionVerb.equals("purchase")) && entities.contains("dollars")) 
