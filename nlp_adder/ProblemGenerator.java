@@ -2,6 +2,8 @@ package nlp_adder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import simplenlg.features.Feature;
 import simplenlg.features.InterrogativeType;
@@ -170,6 +172,7 @@ public class ProblemGenerator {
     		String[] words = lines[i].split(" ");
         	p.setSubject(words[0]);
         	p.setVerb(words[1]);
+        	p.setFeature(Feature.TENSE, Tense.PAST);
         	String value = sets.get(words[2]);
         	if (value.contains("+") || value.contains("-"))
         		value = EquationSolver.getSolution(value).replace(".0","");
@@ -248,6 +251,26 @@ public class ProblemGenerator {
 		System.out.println(oldEntity+"|"+entity);
 		story = story.replace(oldEntity, entity);
 		System.out.println("aaaaaaaaaaa\n"+story);
+		String value = "";
+		Pattern numPattern = Pattern.compile(".\\s\\d+");
+		Matcher numMatcher = numPattern.matcher(story);
+		counter = 1;
+		ArrayList<String> values = new ArrayList<>();
+		while (numMatcher.find()) {
+			value = numMatcher.group();
+			System.out.println("ab"+value);
+			if (counter == 1) {
+				story = story.replace(value.split(" ")[1], value1+"");
+				values.add(value.split(" ")[1]);
+			}
+			else if (!values.contains(value)) {
+				story = story.replace(value.split(" ")[1], value2+"");
+				values.add(value.split(" ")[1]);	
+			}
+			if (counter == 3)
+				break;
+			counter++;
+		}
 		System.out.println(genFromStory(story));
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
 		NLGFactory nlgFactory = new NLGFactory(lexicon);
