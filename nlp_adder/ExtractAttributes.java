@@ -38,6 +38,7 @@ class Attributes {
     boolean extraInfo;
     boolean extraNo;
     boolean isDecimal;
+    boolean isAggregator;
     ArrayList<String> schemas;
     ArrayList<String> keywords;
     LinguisticInfo extractedInformation;
@@ -81,6 +82,8 @@ public class ExtractAttributes {
         		numLength = numLength + sentence.entityValue.length();
         		normaliser++;
         	}
+        	if (sentence.aggregator && sentence.isQuestion)
+        		attributes.isAggregator = true;
             //NLGElement s1 = nlgFactory.createSentence("my dog is happy");
             //String output = realiser.realiseSentence(s1);
             

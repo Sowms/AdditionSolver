@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.stanford.nlp.dcoref.Dictionaries.Number;
 import simplenlg.features.Feature;
 import simplenlg.features.InterrogativeType;
 import simplenlg.features.NumberAgreement;
@@ -24,6 +25,7 @@ public class ProblemGenerator {
     static HashMap<String,String> keywordMap = new HashMap<String,String>();
     private static final String CHANGE_OUT = "changeOut";
     private static final String CHANGE_IN = "changeIn";
+    private static final String COMBINE = "combine";
     private static final String COMPARE_PLUS = "comparePlus";
     private static final String COMPARE_MINUS = "compareMinus";
     private static final String INCREASE = "increase";
@@ -146,8 +148,9 @@ public class ProblemGenerator {
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return entities[randIndex];
     }
-    public static String genFromStory(String story) {
-    	String newProblem = "";
+    public static String genFromStory(String story, boolean owner2Flag, String schema, String keyword) {
+    	String newProblem = "", owner2 = "", owner1 = "";
+    	boolean getNewOwner = false;
     	HashMap<String,String> sets = new HashMap<String,String>();
     	String[] lines = story.split("\\r?\\n");
     	System.out.println(lines[0]);
@@ -164,6 +167,7 @@ public class ProblemGenerator {
     		sets.put(lines[counter].split(" ")[0], lines[counter].split(" ")[1]);
     		counter--;
     	}
+        String entity = "";
     	for (int i = 0; i < counter; i++) {
     		if (lines[i].contains("--") || lines[i].matches("t\\d+") || lines[i].isEmpty())
     			continue;
@@ -176,33 +180,71 @@ public class ProblemGenerator {
         	String value = sets.get(words[2]);
         	if (value.contains("+") || value.contains("-"))
         		value = EquationSolver.getSolution(value).replace(".0","");
-        	String entity = lines[i].replace(words[0] + " " + words[1] + " " + words[2] + " ", "");
+        	entity = lines[i].replace(words[0] + " " + words[1] + " " + words[2] + " ", "");
+        	
         	NPPhraseSpec object = nlgFactory.createNounPhrase(entity);
             object.setFeature(Feature.NUMBER, NumberAgreement.PLURAL);
             object.addPreModifier(value+"");
             p.setObject(object);
-            newProblem = newProblem + realiser.realiseSentence(p) + " ";
-            
+            PPPhraseSpec complement = null;
+            if (getNewOwner && !words[0].equals(owner1)) {
+            	owner2 = words[0];
+            }
+            if (owner2Flag && keywordMap.containsKey(words[1].substring(0, words[1].length()-1))) {
+                if (schema.equals(CHANGE_IN))
+                	complement = nlgFactory.createPrepositionPhrase("from");
+                else if (schema.equals(CHANGE_OUT) && (owner2Map.get(keyword).equals(PLACE) || owner2Map.get(keyword).equals(FOREST)))
+                	complement = nlgFactory.createPrepositionPhrase("in");
+                else if (schema.equals(CHANGE_OUT))
+                	complement = nlgFactory.createPrepositionPhrase("to");
+                else
+                	complement = nlgFactory.createPrepositionPhrase("in");
+                complement.setComplement("var");
+                p.setComplement(complement);
+                getNewOwner = true;
+                owner1 = words[0];
+            }
+            newProblem = newProblem + " " + realiser.realiseSentence(p);
+    	}
+    	newProblem = newProblem.replace("var", owner2);
+    	if (schema.equals(COMBINE)) {
+    		SPhraseSpec p = nlgFactory.createClause();
+    		p.setFeature(Feature.INTERROGATIVE_TYPE, InterrogativeType.HOW_MANY);
+    		
+    		p.setFeature(Feature.NUMBER, Number.PLURAL);
+    		p.setVerb("are");
+    		p.setSubject(entity);
+    		p.setComplement("there altogether");
+    		newProblem = newProblem + " " + realiser.realiseSentence(p);
     	}
     	return newProblem;
     }
 	public static String keywordSame(String problem, Attributes attributes) {
 		loadProcedureLookup();
 		String newProblem = "";
-		String owner1, owner2 = "", keyword, entity;
+		String owner1, owner2 = "", keyword = "", entity, procedure = "", schema = "";
 		int value1 = 0, value2 = 0 ;
+		boolean owner2Flag = false;
 		owner1 = getPerson();
-		keyword = attributes.keywords.get(0);
-		String procedure = procedureMap.get(attributes.schemas.get(0));
-		System.out.println("ccc"+procedure);
-		boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
-        if (owner2Flag) {
-        	switch (owner2Map.get(keyword)) {
-                  	case PLACE : owner2 = getPlace(); break;
+		if (!attributes.keywords.isEmpty()) {
+			keyword = attributes.keywords.get(0);
+			procedure = procedureMap.get(attributes.schemas.get(0));
+			schema = attributes.schemas.get(0);
+			owner2Flag = schema.equals(CHANGE_IN) || schema.equals(CHANGE_OUT) || schema.equals(COMPARE_PLUS) || schema.equals(COMPARE_MINUS);
+			if (owner2Flag) {
+				switch (owner2Map.get(keyword)) {
+					case PLACE : owner2 = getPlace(); break;
                    	case PERSON : owner2 = getPerson(); break;
                    	case FOREST : owner2 = getForest(); break;
-            }
-        }
+				}
+			}
+		}
+		if (attributes.isAggregator) {
+			schema = COMBINE;
+			owner2Flag = true;
+		}
+		if (owner2.isEmpty())
+			owner2 = getPerson();
         if (attributes.numLength <= 1.0) {
            	value1 = (int)Math.floor(Math.random()*8) + 2;
            	value2 = (int)Math.floor(Math.random()*8) + 2;
@@ -210,7 +252,7 @@ public class ProblemGenerator {
            	value1 = (int)Math.floor(Math.random()*98) + 2;
            	value2 = (int)Math.floor(Math.random()*98) + 2;
         }
-        if (procedure.split("\\.")[0].contains("-")) {
+        if (!procedure.isEmpty() && procedure.split("\\.")[0].contains("-")) {
               	while (value1 <= value2) {
                		if (attributes.numLength <= 1.0) {
                			value1 = (int)Math.floor(Math.random()*8) + 2;
@@ -221,7 +263,6 @@ public class ProblemGenerator {
                		}
                	}
         }
-        System.out.println("ccc"+owner2+owner1);
         while (owner1.equals(owner2)) {
            	owner1 = getPerson();
            	owner2 = getPerson();
@@ -238,7 +279,6 @@ public class ProblemGenerator {
 		KnowledgeRepresenter.represent(attributes.extractedInformation, problem);
 		String story = KnowledgeRepresenter.displayStory();
 		String newProb = problem;
-		System.out.println("bbbbbbbbbbbbbb\n"+owner1+owner2);
 		System.out.println("bbbbbbbbbbbbbb\n"+story);
 		int counter = 1;
 		for (String owner : attributes.extractedInformation.owners) {
@@ -282,7 +322,7 @@ public class ProblemGenerator {
 				break;
 			counter++;
 		}
-		System.out.println(genFromStory(story));
+		System.out.println(genFromStory(story, owner2Flag, schema, keyword));
 		System.out.println("aaaaaaaaaaa\n"+newProb);
 		/*
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
@@ -337,7 +377,7 @@ public class ProblemGenerator {
 	}
 	
 	public static void main(String[] args) {
-		String problem = "John had 7 apples. John gave 2 apples to Mary. How many apples does John have now?";
+		String problem = "Mary had 7 apples. John had 2 apples. How many apples are there altogether?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);
