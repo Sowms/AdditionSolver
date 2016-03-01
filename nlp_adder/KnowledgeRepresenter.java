@@ -800,13 +800,13 @@ public class KnowledgeRepresenter {
 					dispStory.set(index, ans);
 				}
 			} 
-			for (int counter = 0; counter <= timeStep; counter++) {
-				for (String ans : dispStory) {
-					if (dispStory.indexOf(ans) == counter && !ans.isEmpty()) {
-						completeStory = completeStory + TIMESTAMP_PREFIX + counter + "\n";  
-						completeStory = completeStory + ans + "\n";  
-						completeStory = completeStory + "-----------------------------------\n";
-					}
+		}
+		for (int counter = 0; counter <= timeStep; counter++) {
+			for (String ans : dispStory) {
+				if (dispStory.indexOf(ans) == counter && !ans.isEmpty()) {
+					completeStory = completeStory + TIMESTAMP_PREFIX + counter + "\n";  
+					completeStory = completeStory + ans + "\n";  
+					completeStory = completeStory + "-----------------------------------\n";
 				}
 			}
 		}

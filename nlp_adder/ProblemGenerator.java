@@ -194,6 +194,7 @@ public class ProblemGenerator {
 		owner1 = getPerson();
 		keyword = attributes.keywords.get(0);
 		String procedure = procedureMap.get(attributes.schemas.get(0));
+		System.out.println("ccc"+procedure);
 		boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
         if (owner2Flag) {
         	switch (owner2Map.get(keyword)) {
@@ -220,7 +221,7 @@ public class ProblemGenerator {
                		}
                	}
         }
-        System.out.println(owner2);
+        System.out.println("ccc"+owner2+owner1);
         while (owner1.equals(owner2)) {
            	owner1 = getPerson();
            	owner2 = getPerson();
