@@ -110,7 +110,7 @@ public class ProblemGenerator {
 		procedureMap.put(COMPARE_MINUS_EQ, "[owner1] = [owner2]-[entity]");
 	}
     public static String getPerson() {
-    	String[] persons = {"John", "Mary", "Katherine", "Hermione"};
+    	String[] persons = {"Harry", "Mary", "Katherine", "Hermione"};
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return persons[randIndex];
     }
@@ -144,7 +144,7 @@ public class ProblemGenerator {
     	int randIndex = (int) Math.floor(Math.random()*3);
     	return entities[randIndex];
     }
-    public static String genFromStory(LinguisticInfo info, String story) {
+    public static String genFromStory(String story) {
     	String newProblem = "";
     	HashMap<String,String> sets = new HashMap<String,String>();
     	String[] lines = story.split("\\r?\\n");
@@ -191,10 +191,7 @@ public class ProblemGenerator {
 		owner1 = getPerson();
 		keyword = attributes.keywords.get(0);
 		String procedure = procedureMap.get(attributes.schemas.get(0));
-		KnowledgeRepresenter.clear();
-		KnowledgeRepresenter.represent(attributes.extractedInformation, problem);
-		System.out.println(genFromStory(attributes.extractedInformation, KnowledgeRepresenter.displayStory()));
-        boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
+		boolean owner2Flag = procedure.equals(CHANGE_IN) || procedure.equals(CHANGE_OUT) || procedure.equals(COMPARE_PLUS) || procedure.equals(COMPARE_MINUS);
         if (owner2Flag) {
         	switch (owner2Map.get(keyword)) {
                   	case PLACE : owner2 = getPlace(); break;
@@ -232,6 +229,26 @@ public class ProblemGenerator {
 				case PLANT : entity = getPlants(); break;
 			}
 		}
+		KnowledgeRepresenter.clear();
+		KnowledgeRepresenter.represent(attributes.extractedInformation, problem);
+		String story = KnowledgeRepresenter.displayStory();
+		System.out.println("bbbbbbbbbbbbbb\n"+story);
+		int counter = 1;
+		for (String owner : attributes.extractedInformation.owners) {
+			System.out.println(owner);
+			if (counter == 1)
+				story = story.replace(owner.toLowerCase(), owner1);
+			else
+				story = story.replace(owner.toLowerCase(), owner2);
+			counter++;
+			if (counter == 3)
+				break;
+		}
+		String oldEntity = attributes.extractedInformation.entities.iterator().next();
+		System.out.println(oldEntity+"|"+entity);
+		story = story.replace(oldEntity, entity);
+		System.out.println("aaaaaaaaaaa\n"+story);
+		System.out.println(genFromStory(story));
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
 		NLGFactory nlgFactory = new NLGFactory(lexicon);
         Realiser realiser = new Realiser(lexicon);
