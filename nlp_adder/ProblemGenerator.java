@@ -220,6 +220,7 @@ public class ProblemGenerator {
                		}
                	}
         }
+        System.out.println(owner2);
         while (owner1.equals(owner2)) {
            	owner1 = getPerson();
            	owner2 = getPerson();
@@ -235,14 +236,20 @@ public class ProblemGenerator {
 		KnowledgeRepresenter.clear();
 		KnowledgeRepresenter.represent(attributes.extractedInformation, problem);
 		String story = KnowledgeRepresenter.displayStory();
+		String newProb = problem;
+		System.out.println("bbbbbbbbbbbbbb\n"+owner1+owner2);
 		System.out.println("bbbbbbbbbbbbbb\n"+story);
 		int counter = 1;
 		for (String owner : attributes.extractedInformation.owners) {
 			System.out.println(owner);
-			if (counter == 1)
+			if (counter == 1) {
 				story = story.replace(owner.toLowerCase(), owner1);
-			else
+				newProb = newProb.replace(owner, owner1);
+			}
+			else {
 				story = story.replace(owner.toLowerCase(), owner2);
+				newProb = newProb.replace(owner, owner2);
+			}
 			counter++;
 			if (counter == 3)
 				break;
@@ -250,6 +257,7 @@ public class ProblemGenerator {
 		String oldEntity = attributes.extractedInformation.entities.iterator().next();
 		System.out.println(oldEntity+"|"+entity);
 		story = story.replace(oldEntity, entity);
+		newProb = newProb.replace(oldEntity, entity);
 		System.out.println("aaaaaaaaaaa\n"+story);
 		String value = "";
 		Pattern numPattern = Pattern.compile(".\\s\\d+");
@@ -261,10 +269,12 @@ public class ProblemGenerator {
 			System.out.println("ab"+value);
 			if (counter == 1) {
 				story = story.replace(value.split(" ")[1], value1+"");
+				newProb = newProb.replace(value.split(" ")[1], value1+"");
 				values.add(value.split(" ")[1]);
 			}
 			else if (!values.contains(value)) {
 				story = story.replace(value.split(" ")[1], value2+"");
+				newProb = newProb.replace(value.split(" ")[1], value2+"");
 				values.add(value.split(" ")[1]);	
 			}
 			if (counter == 3)
@@ -272,6 +282,8 @@ public class ProblemGenerator {
 			counter++;
 		}
 		System.out.println(genFromStory(story));
+		System.out.println("aaaaaaaaaaa\n"+newProb);
+		/*
 		Lexicon lexicon = Lexicon.getDefaultLexicon();
 		NLGFactory nlgFactory = new NLGFactory(lexicon);
         Realiser realiser = new Realiser(lexicon);
@@ -318,12 +330,13 @@ public class ProblemGenerator {
     	complement.setComplement(owner1);
     	p.setComplement(complement);
     	newProblem = newProblem + " " + realiser.realiseSentence(p);       
-        //System.out.println(output2);
+        //System.out.println(output2);*/
+		newProblem = newProb;
 		return newProblem;
 	}
 	
 	public static void main(String[] args) {
-		String problem = "John had 7 apples. He ate 2 apples. How many apples does he have now?";
+		String problem = "John had 7 apples. John gave 2 apples to Mary. How many apples does John have now?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);
