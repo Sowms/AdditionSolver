@@ -210,7 +210,6 @@ public class ProblemGenerator {
     	if (schema.equals(COMBINE)) {
     		SPhraseSpec p = nlgFactory.createClause();
     		p.setFeature(Feature.INTERROGATIVE_TYPE, InterrogativeType.HOW_MANY);
-    		
     		p.setFeature(Feature.NUMBER, Number.PLURAL);
     		p.setVerb("are");
     		p.setSubject(entity);
@@ -377,7 +376,7 @@ public class ProblemGenerator {
 	}
 	
 	public static void main(String[] args) {
-		String problem = "Mary had 7 apples. John had 2 apples. How many apples are there altogether?";
+		String problem = "Mary had 7 apples. John had 2 apples more than Mary. How many apples does John have?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);

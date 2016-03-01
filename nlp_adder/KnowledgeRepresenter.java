@@ -462,8 +462,10 @@ public class KnowledgeRepresenter {
 		if (procedure == null)
 			procedure = "";
 		if (!procedure.isEmpty() || keywordMap.containsKey(keyword)) {
-			timeStep++;
-			inertia(owner1,owner2,newEntity.name);
+			if (!procedure.contains(COMPARE_MINUS) && !procedure.equals(COMPARE_PLUS)) {
+				timeStep++;
+				inertia(owner1,owner2,newEntity.name);
+			}
 		}
 		if (!procedure.contains("Eq") && (keyword.equals(verbQual) || keyword.equals(verbQual.substring(0, verbQual.length()-1)) || keyword.isEmpty())) {	
 			if (entities.contains(owner1))
@@ -502,7 +504,13 @@ public class KnowledgeRepresenter {
 			return;
 		}
 		tense = "";
-		timeStep++;
+		if (!procedure.contains(COMPARE_MINUS) && !procedure.equals(COMPARE_PLUS))
+			timeStep++;
+		if (procedure.contains(COMPARE_MINUS)) 
+			updateTimestamp (owner1, newSet, tense, "has", entity + " less than " + owner2.toLowerCase());
+		if (procedure.contains(COMPARE_PLUS)) 
+			updateTimestamp (owner1, newSet, tense, "has", entity + " more than " + owner2.toLowerCase());
+		
 		String verb = verbQual;
 		String newName1 = "", newName2 = "";
 		if (!keyword.contains("more") && !keyword.contains("less"))
