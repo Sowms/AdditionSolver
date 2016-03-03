@@ -79,7 +79,9 @@ public class ExtractAttributes {
                 keywords.add(sentence.keyword);
         	}
         	if (sentence.entityValue != null && !sentence.entityValue.equals("some")) {
-        		numLength = numLength + sentence.entityValue.length();
+        		numLength = numLength + sentence.entityValue.split("\\.")[0].length();
+        		if (sentence.entityValue.contains("."))
+        			isDecimal = true;
         		normaliser++;
         	}
         	if (sentence.aggregator && sentence.isQuestion)
@@ -100,7 +102,7 @@ public class ExtractAttributes {
     	return attributes;
     }
     public static void main(String args[]) {
-        String problem = "There are 7 crayons in the drawer and 6 crayons on the desk . Sam placed 4 crayons and 8 scissors on the desk . How many crayons are now there in total ? ";
+        String problem = "There are 7 crayons in the drawer and 6.5 crayons on the desk . Sam placed 4 crayons and 8 scissors on the desk . How many crayons are now there in total ? ";
         Attributes a = extract(problem);
         System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);

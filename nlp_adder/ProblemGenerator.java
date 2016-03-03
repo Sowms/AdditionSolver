@@ -222,7 +222,7 @@ public class ProblemGenerator {
 		loadProcedureLookup();
 		String newProblem = "";
 		String owner1, owner2 = "", keyword = "", entity, procedure = "", schema = "";
-		int value1 = 0, value2 = 0 ;
+		double value1 = 0, value2 = 0, extra = 0;
 		boolean owner2Flag = false;
 		owner1 = getPerson();
 		if (!attributes.keywords.isEmpty()) {
@@ -247,9 +247,11 @@ public class ProblemGenerator {
         if (attributes.numLength <= 1.0) {
            	value1 = (int)Math.floor(Math.random()*8) + 2;
            	value2 = (int)Math.floor(Math.random()*8) + 2;
+           	extra = (int)Math.floor(Math.random()*8) + 2;
         } else if (attributes.numLength <= 2.0) {
            	value1 = (int)Math.floor(Math.random()*98) + 2;
            	value2 = (int)Math.floor(Math.random()*98) + 2;
+           	extra = (int)Math.floor(Math.random()*98) + 2;
         }
         if (!procedure.isEmpty() && procedure.split("\\.")[0].contains("-")) {
               	while (value1 <= value2) {
@@ -262,6 +264,11 @@ public class ProblemGenerator {
                		}
                	}
         }
+        if (attributes.isDecimal) {
+      		value1 = value1 + 0.5;
+      		value2 = value2 + 0.25;
+      		extra = extra + 0.75;
+      	}
         while (owner1.equals(owner2)) {
            	owner1 = getPerson();
            	owner2 = getPerson();
@@ -295,29 +302,38 @@ public class ProblemGenerator {
 				break;
 		}
 		String oldEntity = attributes.extractedInformation.entities.iterator().next();
-		System.out.println(oldEntity+"|"+entity);
+		System.out.println(oldEntity+"|"+entity+value1+value2);
 		story = story.replace(oldEntity, entity);
 		newProb = newProb.replace(oldEntity, entity);
 		System.out.println("aaaaaaaaaaa\n"+story);
 		String value = "";
-		Pattern numPattern = Pattern.compile(".\\s\\d+");
+		Pattern numPattern = Pattern.compile(".\\s\\d+\\.?\\d*");
 		Matcher numMatcher = numPattern.matcher(story);
 		counter = 1;
+		String v1 = value1 + "";
+		String v2 = value2 + "";
+		v1 = v1.replace(".0","");
+		v2 = v2.replace(".0","");
 		ArrayList<String> values = new ArrayList<>();
 		while (numMatcher.find()) {
 			value = numMatcher.group();
 			System.out.println("ab"+value);
 			if (counter == 1) {
-				story = story.replace(value.split(" ")[1], value1+"");
-				newProb = newProb.replace(value.split(" ")[1], value1+"");
+				story = story.replace(value.split(" ")[1], v1+"");
+				newProb = newProb.replace(value.split(" ")[1], v1+"");
 				values.add(value.split(" ")[1]);
 			}
-			else if (!values.contains(value)) {
-				story = story.replace(value.split(" ")[1], value2+"");
-				newProb = newProb.replace(value.split(" ")[1], value2+"");
+			else if (!values.contains(value) && counter == 2) {
+				story = story.replace(value.split(" ")[1], v2+"");
+				newProb = newProb.replace(value.split(" ")[1], v2+"");
 				values.add(value.split(" ")[1]);	
+			} 
+			else if (!values.contains(value) && counter == 3) {
+				story = story.replace(value.split(" ")[1], (extra+"").replace(".0", ""));
+				newProb = newProb.replace(value.split(" ")[1], (extra+"").replace(".0", ""));
+				values.add(value.split(" ")[1]);
 			}
-			if (counter == 3)
+			if (counter == 2 && !attributes.extraNo)
 				break;
 			counter++;
 		}
@@ -376,7 +392,7 @@ public class ProblemGenerator {
 	}
 	
 	public static void main(String[] args) {
-		String problem = "Mary had 7 apples. John had 2 apples more than Mary. How many apples does John have?";
+		String problem = "Mary had 7 apples and 3.5 bananas. John had 2 apples more than Mary. How many apples does John have?";
 		Attributes a = ExtractAttributes.extract(problem);
 		System.out.println("extraNo = " + a.extraNo);
         System.out.println("extraInfo = " + a.extraInfo);
